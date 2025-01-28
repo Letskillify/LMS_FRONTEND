@@ -1,0 +1,27 @@
+.birthday{
+    width: 350px;
+    text-align: center;
+    background-color: red;
+    border-radius: 20px;
+    background-image: url("/src/assets/img/backgrounds/celeb.avif");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: wheat;
+    padding: 15px;
+}
+.birthday>p, .birthday>h1{
+    margin-top: 29px;
+    color: wheat;
+}
+.birthday>img{
+    border-radius: 100px;
+    height: 140px;
+    width: 140px;
+}
+.Cards{
+    display: flex;
+    margin: 20px;
+    gap: 13px;
+    flex-wrap: wrap;
+}

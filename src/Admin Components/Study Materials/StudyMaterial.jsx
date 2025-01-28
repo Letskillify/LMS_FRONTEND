@@ -1,0 +1,1038 @@
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+// import Slider from "react-slick";
+// import "slick-carousel/slick/slick.css";
+// import "slick-carousel/slick/slick-theme.css";
+import axios from "axios";
+import { Formik, Form, Field } from "formik";
+import {
+  useImageUploader,
+  useVideoUploader,
+} from "../../Custom Hooks/CustomeHook";
+
+function StudyMaterial() {
+  const [mainData, setMainData] = useState([]);
+  const [studyMaterialData, setStudyMaterialData] = useState([]);
+  const [originalstudyMaterialData, setOriginalStudyMaterialData] = useState(
+    []
+  );
+  const [visibleTeachers, setVisibleTeachers] = useState(20);
+  const [Material, setMaterial] = useState("Book");
+  const [find, setFind] = useState("");
+  // const [ShowForm, setShowForm] = useState("");
+  const [addMaterial, setAddMaterial] = useState("");
+  const [filteredData, setFilteredData] = useState();
+  const [selectedId, setSelectedId] = useState(null);
+  const [edit, setEdit] = useState("");
+  const { uploadedData, handleImageUpload } = useImageUploader();
+  const [fileType, setFileType] = useState("image");
+  const { uploadedVideos, uploadProgress, isLoading, handleVideoUpload } =
+    useVideoUploader();
+  const [uploadCompleted, setUploadCompleted] = useState(false);
+
+  async function getData() {
+    const response = await axios
+      .get("http://localhost:5500/api/study-material/get")
+      .then((res) => {
+        if (res.status === 200) {
+          setStudyMaterialData(res.data);
+          setOriginalStudyMaterialData(res.data);
+        } else {
+          console.log(res);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+  const deletePost = async (id) => {
+    if (!id) {
+      console.error("Error: id is not defined.");
+      return;
+    }
+
+    console.log("Deleting post with ID:", id); // Debugging log
+    try {
+      const response = await axios.delete(
+        `http://localhost:5500/api/study-material/delete/${id}`
+      );
+      console.log("Post deleted:", response.data);
+
+      // Close the modal programmatically
+      const modal = document.getElementById("delete_material");
+      const modalInstance = bootstrap.Modal.getInstance(modal);
+      modalInstance.hide(); // This will close the modal
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
+  const handleSubmit = (values, { setSubmitting }, modalId) => {
+    const data = { ...values, fileURL: uploadedData?.fileURL };
+
+    console.log(data);
+
+    axios
+      .put(
+        `http://localhost:5500/api/study-material/update/${selectedId}`,
+        data
+      )
+      .then((response) => {
+        console.log("Hostel updated successfully:", response.data);
+        // Close the modal programmatically
+        const modal = document.getElementById(modalId); // Update with the correct modal ID if needed
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide(); // This will close the modal
+        setSubmitting(false);
+      })
+      .catch((error) => {
+        console.error("Error updating hostel:", error.response?.data || error);
+        // alert("Error updating hostel. Please try again.");
+        setSubmitting(false);
+      });
+  };
+
+  useEffect(() => {
+    if (selectedId) {
+      axios
+        .get(`http://localhost:5500/api/study-material/${selectedId}`)
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => console.error("Error fetching hostel data:", error));
+    }
+  }, [selectedId]);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const loadMoreTeachers = () => {
+    setVisibleTeachers((prevCount) => prevCount + 3);
+  };
+
+  // Filter select or search bar
+  const applyFilter = (e) => {
+    e.preventDefault();
+    const newFilteredData = originalstudyMaterialData?.filter((data) => {
+      const matchesName = data?.title
+        .toLowerCase()
+        .includes(find.toLowerCase());
+      return matchesName;
+    });
+
+    setStudyMaterialData(newFilteredData);
+  };
+  const resetFilters = (e) => {
+    console.log("clicked");
+    e.preventDefault();
+    setFind("");
+    setStudyMaterialData(originalstudyMaterialData);
+  };
+
+  function refreshBtn() {
+    window.location.reload(true);
+  }
+
+  async function handleMaterial(e) {
+    if (!isLoading) {
+      const data = {
+        ...e,
+        fileURL: uploadedData?.fileURL || uploadedVideos?.fileURL,
+      };
+      console.log("Form Data:", e);
+
+      try {
+        // Make the POST request to add the material
+        const response = await axios.post(
+          "http://localhost:5500/api/study-material/add",
+          data
+        );
+        console.log("Material added successfully:", response.data);
+
+        // Close the modal after the data has been successfully submitted
+        const modal = document.getElementById("add_material");
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide(); // Close the modal
+      } catch (error) {
+        console.error("Error adding material:", error.response?.data || error);
+        // alert("Error adding material. Please try again.");
+      }
+    } else {
+      alert("Please wait while the data is being uploaded");
+    }
+    setUploadCompleted(false);
+  }
+
+  useEffect(() => {
+    console.log(Material);
+    const materialData = studyMaterialData?.filter(
+      (data) => data?.category === Material?.toLowerCase()
+    );
+    setMainData(materialData);
+    setFilteredData(materialData);
+  }, [Material]);
+
+  useEffect(() => {
+    if (uploadProgress === 100) {
+      setUploadCompleted(true);
+    }
+  }, [uploadProgress]);
+
+  console.log(filteredData);
+  console.log(mainData);
+
+  return (
+    <>
+      {/* Main Wrapper */}
+      <div className="main-wrapper container mt-4">
+        {/* Page Wrapper */}
+        <div className="page-wrapper">
+          <div className="content content-two">
+            {/* Page Header */}
+            <div className="d-md-flex d-block align-items-center justify-content-between mb-3">
+              <div className="my-auto mb-2">
+                <h3 className="page-title mb-1">StudyMaterial </h3>
+                <nav>
+                  <ol className="breadcrumb mb-0">
+                    <li className="breadcrumb-item">
+                      <Link to="/">Dashboard</Link>
+                    </li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                      StudyMaterial
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+              <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
+                <div className="pe-1 mb-2">
+                  <p
+                    onClick={refreshBtn}
+                    className="btn bg-white btn-icon me-1 shadow-sm"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    aria-label="Refresh"
+                    data-bs-original-title="Refresh"
+                  >
+                    <i className="fa fa-refresh" aria-hidden="true"></i>
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* /Page Header */}
+
+            {/* Second Header */}
+            <div className="bg-white p-3 border rounded-1 d-flex align-items-center justify-content-between flex-wrap mb-4 pb-0 shadow-sm">
+              <h4 className="mb-3 fw-bold fs-5">{Material}</h4>
+              <div className="d-flex align-items-center flex-wrap">
+                <div className="dropdown mb-3 me-2">
+                  <a
+                    className="btn text-dark border border-2 bg-white"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                  >
+                    <i className="fa fa-filter me-2" />
+                    Filter
+                  </a>
+                  <div className="dropdown-menu  shadow">
+                    <form>
+                      <div className="d-flex align-items-center border-bottom p-3">
+                        <h4>Filter</h4>
+                      </div>
+                      <div className="p-3 pb-0 border-bottom">
+                        <div className="row align-items-center">
+                          <div className=" col-lg-12 col-md-12">
+                            <div className="mb-3">
+                              <label className="form-label">Name</label>
+                              <input
+                                type="search"
+                                placeholder="Search Name"
+                                className="w-100 p-2 border rounded"
+                                onChange={(e) => setFind(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 d-flex align-items-center justify-content-end">
+                        <button
+                          className="btn btn-secondary me-2"
+                          onClick={resetFilters}
+                        >
+                          Reset
+                        </button>
+                        <button
+                          className="btn btn-primary"
+                          onClick={applyFilter}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                {/* Second Header */}
+
+                <div className="mb-3">
+                  <button
+                    className="btn btn-primary border border-2 bg-primary fw-bold  px-3"
+                    onClick={() => setAddMaterial("Add")}
+                    data-bs-toggle="modal"
+                    data-bs-target="#add_material"
+                  >
+                    <i className="fa fa-plus me-2" aria-hidden="true"></i>
+                    Add Material
+                  </button>
+                </div>
+
+                {/* Add Material Modal */}
+                <div className="modal fade" id="add_material">
+                  <div className="modal-dialog modal-dialog-centered modal-lg">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h4 className="modal-title fs-5 fw-bold bg-blue-200 text-blue-600 px-2 rounded shadow-sm p-1">
+                          <i className="fa fa-plus me-2" aria-hidden="true"></i>
+                          Add Material
+                        </h4>
+                        <button
+                          type="button"
+                          className="btn-close custom-btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                        >
+                          <i className="ti ti-x" />
+                        </button>
+                      </div>
+                      <div className="modal-body">
+                        <Formik
+                          initialValues={{
+                            title: "",
+                            subject: "",
+                            description: "",
+                            fileURL: "",
+                            uploaderName: "",
+                            uploadedDate: "",
+                            category: "",
+                            tags: "",
+                          }}
+                          onSubmit={handleMaterial}
+                          disabled={uploadProgress < 100}
+                        >
+                          {({ setFieldValue, values }) => (
+                            <Form>
+                              <div className="row mt-4">
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Title
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="title"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Title"
+                                    aria-label="Title"
+                                  />
+                                </div>
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Subject
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="subject"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Subject"
+                                    aria-label="Subject"
+                                  />
+                                </div>
+                              </div>
+                              <div className="row  mt-3">
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Description
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="description"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Description"
+                                    aria-label="Description"
+                                  />
+                                </div>
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Category
+                                  </label>
+                                  <Field
+                                    as="select"
+                                    name="category"
+                                    aria-label="Category"
+                                    className="form-select shadow-sm border-2"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="book">Book</option>
+                                    <option value="note">Notes</option>
+                                    <option value="video">Video</option>
+                                  </Field>
+                                </div>
+                              </div>
+                              <div className="row mt-3">
+                                {/* Dynamic File Upload */}
+                                <div className="col-6">
+                                  <label
+                                    htmlFor="fileURL"
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    {values.category === "video"
+                                      ? "Upload Video"
+                                      : "Upload Image"}
+                                  </label>
+                                  {values.category === "video" ? (
+                                    <Field
+                                      type="file"
+                                      name="fileURL"
+                                      accept="video/mp4, video/webm, video/ogg"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleVideoUpload(e, "fileURL")
+                                      }
+                                    />
+                                  ) : (
+                                    <Field
+                                      type="file"
+                                      name="fileURL"
+                                      accept="image/png, image/jpeg"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleImageUpload(e, "fileURL")
+                                      }
+                                    />
+                                  )}
+                                  {/* Progress Bar */}
+                                  <div className="upload-container">
+                                    {values.category === "video" ?
+                                      (
+                                        uploadProgress < 100 ? (
+                                          isLoading ? (
+                                            <div
+                                              className="progress mt-3"
+                                              role="progressbar"
+                                              aria-label="Example with label"
+                                              aria-valuenow={uploadProgress}
+                                              aria-valuemin="0"
+                                              aria-valuemax="100"
+                                            >
+                                              <div
+                                                className="progress-bar"
+                                                style={{
+                                                  width: `${uploadProgress}%`,
+                                                }}
+                                              >
+                                                {uploadProgress}%
+                                              </div>
+                                            </div>
+                                          ) : uploadCompleted ? (
+                                            <div className="text-success fw-semibold mt-3">
+                                              Upload Completed!
+                                            </div>
+                                          ) : null
+                                        ) : null
+                                      ) : null}
+                                  </div>
+                                  {/* Progress Bar */}
+                                </div>
+
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Uploader Name
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="uploaderName"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="UploaderName"
+                                    aria-label="UploaderName"
+                                  />
+                                </div>
+                              </div>
+                              <div className="row mt-3">
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Uploader Date
+                                  </label>
+                                  <Field
+                                    type="date"
+                                    name="uploaderDate"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="UploaderDate"
+                                    aria-label="UploaderDate"
+                                  />
+                                </div>
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Tags
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="tags"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Tags"
+                                    aria-label="Tags"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="d-flex mt-4 justify-content-end text-center">
+                                <button
+                                  className="btn btn-danger "
+                                  data-bs-dismiss="modal"
+                                >
+                                  <i
+                                    className="fa fa-times me-2"
+                                    aria-hidden="true"
+                                  ></i>
+                                  Close
+                                </button>
+                                <button
+                                  className="btn btn-primary ms-2"
+                                  type="submit"
+                                >
+                                  <i
+                                    className="fa fa-check me-2"
+                                    aria-hidden="true"
+                                  ></i>
+                                  Submit
+                                </button>
+                              </div>
+                            </Form>
+                          )}
+                        </Formik>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Add Material Modal */}
+              </div>
+            </div>
+            {/* Second Header */}
+
+            {/* Three Buttons */}
+            <div className="text-center">
+              <button
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Book"
+                    ? "bg-primary text-white "
+                    : "text-primary bg-white"
+                  }`}
+                onClick={() => setMaterial("Book")}
+              >
+                <i className="fa fa-book me-2" aria-hidden="true"></i>
+                Books Section
+              </button>
+              <button
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Note"
+                    ? "bg-primary text-white"
+                    : "text-primary bg-white"
+                  }`}
+                onClick={() => setMaterial("Note")}
+              >
+                <i className="fa fa-sticky-note me-2" aria-hidden="true"></i>
+                Notes Section
+              </button>
+              <button
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Video"
+                    ? "bg-primary text-white"
+                    : "text-primary bg-white"
+                  }`}
+                onClick={() => setMaterial("Video")}
+              >
+                <i className="fa fa-video-camera me-2" aria-hidden="true"></i>
+                Video Section
+              </button>
+            </div>
+            {/* Three Buttons */}
+
+            <div>
+              {/* Books Section */}
+              <div
+                className={`row
+                }`}
+              >
+                {studyMaterialData
+                  .slice(0, visibleTeachers)
+                  .map((teacher, index) =>
+                    teacher?.category === Material?.toLowerCase() ? (
+                      <div
+                        className={`col-xxl-4 col-xl-4 col-md-6 d-flex mt-4  `}
+                        key={index}
+                      >
+                        <div className="card flex-fill shadow">
+                          <div className="card-body pb-1">
+                            <div>
+                              <div className="col-12 text-center mx-auto mb-3">
+                                {Material === "Video" ? (
+                                  <video
+                                    src={teacher?.fileURL}
+                                    className="img-fluid mx-auto"
+                                    style={{ width: "250px" }}
+                                    controls
+                                    alt={teacher?.fileURL}
+                                  >
+                                    Your browser does not support the video tag.
+                                  </video>
+                                ) : (
+                                  <img
+                                    src={teacher?.fileURL}
+                                    className="img-fluid mx-auto"
+                                    alt={teacher?.fileURL}
+                                    style={{ width: "150px" }}
+                                  />
+                                )}
+                              </div>
+
+                              <div className="card-footer pb-0 text-dark bg-white">
+                                <div className="d-flex">
+                                  <p className="mb-2 fw-bold">Title : </p>
+                                  <p className="ms-1"> {teacher?.title}</p>
+                                </div>
+                                <div className="d-flex">
+                                  <p className="mb-2 fw-bold">Subject :</p>
+                                  <p className="ms-1">{teacher?.subject}</p>
+                                </div>
+                                <div className="">
+                                  <p className="mb-0 fw-bold">Description :</p>
+                                  <p className="ms-1">{teacher?.description}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="card-footer pb-3 pt-0 d-flex align-items-center justify-content-between ">
+                            <button
+                              className="btn btn-primary text-white fw-bold btn-sm"
+                              data-bs-toggle="modal"
+                              data-bs-target={`#edit_material_${index}`}
+                              onClick={() => setSelectedId(teacher._id)}
+                            >
+                              <i
+                                className="fa fa-pencil-square me-2"
+                                aria-hidden="true"
+                              ></i>
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-danger text-white fw-bold btn-sm"
+                              onClick={() => setSelectedId(teacher._id)}
+                              data-bs-toggle="modal"
+                              data-bs-target="#delete_material"
+                            >
+                              <i
+                                className="fa fa-trash me-2"
+                                aria-hidden="true"
+                              ></i>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Edit Modal */}
+                        <div
+                          className="modal fade"
+                          id={`edit_material_${index}`}
+                        >
+                          <div className="modal-dialog modal-dialog-centered modal-lg">
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h4 className="modal-title fs-5 bg-primary text-white fw-bold px-2 rounded shadow-sm p-1">
+                                  <i
+                                    className="fa fa-pencil-square me-2"
+                                    aria-hidden="true"
+                                  ></i>
+                                  Edit Material
+                                </h4>
+                                <button
+                                  type="button"
+                                  className="btn-close custom-btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <i className="ti ti-x" />
+                                </button>
+                              </div>
+                              <div className="modal-body pt-0">
+                                <Formik
+                                  enableReinitialize
+                                  //  validationSchema={validationSchema}
+                                  onSubmit={(e, setSubmitting) =>
+                                    handleSubmit(
+                                      e,
+                                      { setSubmitting },
+                                      `edit_material_${index}`
+                                    )
+                                  }
+                                  initialValues={{
+                                    title: teacher?.title,
+                                    subject: teacher?.subject,
+                                    description: teacher?.description,
+                                    fileURL: null,
+                                    uploaderName: teacher?.uploaderName,
+                                    uploadedDate: teacher?.uploadedDate,
+                                    category: teacher?.category,
+                                    tags: teacher?.tags,
+                                  }}
+                                >
+                                  {({ isSubmitting }) => (
+                                    <Form>
+                                      <div className="row mt-4">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Title
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="title"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Title"
+                                            aria-label="Title"
+                                          />
+                                        </div>
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Subject
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="subject"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Subject"
+                                            aria-label="Subject"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="row  mt-3">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Description
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="description"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Description"
+                                            aria-label="Description"
+                                          />
+                                        </div>
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            {teacher.category === "video"
+                                              ? "Upload Video"
+                                              : "Upload Image"}
+                                          </label>
+                                          {teacher.fileURL ? (
+                                            <div>
+                                              {edit === "FileUrl" ? (
+                                                teacher.category === "video" ? (
+                                                  <Field
+                                                    type="file"
+                                                    name="fileURL"
+                                                    accept="video/mp4, video/webm, video/ogg"
+                                                    className="form-control shadow-sm border-2"
+                                                    onChange={(e) =>
+                                                      handleVideoUpload(
+                                                        e,
+                                                        "fileURL"
+                                                      )
+                                                    }
+                                                  />
+                                                ) : (
+                                                  <Field
+                                                    type="file"
+                                                    name="fileURL"
+                                                    accept="image/png, image/jpeg"
+                                                    className="form-control shadow-sm border-2"
+                                                    onChange={(e) =>
+                                                      handleImageUpload(
+                                                        e,
+                                                        "fileURL"
+                                                      )
+                                                    }
+                                                  />
+                                                )
+                                              ) : (
+                                                <button
+                                                  className="btn border w-100 text-start shadow-sm"
+                                                  onClick={() =>
+                                                    setEdit("FileUrl")
+                                                  }
+                                                >
+                                                  Edit
+                                                </button>
+                                              )}
+                                            </div>
+                                          ) : (
+                                            <Field
+                                              type="file"
+                                              name="fileURL"
+                                              accept="image/png, image/jpeg"
+                                              className="form-control shadow-sm border-2"
+                                              placeholder="Image"
+                                              aria-label="Image"
+                                              onChange={(e) =>
+                                                handleImageUpload(e, "fileURL")
+                                              }
+                                            />
+                                          )}
+                                          {/* Progress Bar */}
+                                          <div className="upload-container">
+                                            {isLoading === true ? (
+                                              teacher.category === "video" ? (
+                                                uploadProgress < 100 ? (
+                                                  <div
+                                                    className="progress mt-3"
+                                                    role="progressbar"
+                                                    aria-label="Example with label"
+                                                    aria-valuenow={
+                                                      uploadProgress
+                                                    }
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="100"
+                                                  >
+                                                    <div
+                                                      className="progress-bar"
+                                                      style={{
+                                                        width: `${uploadProgress}%`,
+                                                      }}
+                                                    >
+                                                      {uploadProgress}%
+                                                    </div>
+                                                  </div>
+                                                ) : (
+                                                  <div className="text-success fw-semibold mt-3">
+                                                    Upload Completed!
+                                                  </div>
+                                                )
+                                              ) : null
+                                            ) : null}
+                                          </div>
+                                          {/* Progress Bar */}
+                                        </div>
+                                      </div>
+                                      <div className="row mt-3">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Uploader Name
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="uploaderName"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="UploaderName"
+                                            aria-label="UploaderName"
+                                          />
+                                        </div>
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Uploader Date
+                                          </label>
+                                          <Field
+                                            type="date"
+                                            name="uploaderDate"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="UploaderDate"
+                                            aria-label="UploaderDate"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="row mt-3">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Category
+                                          </label>
+                                          <Field
+                                            as="select"
+                                            name="category"
+                                            aria-label="Category"
+                                            className="form-select shadow-sm border-2"
+                                          >
+                                            <option value="">Select</option>
+                                            <option value="book">Book</option>
+                                            <option value="note">Notes</option>
+                                            <option value="video">Video</option>
+                                          </Field>
+                                        </div>
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Tags
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="tags"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Tags"
+                                            aria-label="Tags"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="d-flex mt-4 justify-content-end text-center">
+                                        <button
+                                          className="btn btn-danger me-2"
+                                          data-bs-dismiss="modal"
+                                        >
+                                          <i
+                                            className="fa fa-times me-2"
+                                            aria-hidden="true"
+                                          ></i>
+                                          Close
+                                        </button>
+                                        <button
+                                          className="btn btn-primary"
+                                          type="submit"
+                                          disabled={isSubmitting}
+                                        >
+                                          <i
+                                            className="fa fa-check me-2"
+                                            aria-hidden="true"
+                                          ></i>
+                                          Submit
+                                        </button>
+                                      </div>
+                                    </Form>
+                                  )}
+                                </Formik>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Edit Modal */}
+                      </div>
+                    ) : null
+                  )}
+
+                {/* Delete Modal */}
+                <div className="modal fade" id="delete_material">
+                  <div className="modal-dialog modal-dialog-centered ">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h4 className="modal-title fs-5 fw-bold btn-primary px-2 p-1 rounded shadow-sm">
+                          {" "}
+                          <i
+                            className="fa fa-trash me-2"
+                            aria-hidden="true"
+                          ></i>
+                          Delete
+                        </h4>
+                        <button
+                          type="button"
+                          className="btn-close custom-btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                        >
+                          <i className="ti ti-x" />
+                        </button>
+                      </div>
+                      <div className="modal-body">
+                        <p className="fs-4 fw-bold text-gray-600 ">
+                          Are you sure you want to delete?
+                        </p>
+                        <div className="d-flex justify-content-end mt-4">
+                          <button
+                            type="button"
+                            className="btn btn-primary me-2"
+                            data-bs-dismiss="modal"
+                          >
+                            <i
+                              className="fa fa-times me-2"
+                              aria-hidden="true"
+                            ></i>
+                            Close
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => {
+                              deletePost(selectedId);
+                              setSelectedId(null);
+                            }}
+                          >
+                            <i
+                              className="fa fa-trash me-2"
+                              aria-hidden="true"
+                            ></i>
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Delete Modal */}
+              </div>
+              {/* Books Section */}
+            </div>
+
+            {/* Load More Button */}
+            {visibleTeachers < studyMaterialData.length && (
+              <div className="text-center mt-4">
+                <button
+                  onClick={loadMoreTeachers}
+                  className="btn btn-primary d-inline-flex align-items-center"
+                >
+                  <i className="fa fa-spinner me-2" />
+                  Load More
+                </button>
+              </div>
+            )}
+            {/* Load More Button */}
+          </div>
+        </div>
+        {/* /Page Wrapper */}
+      </div>
+    </>
+  );
+}
+export default StudyMaterial;

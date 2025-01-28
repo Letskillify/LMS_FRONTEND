@@ -1,0 +1,108 @@
+[
+    {
+        "id": 1,
+        "photo": "/image/images.png",
+        "name": "John Doe",
+        "salary_month": "November 2024",
+        "present": 20,
+        "absent": 5,
+        "late": 2,
+        "basic": 50000,
+        "salary_generated": "yes",
+        "amount_paid": 45000,
+        "loan_repayment": 5000,
+        "actions": {
+            "edit": "Print Slip",
+            "view": "Make Payment"
+        },
+        "statu": "pending",
+        "delete": "No Action"
+    },
+    {
+        "id": 2,
+        "photo": "/image/images.png",
+        "name": "Jane Smith",
+        "salary_month": "November 2024",
+        "present": 18,
+        "absent": 7,
+        "late": 3,
+        "basic": 45000,
+        "salary_generated": "yes",
+        "amount_paid": 40000,
+        "loan_repayment": 2000,
+        "actions": {
+            "edit": "Print Slip",
+            "view": "Make Payment"
+        },
+        "statu": "issued",
+        "delete": "Action"
+    },
+    {
+        "id": 3,
+        "photo": "/image/images.png",
+        "name": "Jane Smith",
+        "salary_month": "November 2024",
+        "present": 18,
+        "absent": 7,
+        "late": 3,
+        "basic": 45000,
+        "salary_generated": "yes",
+        "amount_paid": 40000,
+        "loan_repayment": 2000,
+        "actions": {
+            "edit": "Print Slip",
+            "view": "Make Payment"
+        },
+        "statu": "issued",
+        "delete": "Action"
+    },
+    {
+        "id": 4,
+        "photo": "/image/images.png",
+        "name": "Jane Smith",
+        "salary_month": "November 2024",
+        "present": 18,
+        "absent": 7,
+        "late": 3,
+        "basic": 45000,
+        "salary_generated": "yes",
+        "amount_paid": 40000,
+        "loan_repayment": 2000,
+        "actions": {
+            "edit": "Print Slip",
+            "view": "Make Payment"
+        },
+        "statu": "pending",
+        "delete": "No Action"
+    },
+    {
+        "id": 5,
+        "photo": "/image/images.png",
+        "name": "Jane Smith",
+        "salary_month": "November 2024",
+        "present": 18,
+        "absent": 7,
+        "late": 3,
+        "basic": 45000,
+        "salary_generated": "yes",
+        "amount_paid": 40000,
+        "loan_repayment": 2000,
+        "statu": "issued",
+        "delete": "Action"
+    },
+    {
+        "id": 6,
+        "photo": "/image/images.png",
+        "name": "Jane Smith",
+        "salary_month": "November 2024",
+        "present": 18,
+        "absent": 7,
+        "late": 3,
+        "basic": 45000,
+        "salary_generated": "yes",
+        "amount_paid": 40000,
+        "loan_repayment": 2000,
+        "statu": "pending",
+        "delete": "Action"
+    }
+]

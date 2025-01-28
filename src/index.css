@@ -1,0 +1,1153 @@
+:root {
+    --themeprimary: #003467;
+    --themesecondary: #f89e15;
+}
+
+.themprimary {
+    color: var(--themeprimary);
+}
+.bg-themprimary {
+    background-color: var(--themeprimary);
+}
+.themsecondary {
+    color: var(--themesecondary);
+}
+.bg-themsecondary {
+    background-color: var(--themesecondary);
+}
+
+
+.manage span {
+    font-size: 17px;
+    color: #fff;
+    padding: 4px 8px;
+    margin: 0px 2px;
+    border-radius: 3px;
+}
+
+.inner input {
+    border: 1px solid #d9dee3;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.table-th thead {
+    background-color: #c1baba29;
+}
+
+table {
+    width: 100%;
+}
+
+.inner label {
+    font-size: 18px;
+}
+
+/* codepen for table */
+
+.inputs {
+    display: block;
+    opacity: 0;
+}
+
+.labels {
+    position: relative;
+    width: 45px;
+    height: 24px;
+    display: inline-block;
+    background: #dd0202;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+}
+
+.labels:after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background: #FFF;
+    border-radius: 50%;
+    box-shadow: 1px 3px 6px #666666;
+}
+
+.inputs:checked+.labels {
+    background: #009900;
+}
+
+.inputs:checked+.labels:after {
+    left: auto;
+    right: 2px;
+}
+
+td .btn1 {
+    background-color: rgb(84, 161, 84);
+    color: #fff;
+}
+
+td .btn2 {
+    background-color: rgb(223, 167, 13);
+    color: #fff;
+}
+
+button {
+    border: none;
+    border-radius: 4px;
+}
+
+td .btn3 {
+    background-color: rgba(218, 58, 58, 0.849);
+    color: #fff;
+}
+
+/* accountant session */
+/* .session{
+    position: absolute;
+    bottom: 0;
+    left: 285px;
+    right: 0;
+} */
+a {
+    color: grey;
+    font-weight: 600;
+}
+
+.sessions {
+    position: fixed;
+    left: 300px;
+    right: 0;
+    bottom: 0;
+}
+
+table tbody tr td select {
+    width: 400px;
+    padding: 9px 0;
+}
+
+table tbody tr td .inpt {
+    width: 400px;
+    padding: 9px 0;
+}
+
+table tbody tr {
+    border-color: #666666;
+
+}
+
+@media (min-width: 1200px) {
+    .manage-xl {
+        max-width: 798px;
+    }
+}
+
+/* balancesheet */
+.table1,
+.table2 {
+    text-align: center;
+    border: 1px solid #888888a2;
+}
+
+.table1 th,
+.table2 th {
+    border-bottom: 1px solid #888888a2;
+    border-right: 1px solid #888888a2;
+}
+
+.table1 tr,
+.table2 tr {
+    height: 35px;
+}
+
+.table1 td,
+.table2 td {
+    border-right: 1px solid #888888a2;
+}
+
+.logo-balance {
+    width: 100px;
+}
+
+.mid {
+    align-self: last baseline;
+    font-size: 40px;
+}
+
+ul li {
+    list-style-type: none;
+}
+
+ul {
+    padding-left: 0;
+}
+
+.borderColor {
+    color: rgb(23, 23, 189);
+    border: 2px solid;
+    border-color: rgb(23, 23, 189);
+
+}
+
+.hide {
+    display: none;
+}
+
+.table-report,
+.studentTable {
+    border: 1px solid #74727285;
+
+}
+
+.boxes {
+    box-shadow: 0px 0px 4px -1px grey;
+
+}
+
+/* 
+.table-reports,
+th,
+td {
+    border: none !important;
+} */
+
+
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+
+.table-responsive table {
+    width: 100%;
+    /* Adjust min-width as needed */
+    border-collapse: collapse;
+}
+
+@media (max-width: 1199px) {
+    .acc-resp .acc-inner {
+        width: 280px !important;
+        margin-right: 10px;
+        /* margin-bottom: 15px; */
+    }
+
+    .acc-resp .acc-inner p {
+        /* margin-bottom: 20px !important; */
+    }
+
+    .acc-resp .acc-inner:last-child {
+        margin-bottom: 0px;
+        margin-right: 0px;
+
+    }
+}
+
+@media (max-width: 992px) {
+    .acc-resp .acc-inner {
+        width: 220px !important;
+        margin-right: 10px;
+    }
+
+    .acc-resp .acc-inner h2 {
+        font-size: 18px;
+    }
+
+    .acc-resp .acc-inner h5 {
+        font-size: 13px;
+    }
+
+    .inner-rep {
+        margin-top: 33px;
+    }
+}
+
+@media (max-width: 768px) {
+    .acc-resp .acc-inner {
+        width: calc(50% - 10px) !important;
+        height: 100px !important;
+        margin-right: 10px;
+    }
+
+    .acc-inner-lasts {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .acc-inner-last {
+        margin-top: 30px;
+
+    }
+
+    .acc-resp .acc-inner h5 {
+        font-size: 17px;
+    }
+
+    .acc-resp .acc-inner p {
+        direction: ltr !important;
+        font-size: 13px !important;
+        /* margin-right: 10px !important; */
+    }
+
+    .inner-rep {
+        margin-top: 17px;
+    }
+
+    .labels {
+        position: relative;
+        width: 31px;
+        height: 17px;
+        display: inline-block;
+        background: #dd0202;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .labels::after {
+        top: 1px;
+        width: 14px;
+        height: 14px;
+    }
+}
+
+.tables tr {
+    border: 1px solid grey;
+}
+
+.table table tr th {
+    padding-right: 0;
+    border: 1px solid grey !important;
+}
+
+
+
+/* attendance student */
+
+.table-headd {
+    background-color: #644793a3;
+}
+
+.table-stripedd tbody tr:nth-of-type(even) {
+    background-color: #64479350;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+    color: #000000d6 !important;
+}
+
+.student-attend .table:not(.table-dark) th {
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.student-attend table {
+    color: #000000d6 !important;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.student-attend th,
+.student-attend td {
+    padding-right: 15px !important;
+    padding-left: 2px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.table-headd th {
+    /* border-right:1px solid #fff ; */
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.table-responsives {
+    overflow-x: auto;
+    width: 100%;
+    border: 0px solid #fff !important;
+}
+
+.slip-css thead {
+    background-color: #9b88b9;
+}
+
+.slip-css thead tr th {
+    padding: 8px 0px;
+    padding-right: 0px !important;
+    font-size: 11px !important;
+}
+
+
+/* Print manage salarie */
+/* PaymentSlipModal.css */
+
+/* Ensure the table takes full width when printed */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: white;
+        /* Make the background outside the modal white */
+        -webkit-print-color-adjust: exact;
+        /* Ensure background colors and graphics appear */
+        print-color-adjust: exact;
+    }
+
+    .modal-dialog {
+        max-width: 100%;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        font-size: 12px;
+        border: 1px solid #ddd;
+    }
+}
+
+/* Ensure modal elements resize properly on small screens */
+.table-responsive {
+    overflow-x: auto;
+    /* Enable horizontal scrolling */
+
+}
+
+.slip-css table thead tr th {
+    border: none !important;
+}
+
+/* balancesheet */
+.esi-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.esi-table th,
+.esi-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.esi-table th {
+    background-color: #f4f4d0;
+    font-weight: bold;
+}
+
+.esi-table td {
+    background-color: #f9f9f7;
+}
+
+.unique-esi-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.unique-esi-table th,
+.unique-esi-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.unique-esi-table th {
+    background-color: #f4f4d0;
+    font-weight: bold;
+}
+
+.unique-esi-table td {
+    background-color: #f9f9f7;
+}
+
+.unique-highlight-green {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+
+.unique-highlight-red {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+}
+
+.unique-unsettled {
+    font-size: 1.5em;
+    color: gray;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+
+
+/* Fee Structure */
+
+.FeeStructure {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.FeeStructure .title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.FeeStructure .card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.FeeStructure .card-title {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.FeeStructure .form-group {
+    margin-bottom: 15px;
+}
+
+.FeeStructure .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.FeeStructure .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+
+.FeeStructure .current-structures {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.FeeStructure .fee-table {
+    width: 100%;
+    max-width: 1400px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.FeeStructure .fee-table th,
+.fee-table td {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+}
+
+.FeeStructure .fee-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+.FeeStructure .fee-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.FeeStructure .fee-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+
+.FeeStructure {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.FeeStructure .card-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+
+
+
+/* padding fees start */
+
+/* General Container */
+.tracker-container {
+
+    margin: 20px;
+    box-shadow: #000000;
+    /* padding: 20px; */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+
+/* Table Styling */
+
+
+.pending-fees-table th {
+    background-color: #fff;
+    color: #000000;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: center;
+}
+
+.pending-fees-table td {
+    font-size: 14px;
+    height: 80px;
+    color: #2f2e2e;
+    border-bottom: 1px solid #dddddd;
+    text-align: center;
+}
+
+.pending-fees-table tr:hover {
+    background-color: #fafafa;
+}
+
+
+/* Buttons Styling */
+.action-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.send-reminder-button {
+    background-color: #000000;
+    color: white;
+    margin-right: 10px;
+}
+
+.send-reminder-button:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.waive-fee-button {
+    background-color: #6c757d;
+    color: white;
+}
+
+.waive-fee-button:hover {
+    background-color: #5a6268;
+}
+
+.popup-input {
+    width: 100%;
+    /* height: 100%; */
+    margin-top: 20px;
+    padding: 50px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 15px;
+
+}
+
+/* Popup Styling */
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 15px;
+}
+
+.popup-message {
+    font-size: 14px;
+    color: #555555;
+    margin-bottom: 20px;
+}
+
+.confirm-button {
+    background-color: #0b0b0b;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.confirm-button:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.cancel-button {
+    background-color: #939da7;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.cancel-button:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+/* Popup and Overlay Styles */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    /* Initially hidden */
+}
+
+.student-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1000;
+    width: 400px;
+    display: none;
+    /* Initially hidden */
+}
+
+/* Show the overlay and popup when showPopup is true */
+
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: #fff;
+    width: 700px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.popup-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.popup-header .close {
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.popup-body {
+    padding: 20px;
+    color: #333;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section h3 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.info-grid div {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.info-grid div span {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.info-grid div strong {
+    font-size: 1rem;
+    color: #333;
+}
+
+.fee-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.fee-box {
+    text-align: center;
+    padding: 15px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.fee-box.green {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.fee-box.red {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.fee-box.blue {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+
+
+/* FEE DETAILS */
+/* student fees start*/
+
+.studentfees-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.studentfees-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.studentfees-header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.studentfees-header button {
+    background-color: #6c5ce7;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.studentfees-filters select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.studentfees-search-bar {
+    flex: 1;
+}
+
+.studentfees-search-bar input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.student-fees-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.student-fees-table th,
+.student-fees-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.student-fees-table th {
+    background-color: #f4f4f4;
+}
+
+.status {
+    border-radius: 3px;
+    text-align: center;
+}
+
+.status.paid {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.pending {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status.partially_paid {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.view-details {
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Existing styles */
+
+/* Popup and Overlay Styles */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    /* Initially hidden */
+}
+
+.student-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1000;
+    width: 400px;
+    display: none;
+    /* Initially hidden */
+}
+
+/* Show the overlay and popup when showPopup is true */
+
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: #fff;
+    width: 700px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.popup-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.popup-header .close {
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.popup-body {
+    padding: 20px;
+    color: #333;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section h3 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.info-grid div {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.info-grid div span {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.info-grid div strong {
+    font-size: 1rem;
+    color: #333;
+}
+
+.fee-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.fee-box {
+    text-align: center;
+    padding: 15px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.fee-box.green {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.fee-box.red {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.fee-box.blue {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+
+/* student fees end */
+
