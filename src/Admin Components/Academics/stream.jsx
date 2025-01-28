@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
+import { Bounce, toast } from "react-toastify";
 
 function stream() {
   const { userId } = useContext(MainContext);
@@ -9,7 +10,7 @@ function stream() {
   const [popup, setPopup] = useState(false);
   const [selectedstream, setSelectedstream] = useState(null);
 
-  useEffect(() => {
+ 
     const fetchstreams = async () => {
       try {
         const response = await axios.get('/api/stream/get');
@@ -18,10 +19,9 @@ function stream() {
         console.error('Error fetching streams:', error);
       }
     };
-    fetchstreams();
-  }, []);
+ 
 
-  const handlestream = async (values) => {
+  const handlestream = async (values, { resetForm }) => {
     try {
       const response = await axios.post('/api/stream/post', values, {
         headers: {
@@ -29,11 +29,34 @@ function stream() {
         },
       });
       if (response.status === 201) {
-        alert('Data Sent Successfully');
+        toast.success("Stream added successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
         setstream([...stream, response.data])
+        resetForm();
+        fetchstreams()
       }
     } catch (error) {
       console.error('Error submitting stream:', error);
+      toast.error(error.response.data.message || "Error adding Stream", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      })
     }
   };
 
@@ -42,14 +65,36 @@ function stream() {
       const response = await axios.delete(`api/stream/delete/${id}`);
 
       if (response.status=== 200) {
-        alert("Data Deleted Successfully")
+        toast.success("Stream deleted successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
       }
+      fetchstreams()
 
     }catch(error  ){
       console.error('Error deleting stream:', error);
+      toast.error(error.response.data.message || "Error deleting Stream", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+    })
     }
   }
-  const handlestreamEdit = async (values) => {
+  const handlestreamEdit = async (values, { resetForm }) => {
     try {
       const response = await axios.put(`/api/stream/update/${selectedstream._id}`, values, {
         headers: {
@@ -57,19 +102,45 @@ function stream() {
         },
       });
       if (response.status === 200) {
-        alert("stream updated successfully");
+        toast.success("Stream Edit successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
         setstream(
           stream.map((item) =>
             item._id === selectedstream._id ? { ...item, ...values } : item
           )
         );
         setPopup(false); // Close popup
+        resetForm();
+        fetchstreams()
       }
     } catch (error) {
-      console.error("Error updating stream:", error);
+      console.error("Error updating stream:", error); 
+      toast.error(error.response.data.message || "Error updating Stream", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+    })
+
     }
   };
-
+  useEffect(() => {
+    fetchstreams();
+  }, []);
 
   return (
     <div className="container py-5">
@@ -160,13 +231,13 @@ function stream() {
                       <th scope="row">{index + 1}</th>
                       <td className='text-capitalize'>{item.streamName}</td>
                       <td>
-                        <button className="btn btn-edit btn-primary me-2 "  onClick={() => {
+                        <button className="btn btn-edit btn-lg "  onClick={() => {
                             setPopup(true);
                             setSelectedstream(item);
                           }}>
                           <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </button>
-                        <button className="btn btn-delete btn-danger" onClick={() => handlestreamDelete(item._id)}>
+                        <button className="btn btn-delete btn-lg" onClick={() => handlestreamDelete(item._id)}>
                           <i className="fa fa-trash-o" aria-hidden="true"></i>
                         </button>
                       </td>
@@ -198,7 +269,7 @@ function stream() {
                   }}
                   onSubmit={handlestreamEdit}
                 >
-                  {() => (
+                  {({}) => (
                     <Form>
                       <div className="mb-3">
                         <label className="form-label">Name</label>
@@ -209,7 +280,7 @@ function stream() {
                         />
                       </div>
                       <button type="submit" className="btn btn-primary w-100">
-                        Update
+                      Update
                       </button>
                     </Form>
                   )}
@@ -224,4 +295,3 @@ function stream() {
 }
 
 export default stream;
-
