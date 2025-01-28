@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
+import { Bounce, toast } from "react-toastify";
 
 function Medium() {
   const { userId } = useContext(MainContext);
@@ -9,19 +10,18 @@ function Medium() {
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
 
-  useEffect(() => {
-    const fetchMediums = async () => {
-      try {
-        const response = await axios.get('/api/medium/get');
-        setMedium(response.data || []);
-      } catch (error) {
-        console.error('Error fetching mediums:', error);
-      }
-    };
-    fetchMediums();
-  }, []);
 
-  const handleMedium = async (values) => {
+
+  const fetchMediums = async () => {
+    try {
+      const response = await axios.get('/api/medium/get');
+      setMedium(response.data);
+    } catch (error) {
+      console.error('Error fetching mediums:', error);
+    }
+  };
+
+  const handleMedium = async (values, { resetForm }) => {
     try {
       const response = await axios.post('/api/medium/post', values, {
         headers: {
@@ -29,26 +29,72 @@ function Medium() {
         },
       });
       if (response.status === 201) {
-        alert('Data Sent Successfully');
-        setMedium([...medium, response.data])
+        toast.success("Medium added successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+        // setMedium([...medium, response.data]);
+        resetForm();
+        fetchMediums();
       }
     } catch (error) {
       console.error('Error submitting medium:', error);
+      toast.error(error.response.data.message || "Error adding medium", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      })
     }
   };
 
   const handleMediumDelete = async (id) => {
-    try{
+    try {
       const response = await axios.delete(`api/medium/delete/${id}`);
 
-      if (response.status=== 200) {
-        alert("Data Deleted Successfully")
+      if (response.status === 200) {
+        toast.success("Medium deleted successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+        // setMedium(medium.filter(item => item._id !== id));
+        fetchMediums();
       }
-
-    }catch(error  ){
+    } catch (error) {
       console.error('Error deleting medium:', error);
+      toast.error(error.response.data.message || "Error deleting medium", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      })
     }
-  }
+  };
+
   const handleMediumEdit = async (values) => {
     try {
       const response = await axios.put(`/api/medium/update/${selectedMedium._id}`, values, {
@@ -57,20 +103,43 @@ function Medium() {
         },
       });
       if (response.status === 200) {
-        alert("Medium updated successfully");
-        setMedium(
-          medium.map((item) =>
-            item._id === selectedMedium._id ? { ...item, ...values } : item
-          )
-        );
+        toast.success("Medium updated successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+        // setMedium(
+        //   medium.map((item) =>
+        //     item._id === selectedMedium._id ? { ...item, ...values } : item
+        //   )
+        // );
         setPopup(false); // Close popup
+        fetchMediums();
       }
     } catch (error) {
       console.error("Error updating medium:", error);
+      toast.error(error.response.data.message || "Error adding medium", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      })
     }
   };
-
-
+  useEffect(() => {
+    fetchMediums();
+  }, []);
   return (
     <div className="container py-5">
       <div className="row">
@@ -86,7 +155,7 @@ function Medium() {
                 }}
                 onSubmit={handleMedium}
               >
-                {({  }) => (
+                {({}) => (
                   <Form>
                     <div className="mb-3">
                       <label className="form-label">
@@ -155,23 +224,29 @@ function Medium() {
                   </tr>
                 </thead>
                 <tbody>
-                  {medium.map((item, index) => (
-                    <tr key={item.id}>
-                      <th scope="row">{index + 1}</th>
-                      <td className='text-capitalize'>{item.mediumName}</td>
-                      <td>
-                        <button className="btn btn-edit btn-primary me-2"  onClick={() => {
-                            setPopup(true);
-                            setSelectedMedium(item);
-                          }}>
-                          <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-                        </button>
-                        <button className="btn btn-delete btn-danger" onClick={() => handleMediumDelete(item._id)}>
-                          <i className="fa fa-trash-o" aria-hidden="true"></i>
-                        </button>
-                      </td>
+                  {medium && medium.length > 0 ? (
+                    medium.map((item, index) => (
+                      <tr key={item?._id}>
+                        <th scope="row">{index + 1}</th>
+                        <td className='text-capitalize'>{item?.mediumName}</td>
+                        <td>
+                          <button className="btn btn-edit btn-lg" onClick={() => {
+                              setPopup(true);
+                              setSelectedMedium(item);
+                            }}>
+                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
+                          </button>
+                          <button className="btn btn-delete btn-lg" onClick={() => handleMediumDelete(item?._id)}>
+                            <i className="fa fa-trash-o" aria-hidden="true"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3">No data available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -194,7 +269,7 @@ function Medium() {
               <div className="modal-body">
                 <Formik
                   initialValues={{
-                    mediumName: selectedMedium.mediumName || "",
+                    mediumName: selectedMedium?.mediumName || "",
                   }}
                   onSubmit={handleMediumEdit}
                 >
@@ -205,6 +280,7 @@ function Medium() {
                         <Field
                           type="text"
                           name="mediumName"
+                          id="mediumName"
                           className="form-control"
                         />
                       </div>

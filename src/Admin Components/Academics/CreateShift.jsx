@@ -2,14 +2,15 @@ import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { MainContext } from "../../Controller/MainProvider";
+import { MainContext } from '../../Controller/MainProvider';
+import { Bounce, toast } from "react-toastify";
 
 const CreateShift = () => {
-    const [shifts, setShifts] = useState([]);
-    const { userId } = useContext(MainContext); // Get userId from context
-    const [error, setError] = useState(null); // State for error messages
-    const [showModal, setShowModal] = useState(false); // Modal state
-    const [editingShift, setEditingShift] = useState(null); // State to track the shift being edited
+    const [shifts, setShifts] = useState([{}]);
+    const { userId } = useContext(MainContext);
+    const [error, setError] = useState(null); 
+    const [showModal, setShowModal] = useState(false);
+    const [editingShift, setEditingShift] = useState(null);
 
     useEffect(() => {
         if (!userId) {
@@ -18,9 +19,9 @@ const CreateShift = () => {
     }, [shifts, userId]);
 
     const initialValues = {
-        instituteId: userId || "", // Fallback to empty string if userId is undefined
+        instituteId: userId ,
         shiftName: editingShift ? editingShift.shiftName : "",
-        shiftStatus: editingShift ? editingShift.shiftStatus : "Active", // Default to Active
+        shiftStatus: editingShift ? editingShift.shiftStatus : "Active",
         shiftStartTime: editingShift ? editingShift.shiftStartTime : "",
         shiftEndTime: editingShift ? editingShift.shiftEndTime : "",
     };
@@ -35,28 +36,18 @@ const CreateShift = () => {
         try {
             const response = await axios.get("/api/shift/get");
             setShifts(response.data);
+            
         } catch (error) {
             console.error("Error fetching shifts:", error);
-            alert("Failed to load shifts.");
+           
         }
     };
 
-    useEffect(() => {
-        if (userId) {
-            fetchShifts();
-        }
-    }, [shifts, userId]);
+ 
 
-    const isShiftNameTaken = (name) => {
-        return shifts.some((shift) => shift.shiftName.toLowerCase() === name.toLowerCase());
-    };
+  
 
     const onSubmit = async (values, { resetForm }) => {
-        if (isShiftNameTaken(values.shiftName)) {
-            setError("Shift already exists. Please try a different name.");
-            return;
-        }
-
         try {
             if (editingShift) {
                 const response = await axios.put(`/api/shift/update/${editingShift._id}`, values);
@@ -65,19 +56,32 @@ const CreateShift = () => {
                         shift._id === editingShift._id ? response.data : shift
                     )
                 );
-                alert("Shift updated successfully!");
-            } else {
-                const response = await axios.post("/api/shift/post", values);
-                setShifts((prevShifts) => [...prevShifts, response.data]);
-                alert("Shift created successfully!");
-            }
-
-            resetForm();
-            setError(null);
-            setShowModal(false);
+                toast.success("Shift updated successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
+                resetForm();
+            } 
         } catch (error) {
             console.error("Error creating/updating shift:", error);
-            alert("Failed to create/update shift. Please try again.");
+            toast.error(error.response.data.message || "Error adding inventory", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            })
         }
     };
 
@@ -87,10 +91,30 @@ const CreateShift = () => {
             setShifts((prevShifts) =>
                 prevShifts.filter((shift) => shift._id !== shiftId)
             );
-            alert("Shift deleted successfully!");
+            toast.success("Inventory added successfully", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         } catch (error) {
             console.error("Error deleting shift:", error);
-            alert("Failed to delete shift. Please try again.");
+            toast.error(err.response.data.message || "Error deleting shift", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            })
         }
     };
 
@@ -98,6 +122,12 @@ const CreateShift = () => {
         setEditingShift(shift);
         setShowModal(true);
     };
+
+    useEffect(() => {
+        if (userId) {
+            fetchShifts();
+        }
+    }, [shifts, userId]);
 
     return (
         <div className="container mt-5 mb-5">
@@ -126,7 +156,7 @@ const CreateShift = () => {
                                 {shifts.length > 0 ? (
                                     shifts.map((shift, index) => (
                                         <tr key={shift._id}>
-                                            <td>{index + 1}</td>
+                                            <td className="text-capitalize">{index + 1}</td>
                                             <td>{shift.shiftName}</td>
                                             <td>{shift.shiftStatus}</td>
                                             <td>{shift.shiftStartTime}</td>
@@ -134,13 +164,13 @@ const CreateShift = () => {
                                             <td>
                                                 <div className="d-flex gap-2">
                                                     <button
-                                                        className="btn btn-success"
+                                                        className="btn btn-success btn-sm"
                                                         onClick={() => handleEdit(shift)}
                                                     >
                                                         <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                                                     </button>
                                                     <button
-                                                        className="btn btn-danger"
+                                                        className="btn btn-danger btn-sm"
                                                         onClick={() => handleDelete(shift._id)}
                                                     >
                                                         <i className="fa fa-trash-o" aria-hidden="true"></i>
@@ -296,3 +326,4 @@ const CreateShift = () => {
 };
 
 export default CreateShift;
+
