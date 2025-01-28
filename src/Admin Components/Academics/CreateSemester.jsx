@@ -9,7 +9,7 @@ const CreateSemester = () => {
     const { userId } = useContext(MainContext); // Get userId from context
     const [error, setError] = useState(null); // State for error messages
     const [showModal, setShowModal] = useState(false); // Modal state
-    const [editingSemester, setEditingSemester] = useState(null); // State to track the semester being edited
+    const [editingSemester, setEditingSemester] = useState(null);
 
     useEffect(() => {
         if (!userId) {
