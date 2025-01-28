@@ -67,7 +67,7 @@ const CreateShift = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                resetForm();
+            resetForm();
             } 
         } catch (error) {
             console.error("Error creating/updating shift:", error);
