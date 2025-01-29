@@ -22,12 +22,56 @@ const StudentTransfer = () => {
 
   const [loading, setLoading] = useState(true);
   const [Data, setData] = useState({});
+  const [tcData, setTcData] = useState({});
+  console.log("Transfer Certificate Data reason:", tcData.reason);
   const { Student } = useContext(MainContext);
 
+  async function handleMaterial(e) {
+    const payload = {
+      reason: e.reason,
+      studentId: Student._id,
+      instituteId: Student.instituteId._id,
+    };
+    try {
+      // Make the POST request to add the material
+      const response = await axios.post("/api/tc-request/post", payload);
+    } catch (error) {
+      console.error("Error adding material:", error.response?.e || error);
+      // alert("Error adding material. Please try again.");
+    }
+  }
   useEffect(() => {
     if (Student) {
       setLoading(false);
     }
+  }, [Student]);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (!Student || !Student._id) {
+        console.error("Student data is not available yet.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `/api/tc-request/get/student/${Student._id}`
+        );
+
+        if (response?.data?.length > 0) {
+          setTcData(response.data[0]); // Assuming API returns an array
+          console.log("Transfer Certificate Data:", response.data[0]);
+        } else {
+          setTcData({});
+          console.warn("No TC data found for the student.");
+        }
+      } catch (error) {
+        console.error("Error fetching TC data:", error);
+        setTcData({});
+      }
+    };
+
+    getData();
   }, [Student]);
 
   return (
@@ -61,22 +105,20 @@ const StudentTransfer = () => {
               {/* /Page Header */}
 
               {/* content */}
-              <div className="card">
+              <div className="card shadow">
                 <h5 className="card-header">Transfer Certificate</h5>
                 <div className="card-body">
                   <Formik
                     initialValues={{
-                      firstName: Student?.personalDetails?.firstName,
-                      lastName: Student?.personalDetails?.lastName,
-                      rollNumber: Student?.academicDetails?.previous?.rollNo,
-                      class: Student?.academicDetails?.previous?.class,
-                      reason: "",
+                      firstName: Student?.personalDetails?.firstName || "",
+                      lastName: Student?.personalDetails?.lastName || "",
+                      rollNumber:
+                        Student?.academicDetails?.previous?.rollNo || "",
+                      class: Student?.academicDetails?.previous?.class || "",
+                      reason: tcData?.reason,
                     }}
                     // validationSchema={validationSchema}
-                    onSubmit={(values) => {
-                      console.log("Form Data:", values);
-                      // Perform API request or action here
-                    }}
+                    onSubmit={handleMaterial}
                   >
                     {({ isSubmitting, values }) => (
                       <Form>
@@ -166,9 +208,16 @@ const StudentTransfer = () => {
                             <button
                               type="submit"
                               className="btn btn-success py-2 px-3 fs-5"
-                              disabled={isSubmitting}
+                              disabled={
+                                isSubmitting ||
+                                (tcData?.isRequested &&
+                                  tcData?.requestStatus === "Pending")
+                              }
                             >
-                              Send for Approval
+                              {tcData?.isRequested &&
+                              tcData?.requestStatus === "Pending"
+                                ? "Pending"
+                                : "Send"}
                             </button>
                           </div>
                         </div>

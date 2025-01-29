@@ -493,15 +493,27 @@ function StudyMaterial() {
                                   >
                                     Upload File
                                   </label>
-                                  <Field
-                                    type="file"
-                                    name="document"
-                                    accept="application/pdf, .doc, .docx"
-                                    className="form-control shadow-sm border-2"
-                                    onChange={(e) =>
-                                      handleFileUpload(e, "document")
-                                    }
-                                  />
+                                  {values.category === "video" ? (
+                                    <Field
+                                      type="file"
+                                      name="document"
+                                      accept="video/mp4, video/webm, video/ogg"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleVideoUpload(e, "document")
+                                      }
+                                    />
+                                  ) : (
+                                    <Field
+                                      type="file"
+                                      name="document"
+                                      accept="application/pdf, .doc, .docx"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleFileUpload(e, "document")
+                                      }
+                                    />
+                                  )}
                                   <div className="upload-container">
                                     {fileuploadProgress < 100 ? (
                                       isfileLoading ? (
@@ -651,7 +663,7 @@ function StudyMaterial() {
                         key={index}
                       >
                         <div className="card flex-fill shadow">
-                          <div className="card-body pb-1">
+                          <div className="card-body pb-1 pt-3">
                             <div>
                               <div className="col-12 text-center mx-auto mb-3">
                                 {Material === "Video" ? (
@@ -669,19 +681,23 @@ function StudyMaterial() {
                                     src={teacher?.fileURL}
                                     className="img-fluid mx-auto"
                                     alt={teacher?.fileURL}
-                                    style={{ maxWidth: "100%", height: "210px" }}
+                                    style={{
+                                      maxWidth: "100%",
+                                      height: "210px",
+                                    }}
                                   />
                                 )}
                               </div>
-
-                              <div className="card-footer pb-0 text-dark bg-white">
+                              <div className="card-footer pb-0 pt-2 text-dark bg-white">
                                 <div className="d-flex">
                                   <p className="fw-bold mb-2">Title : </p>
                                   <p className="ms-1 mb-0"> {teacher?.title}</p>
                                 </div>
                                 <div className="d-flex">
                                   <p className="fw-bold mb-2">Subject :</p>
-                                  <p className="ms-1 mb-0">{teacher?.subject}</p>
+                                  <p className="ms-1 mb-0">
+                                    {teacher?.subject}
+                                  </p>
                                 </div>
                                 <div className="">
                                   <p className="mb-0 fw-bold">Description :</p>
