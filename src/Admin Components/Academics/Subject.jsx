@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { Bounce, toast } from "react-toastify";
 
 const validationSchema = Yup.object({
   subjectName: Yup.string().required('Subject name is required'),
@@ -20,7 +21,7 @@ function Subject() {
   const fetchSubjects = async () => {
     try {
       const response = await axios.get('/api/subject/get');
-      setSubjects(response.data);
+      setSubjects(response.data );
     } catch (err) {
       console.error('Error fetching subjects:', err);
     }
@@ -32,13 +33,33 @@ function Subject() {
         headers: { 'Content-Type': 'application/json' },
       });
       if (response.status === 201) {
-        alert('Data sent successfully');
+        toast.success(" Subject added successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+      });
         fetchSubjects();
         resetForm();
       }
     } catch (err) {
       console.error('Failed to send data:', err);
-      alert('Failed to send data');
+      toast.error(err.response.data.message || "Error adding inventory", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+    })
     }
   };
 
@@ -48,13 +69,33 @@ function Subject() {
         headers: { 'Content-Type': 'application/json' },
       });
       if (response.status === 200) {
-        alert('Data updated successfully');
+        toast.success("Subject updating successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+      });
         fetchSubjects();
         setPopup(false);
       }
     } catch (err) {
       console.error('Error updating data:', err);
-      alert('Failed to update data');
+      toast.error(err.response.data.message || "Error updating Subject", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+    })
     }
   };
 
@@ -62,12 +103,32 @@ function Subject() {
     try {
       const response = await axios.delete(`/api/subject/delete/${id}`);
       if (response.status === 200) {
-        alert('Data deleted successfully');
+        toast.success("Subject Deleting successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+      });
         fetchSubjects();
       }
     } catch (err) {
       console.error('Failed to delete data:', err);
-      alert('Failed to delete data');
+      toast.error(err.response.data.message || "Error Deleting Subject", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+    })
     }
   };
 
@@ -161,7 +222,7 @@ function Subject() {
                     <td>{subject.subjectType}</td>
                     <td>
                       <button
-                        className="btn btn-primary me-2"
+                        className="btn btn-primary btn-sm me-2"
                         onClick={() => {
                           setPopup(true);
                           setSelectedSubject(subject);
@@ -170,7 +231,7 @@ function Subject() {
                         <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                       </button>
                       <button
-                        className="btn btn-danger"
+                        className="btn btn-danger btn-sm"
                         onClick={() => handleSubjectDelete(subject._id)}
                       >
                         <i className="fa fa-trash-o" aria-hidden="true"></i>

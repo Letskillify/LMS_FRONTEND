@@ -14,12 +14,13 @@ import {
 } from "../Custom Hooks/CustomeHook";
 export const MainContext = createContext();
 export const MainProvider = ({ children }) => {
-  const [StudentTrash, setStudentTrash] = useState([]);
-  const [studentData, setStudentData] = useState([]);
-  const [institute, setInstitute] = useState(null);
-  const [Student, setStudent] = useState(null);
-  const [instituteId, setInstituteId] = useState(null);
-  const [sidebaropen, setsidebaropen] = useState(false);
+  const [StudentTrash, setStudentTrash] = useState([])
+  const [studentData, setStudentData] = useState([])
+  const [institute, setInstitute] = useState(null)
+  const [Student, setStudent] = useState(null)
+  const [instituteId, setInstituteId] = useState(null)
+  const [sidebaropen, setsidebaropen] = useState(false)
+
 
   // for stop open inspect
 
@@ -60,6 +61,12 @@ export const MainProvider = ({ children }) => {
     fetchTrashData();
     fetchInstitute();
     fetchStudent();
+    fetchSemester();
+    fetchShift();
+    fetchMedium();
+    fetchSection();
+    fetchStream();
+    fetchSubject();
   }, []);
 
   const fetchStudentData = async () => {
@@ -400,40 +407,48 @@ export const MainProvider = ({ children }) => {
       setInstituteId(data?.instituteId._id);
     }
   };
+
+
   const fetchSemester = async () => {
-    const data = await getApi(`/api/semester/get/institute/${userId}`);
+    const data = await getApi(`/api/semester/get/institute/${designation === "Institute" ? userId : instituteId}`);
     if (data) {
-      setStudent(data);
-      setInstituteId(data?.instituteId._id);
+      setSemester(data);
+    }
+  };
+  const fetchShift = async () => {
+    const data = await getApi(`/api/shift/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    if (data) {
+      setShift(data);
+    }
+  };
+  const fetchMedium = async () => {
+    const data = await getApi(`/api/medium/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    if (data) {
+      setMedium(data);
+    }
+  };
+  const fetchSection = async () => {
+    const data = await getApi(`/api/Section/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    if (data) {
+      setSection(data);
+    }
+  };
+  const fetchStream = async () => {
+    const data = await getApi(`/api/stream/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    if (data) {
+      setStream(data);
+    }
+  };
+  const fetchSubject = async () => {
+    const data = await getApi(`/api/subject/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    if (data) {
+      setSubject(data);
     }
   };
 
+
   return (
-    <MainContext.Provider
-      value={{
-        instituteId,
-        setsidebaropen,
-        sidebaropen,
-        token,
-        userId,
-        designation,
-        Islogin,
-        fetchInstitute,
-        institute,
-        Student,
-        editedData,
-        handleEdit,
-        fetchTrashData,
-        fetchStudentData,
-        StudentTrash,
-        HandleLogOut,
-        studentData,
-        setStudentData,
-        handlePrint,
-        exportToExcel,
-        handleExportCSV,
-      }}
-    >
+    <MainContext.Provider value={{ instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
       {children}
     </MainContext.Provider>
   );

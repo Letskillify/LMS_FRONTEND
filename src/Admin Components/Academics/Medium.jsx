@@ -4,22 +4,19 @@ import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
 
 function Medium() {
-  const { userId } = useContext(MainContext);
+  const { userId, Medium, fetchMedium } = useContext(MainContext);
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
 
+
   useEffect(() => {
-    const fetchMediums = async () => {
-      try {
-        const response = await axios.get('/api/medium/get');
-        setMedium(response.data || []);
-      } catch (error) {
-        console.error('Error fetching mediums:', error);
-      }
-    };
-    fetchMediums();
-  }, []);
+    if (Medium) {
+      setMedium(Medium);
+    }
+  }, [Medium]);
+
+  
 
   const handleMedium = async (values) => {
     try {
@@ -38,14 +35,14 @@ function Medium() {
   };
 
   const handleMediumDelete = async (id) => {
-    try{
+    try {
       const response = await axios.delete(`api/medium/delete/${id}`);
 
-      if (response.status=== 200) {
+      if (response.status === 200) {
         alert("Data Deleted Successfully")
       }
 
-    }catch(error  ){
+    } catch (error) {
       console.error('Error deleting medium:', error);
     }
   }
@@ -86,7 +83,7 @@ function Medium() {
                 }}
                 onSubmit={handleMedium}
               >
-                {({  }) => (
+                {({ }) => (
                   <Form>
                     <div className="mb-3">
                       <label className="form-label">
@@ -160,10 +157,10 @@ function Medium() {
                       <th scope="row">{index + 1}</th>
                       <td className='text-capitalize'>{item.mediumName}</td>
                       <td>
-                        <button className="btn btn-edit btn-primary me-2"  onClick={() => {
-                            setPopup(true);
-                            setSelectedMedium(item);
-                          }}>
+                        <button className="btn btn-edit btn-primary me-2" onClick={() => {
+                          setPopup(true);
+                          setSelectedMedium(item);
+                        }}>
                           <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </button>
                         <button className="btn btn-delete btn-danger" onClick={() => handleMediumDelete(item._id)}>
