@@ -1,11 +1,17 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { saveAs } from 'file-saver';
-import * as Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import React, { createContext, useEffect, useState } from "react";
+import { saveAs } from "file-saver";
+import * as Papa from "papaparse";
+import * as XLSX from "xlsx";
 import "jspdf-autotable";
 import CryptoJS from "crypto-js";
-import axios from 'axios';
-import { getApi, HitApi, PostApi, DeleteApi, PutApi } from '../Custom Hooks/CustomeHook';
+import axios from "axios";
+import {
+  getApi,
+  HitApi,
+  PostApi,
+  DeleteApi,
+  PutApi,
+} from "../Custom Hooks/CustomeHook";
 export const MainContext = createContext();
 export const MainProvider = ({ children }) => {
   const [StudentTrash, setStudentTrash] = useState([])
@@ -14,12 +20,7 @@ export const MainProvider = ({ children }) => {
   const [Student, setStudent] = useState(null)
   const [instituteId, setInstituteId] = useState(null)
   const [sidebaropen, setsidebaropen] = useState(false)
-  const [Semester, setSemester] = useState(null)
-  const [Shift, setShift] = useState(null)
-  const [Medium, setMedium] = useState(null)
-  const [Section, setSection] = useState(null)
-  const [Stream, setStream] = useState(null)
-  const [Subject, setSubject] = useState(null)
+
 
   // for stop open inspect
 
@@ -54,9 +55,6 @@ export const MainProvider = ({ children }) => {
 
   //////////////////////////////////////////////////////////////////////////////
 
-
-
-
   // const [exams, setExams] = useState()
   useEffect(() => {
     fetchStudentData();
@@ -86,20 +84,14 @@ export const MainProvider = ({ children }) => {
     window.location.reload();
   }
 
+  // File Save in CSV
 
-
-
-  // File Save in CSV 
-
-
-
-
-  const flattenObject = (obj, prefix = '') => {
+  const flattenObject = (obj, prefix = "") => {
     return Object.keys(obj).reduce((acc, key) => {
       const value = obj[key];
       const newKey = prefix ? `${prefix}.${key}` : key;
 
-      if (typeof value === 'object' && value !== null) {
+      if (typeof value === "object" && value !== null) {
         Object.assign(acc, flattenObject(value, newKey));
       } else {
         acc[newKey] = value;
@@ -115,171 +107,248 @@ export const MainProvider = ({ children }) => {
     const csv = Papa.unparse(flattenedData);
 
     // Create a blob and trigger download
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'data.csv');
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "data.csv");
   };
 
   // Print Excel Data Logic
 
   const exportToExcel = () => {
     const wsData = studentData.map((student) => ({
-      StuID: student?.StuID || 'N/A',
-      BiometricID: student?.biometricID || 'N/A',
-      FaceID: student?.faceID || 'N/A',
-      IsIDGenerated: student?.isIDgenerated ? 'Yes' : 'No',
-      ProfilePhoto: student?.personalDetails?.profilePhoto || 'N/A',
-      FirstName: student?.personalDetails?.firstName || 'N/A',
-      LastName: student?.personalDetails?.lastName || 'N/A',
-      DateOfBirth: student?.personalDetails?.dateOfBirth || 'N/A',
-      Gender: student?.personalDetails?.gender || 'N/A',
-      BloodGroup: student?.personalDetails?.bloodGroup || 'N/A',
-      AadharNo: student?.personalDetails?.aadharNo || 'N/A',
-      MaritalStatus: student?.personalDetails?.maritalStatus ? 'Married' : 'Single',
-      Nationality: student?.personalDetails?.nationality || 'N/A',
-      Religion: student?.personalDetails?.religion || 'N/A',
-      Category: student?.personalDetails?.category || 'N/A',
-      Caste: student?.personalDetails?.caste || 'N/A',
-      Email: student?.contactInfo?.email || 'N/A',
-      Mobile: student?.contactInfo?.mobile || 'N/A',
-      WhatsApp: student?.contactInfo?.whatsapp || 'N/A',
-      AlternateContact: student?.contactInfo?.alternateContact || 'N/A',
-      Address: `${student?.contactInfo?.address?.houseNo || ''}, ${student?.contactInfo?.address?.streetName || ''}, ${student?.contactInfo?.address?.city || ''}, ${student?.contactInfo?.address?.state || ''}, ${student?.contactInfo?.address?.country || ''}, ${student?.contactInfo?.address?.pincode || ''}`.trim() || 'N/A',
-      FatherName: student?.parentDetails?.Father?.name || 'N/A',
-      FatherContact: student?.parentDetails?.Father?.contactNumber || 'N/A',
-      MotherName: student?.parentDetails?.Mother?.name || 'N/A',
-      MotherContact: student?.parentDetails?.Mother?.contactNumber || 'N/A',
-      GuardianName: student?.parentDetails?.Guardian?.name || 'N/A',
-      GuardianRelation: student?.parentDetails?.Guardian?.relation || 'N/A',
-      GuardianContact: student?.parentDetails?.Guardian?.contactNumber || 'N/A',
-      RollNo: student?.academicDetails?.previous?.rollNo || 'N/A',
-      Class: student?.academicDetails?.previous?.class || 'N/A',
-      Stream: student?.academicDetails?.previous?.stream || 'N/A',
-      Percentage: student?.academicDetails?.previous?.percentage || 'N/A',
-      Marks: student?.academicDetails?.previous?.marks || 'N/A',
-      AdmissionType: student?.enrollmentDetails?.admissionType || 'N/A',
-      AdmissionCategory: student?.enrollmentDetails?.admissionCategory || 'N/A',
-      AdmissionDate: student?.enrollmentDetails?.admissionDate || 'N/A',
-      EnrollmentNo: student?.enrollmentDetails?.enrollmentNO || 'N/A',
-      TotalFee: student?.feeDetails?.totalFee || 'N/A',
-      AmountPaid: student?.feeDetails?.amountPaid || 'N/A',
-      DueFees: student?.feeDetails?.dueFees || 'N/A',
-      PaymentMethod: student?.feeDetails?.paymentMethod || 'N/A',
-      PaymentReferenceID: student?.feeDetails?.paymentReferenceID || 'N/A',
-      BankAccountHolderName: student?.bankDetails?.accountHolderName || 'N/A',
-      BankName: student?.bankDetails?.bankName || 'N/A',
-      BranchName: student?.bankDetails?.branchName || 'N/A',
-      AccountNumber: student?.bankDetails?.accountNumber || 'N/A',
-      IFSCCode: student?.bankDetails?.ifscCode || 'N/A',
-      UPIID: student?.bankDetails?.upiID || 'N/A',
-      Marksheet: student?.documents?.marksheet || 'N/A',
-      TransferCertificate: student?.documents?.transferCertificate || 'N/A',
-      IsProfileComplete: student?.is_profile_complete ? 'Yes' : 'No',
-      CreatedAt: student?.createdAt || 'Auto-generated by backend'
+      StuID: student?.StuID || "N/A",
+      BiometricID: student?.biometricID || "N/A",
+      FaceID: student?.faceID || "N/A",
+      IsIDGenerated: student?.isIDgenerated ? "Yes" : "No",
+      ProfilePhoto: student?.personalDetails?.profilePhoto || "N/A",
+      FirstName: student?.personalDetails?.firstName || "N/A",
+      LastName: student?.personalDetails?.lastName || "N/A",
+      DateOfBirth: student?.personalDetails?.dateOfBirth || "N/A",
+      Gender: student?.personalDetails?.gender || "N/A",
+      BloodGroup: student?.personalDetails?.bloodGroup || "N/A",
+      AadharNo: student?.personalDetails?.aadharNo || "N/A",
+      MaritalStatus: student?.personalDetails?.maritalStatus
+        ? "Married"
+        : "Single",
+      Nationality: student?.personalDetails?.nationality || "N/A",
+      Religion: student?.personalDetails?.religion || "N/A",
+      Category: student?.personalDetails?.category || "N/A",
+      Caste: student?.personalDetails?.caste || "N/A",
+      Email: student?.contactInfo?.email || "N/A",
+      Mobile: student?.contactInfo?.mobile || "N/A",
+      WhatsApp: student?.contactInfo?.whatsapp || "N/A",
+      AlternateContact: student?.contactInfo?.alternateContact || "N/A",
+      Address:
+        `${student?.contactInfo?.address?.houseNo || ""}, ${
+          student?.contactInfo?.address?.streetName || ""
+        }, ${student?.contactInfo?.address?.city || ""}, ${
+          student?.contactInfo?.address?.state || ""
+        }, ${student?.contactInfo?.address?.country || ""}, ${
+          student?.contactInfo?.address?.pincode || ""
+        }`.trim() || "N/A",
+      FatherName: student?.parentDetails?.Father?.name || "N/A",
+      FatherContact: student?.parentDetails?.Father?.contactNumber || "N/A",
+      MotherName: student?.parentDetails?.Mother?.name || "N/A",
+      MotherContact: student?.parentDetails?.Mother?.contactNumber || "N/A",
+      GuardianName: student?.parentDetails?.Guardian?.name || "N/A",
+      GuardianRelation: student?.parentDetails?.Guardian?.relation || "N/A",
+      GuardianContact: student?.parentDetails?.Guardian?.contactNumber || "N/A",
+      RollNo: student?.academicDetails?.previous?.rollNo || "N/A",
+      Class: student?.academicDetails?.previous?.class || "N/A",
+      Stream: student?.academicDetails?.previous?.stream || "N/A",
+      Percentage: student?.academicDetails?.previous?.percentage || "N/A",
+      Marks: student?.academicDetails?.previous?.marks || "N/A",
+      AdmissionType: student?.enrollmentDetails?.admissionType || "N/A",
+      AdmissionCategory: student?.enrollmentDetails?.admissionCategory || "N/A",
+      AdmissionDate: student?.enrollmentDetails?.admissionDate || "N/A",
+      EnrollmentNo: student?.enrollmentDetails?.enrollmentNO || "N/A",
+      TotalFee: student?.feeDetails?.totalFee || "N/A",
+      AmountPaid: student?.feeDetails?.amountPaid || "N/A",
+      DueFees: student?.feeDetails?.dueFees || "N/A",
+      PaymentMethod: student?.feeDetails?.paymentMethod || "N/A",
+      PaymentReferenceID: student?.feeDetails?.paymentReferenceID || "N/A",
+      BankAccountHolderName: student?.bankDetails?.accountHolderName || "N/A",
+      BankName: student?.bankDetails?.bankName || "N/A",
+      BranchName: student?.bankDetails?.branchName || "N/A",
+      AccountNumber: student?.bankDetails?.accountNumber || "N/A",
+      IFSCCode: student?.bankDetails?.ifscCode || "N/A",
+      UPIID: student?.bankDetails?.upiID || "N/A",
+      Marksheet: student?.documents?.marksheet || "N/A",
+      TransferCertificate: student?.documents?.transferCertificate || "N/A",
+      IsProfileComplete: student?.is_profile_complete ? "Yes" : "No",
+      CreatedAt: student?.createdAt || "Auto-generated by backend",
     }));
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Students');
-    XLSX.writeFile(wb, 'student_data.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, "student_data.xlsx");
   };
-
 
   // Print Logic
   const handlePrint = () => {
-    const printWindow = window.open('', '', 'height=800,width=1200');
-    printWindow.document.write('<html><head><title>Print Students Details</title></head><body>');
-    printWindow.document.write('<h1>Students Details</h1>');
+    const printWindow = window.open("", "", "height=800,width=1200");
+    printWindow.document.write(
+      "<html><head><title>Print Students Details</title></head><body>"
+    );
+    printWindow.document.write("<h1>Students Details</h1>");
 
     studentData?.forEach((studentData, index) => {
       printWindow.document.write(`<h2>Student ${index + 1}</h2>`);
 
       // Personal Details
-      printWindow.document.write('<h3>Personal Details</h3>');
+      printWindow.document.write("<h3>Personal Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Profile Photo</th><td><img src="${studentData?.personalDetails?.profilePhoto}" alt="Profile Photo" width="100"></td></tr>
-          <tr><th>First Name</th><td>${studentData?.personalDetails?.firstName || 'Not Provided'}</td></tr>
-          <tr><th>Last Name</th><td>${studentData?.personalDetails?.lastName || 'Not Provided'}</td></tr>
-          <tr><th>Date of Birth</th><td>${studentData?.personalDetails?.dateOfBirth || 'Not Provided'}</td></tr>
-          <tr><th>Gender</th><td>${studentData?.personalDetails?.gender || 'Not Provided'}</td></tr>
-          <tr><th>Blood Group</th><td>${studentData?.personalDetails?.bloodGroup || 'Not Provided'}</td></tr>
-          <tr><th>Aadhar Number</th><td>${studentData?.personalDetails?.aadharNo || 'Not Provided'}</td></tr>
-          <tr><th>Marital Status</th><td>${studentData?.personalDetails?.maritalStatus ? 'Married' : 'Unmarried'}</td></tr>
-          <tr><th>Nationality</th><td>${studentData?.personalDetails?.nationality || 'Not Provided'}</td></tr>
-          <tr><th>Religion</th><td>${studentData?.personalDetails?.religion || 'Not Provided'}</td></tr>
-          <tr><th>Category</th><td>${studentData?.personalDetails?.category || 'Not Provided'}</td></tr>
-          <tr><th>Caste</th><td>${studentData?.personalDetails?.caste || 'Not Provided'}</td></tr>
+          <tr><th>Profile Photo</th><td><img src="${
+            studentData?.personalDetails?.profilePhoto
+          }" alt="Profile Photo" width="100"></td></tr>
+          <tr><th>First Name</th><td>${
+            studentData?.personalDetails?.firstName || "Not Provided"
+          }</td></tr>
+          <tr><th>Last Name</th><td>${
+            studentData?.personalDetails?.lastName || "Not Provided"
+          }</td></tr>
+          <tr><th>Date of Birth</th><td>${
+            studentData?.personalDetails?.dateOfBirth || "Not Provided"
+          }</td></tr>
+          <tr><th>Gender</th><td>${
+            studentData?.personalDetails?.gender || "Not Provided"
+          }</td></tr>
+          <tr><th>Blood Group</th><td>${
+            studentData?.personalDetails?.bloodGroup || "Not Provided"
+          }</td></tr>
+          <tr><th>Aadhar Number</th><td>${
+            studentData?.personalDetails?.aadharNo || "Not Provided"
+          }</td></tr>
+          <tr><th>Marital Status</th><td>${
+            studentData?.personalDetails?.maritalStatus
+              ? "Married"
+              : "Unmarried"
+          }</td></tr>
+          <tr><th>Nationality</th><td>${
+            studentData?.personalDetails?.nationality || "Not Provided"
+          }</td></tr>
+          <tr><th>Religion</th><td>${
+            studentData?.personalDetails?.religion || "Not Provided"
+          }</td></tr>
+          <tr><th>Category</th><td>${
+            studentData?.personalDetails?.category || "Not Provided"
+          }</td></tr>
+          <tr><th>Caste</th><td>${
+            studentData?.personalDetails?.caste || "Not Provided"
+          }</td></tr>
         </table>
       `);
 
       // Contact Info
-      printWindow.document.write('<h3>Contact Information</h3>');
+      printWindow.document.write("<h3>Contact Information</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Email</th><td>${studentData?.contactInfo?.email || 'Not Provided'}</td></tr>
-          <tr><th>Mobile</th><td>${studentData?.contactInfo?.mobile || 'Not Provided'}</td></tr>
-          <tr><th>WhatsApp</th><td>${studentData?.contactInfo?.whatsapp || 'Not Provided'}</td></tr>
-          <tr><th>Alternate Contact</th><td>${studentData?.contactInfo?.alternateContact || 'Not Provided'}</td></tr>
-          <tr><th>Address</th><td>${studentData?.contactInfo?.address?.houseNo || 'Not Provided'}, ${studentData?.contactInfo?.address?.streetName || 'Not Provided'}, ${studentData?.contactInfo?.address?.city || 'Not Provided'}, ${studentData?.contactInfo?.address?.state || 'Not Provided'}, ${studentData?.contactInfo?.address?.country || 'Not Provided'}</td></tr>
+          <tr><th>Email</th><td>${
+            studentData?.contactInfo?.email || "Not Provided"
+          }</td></tr>
+          <tr><th>Mobile</th><td>${
+            studentData?.contactInfo?.mobile || "Not Provided"
+          }</td></tr>
+          <tr><th>WhatsApp</th><td>${
+            studentData?.contactInfo?.whatsapp || "Not Provided"
+          }</td></tr>
+          <tr><th>Alternate Contact</th><td>${
+            studentData?.contactInfo?.alternateContact || "Not Provided"
+          }</td></tr>
+          <tr><th>Address</th><td>${
+            studentData?.contactInfo?.address?.houseNo || "Not Provided"
+          }, ${
+        studentData?.contactInfo?.address?.streetName || "Not Provided"
+      }, ${studentData?.contactInfo?.address?.city || "Not Provided"}, ${
+        studentData?.contactInfo?.address?.state || "Not Provided"
+      }, ${
+        studentData?.contactInfo?.address?.country || "Not Provided"
+      }</td></tr>
         </table>
       `);
 
       // Parent Details
-      printWindow.document.write('<h3>Parent Details</h3>');
+      printWindow.document.write("<h3>Parent Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Father Name</th><td>${studentData?.parentDetails?.Father?.name || 'Not Provided'}</td></tr>
-          <tr><th>Mother Name</th><td>${studentData?.parentDetails?.Mother?.name || 'Not Provided'}</td></tr>
-          <tr><th>Guardian Name</th><td>${studentData?.parentDetails?.Guardian?.name || 'Not Provided'}</td></tr>
+          <tr><th>Father Name</th><td>${
+            studentData?.parentDetails?.Father?.name || "Not Provided"
+          }</td></tr>
+          <tr><th>Mother Name</th><td>${
+            studentData?.parentDetails?.Mother?.name || "Not Provided"
+          }</td></tr>
+          <tr><th>Guardian Name</th><td>${
+            studentData?.parentDetails?.Guardian?.name || "Not Provided"
+          }</td></tr>
         </table>
       `);
 
       // Academic Details
-      printWindow.document.write('<h3>Academic Details</h3>');
+      printWindow.document.write("<h3>Academic Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Previous School</th><td>${studentData?.academicDetails?.previous?.schoolName || 'Not Provided'}</td></tr>
-          <tr><th>Class</th><td>${studentData?.academicDetails?.previous?.class || 'Not Provided'}</td></tr>
-          <tr><th>Percentage</th><td>${studentData?.academicDetails?.previous?.percentage || 'Not Provided'}</td></tr>
+          <tr><th>Previous School</th><td>${
+            studentData?.academicDetails?.previous?.schoolName || "Not Provided"
+          }</td></tr>
+          <tr><th>Class</th><td>${
+            studentData?.academicDetails?.previous?.class || "Not Provided"
+          }</td></tr>
+          <tr><th>Percentage</th><td>${
+            studentData?.academicDetails?.previous?.percentage || "Not Provided"
+          }</td></tr>
         </table>
       `);
 
       // Enrollment Details
-      printWindow.document.write('<h3>Enrollment Details</h3>');
+      printWindow.document.write("<h3>Enrollment Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Admission Type</th><td>${studentData?.enrollmentDetails?.admissionType || 'Not Provided'}</td></tr>
-          <tr><th>Admission Date</th><td>${studentData?.enrollmentDetails?.admissionDate || 'Not Provided'}</td></tr>
+          <tr><th>Admission Type</th><td>${
+            studentData?.enrollmentDetails?.admissionType || "Not Provided"
+          }</td></tr>
+          <tr><th>Admission Date</th><td>${
+            studentData?.enrollmentDetails?.admissionDate || "Not Provided"
+          }</td></tr>
         </table>
       `);
 
       // Documents
-      printWindow.document.write('<h3>Documents</h3>');
+      printWindow.document.write("<h3>Documents</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Marksheet</th><td>${studentData?.documents?.marksheet || 'Not Provided'}</td></tr>
-          <tr><th>Transfer Certificate</th><td>${studentData?.documents?.transferCertificate || 'Not Provided'}</td></tr>
+          <tr><th>Marksheet</th><td>${
+            studentData?.documents?.marksheet || "Not Provided"
+          }</td></tr>
+          <tr><th>Transfer Certificate</th><td>${
+            studentData?.documents?.transferCertificate || "Not Provided"
+          }</td></tr>
         </table>
       `);
 
       // System Information
-      printWindow.document.write('<h3>System Information</h3>');
+      printWindow.document.write("<h3>System Information</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Student ID</th><td>${studentData?.StuID || 'Not Provided'}</td></tr>
-          <tr><th>Profile Completed</th><td>${studentData?.is_profile_complete ? 'Yes' : 'No'}</td></tr>
-          <tr><th>Created At</th><td>${studentData?.createdAt || 'Not Provided'}</td></tr>
-          <tr><th>Updated At</th><td>${studentData?.updatedAt || 'Not Provided'}</td></tr>
+          <tr><th>Student ID</th><td>${
+            studentData?.StuID || "Not Provided"
+          }</td></tr>
+          <tr><th>Profile Completed</th><td>${
+            studentData?.is_profile_complete ? "Yes" : "No"
+          }</td></tr>
+          <tr><th>Created At</th><td>${
+            studentData?.createdAt || "Not Provided"
+          }</td></tr>
+          <tr><th>Updated At</th><td>${
+            studentData?.updatedAt || "Not Provided"
+          }</td></tr>
         </table>
       `);
     });
 
-    printWindow.document.write('</body></html>');
+    printWindow.document.write("</body></html>");
     printWindow.document.close();
     printWindow.print();
   };
-
-
-
 
   // edit Student Data
 
@@ -293,9 +362,6 @@ export const MainProvider = ({ children }) => {
     });
     Navigate("/editstudents", { state: { studentId, student } });
   };
-
-
-
 
   // get Data from sessionStorage
 
@@ -326,7 +392,6 @@ export const MainProvider = ({ children }) => {
   const userId = decryptedData.userId;
   const designation = decryptedData.designation;
   const Islogin = decryptedData.Islogin;
-
 
   // Fetch Institute Data
   const fetchInstitute = async () => {
@@ -382,9 +447,8 @@ export const MainProvider = ({ children }) => {
   };
 
 
-
   return (
-    <MainContext.Provider value={{fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+    <MainContext.Provider value={{ instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
       {children}
     </MainContext.Provider>
   );
