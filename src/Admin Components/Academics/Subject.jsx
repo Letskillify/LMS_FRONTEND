@@ -8,7 +8,7 @@ import { Bounce, toast } from "react-toastify";
 const validationSchema = Yup.object({
   subjectName: Yup.string().required('Subject name is required'),
   subjectCode: Yup.string().required('Subject code is required'),
-  subjectMedium: Yup.string().required('Subject medium is required'),
+  medium: Yup.string().required('Subject medium is required'),
   subjectType: Yup.string().required('Subject type is required'),
 });
 
@@ -17,17 +17,27 @@ function Subject() {
   const [subjects, setSubjects] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [medium, setMedium] = useState([])
 
   const fetchSubjects = async () => {
     try {
       const response = await axios.get('/api/subject/get');
-      setSubjects(response.data );
+      setSubjects(response.data);
     } catch (err) {
       console.error('Error fetching subjects:', err);
     }
   };
 
+
+  useEffect(() => {
+    axios.get('/api/medium/get').then(response => {
+      setMedium(response.data);
+    })
+  }, [])
+
   const handleSubject = async (values, { resetForm }) => {
+    console.log(values);
+    
     try {
       const response = await axios.post('/api/subject/post', values, {
         headers: { 'Content-Type': 'application/json' },
@@ -43,7 +53,7 @@ function Subject() {
           progress: undefined,
           theme: "colored",
           transition: Bounce,
-      });
+        });
         fetchSubjects();
         resetForm();
       }
@@ -59,7 +69,7 @@ function Subject() {
         progress: undefined,
         theme: "colored",
         transition: Bounce,
-    })
+      })
     }
   };
 
@@ -79,7 +89,7 @@ function Subject() {
           progress: undefined,
           theme: "colored",
           transition: Bounce,
-      });
+        });
         fetchSubjects();
         setPopup(false);
       }
@@ -95,7 +105,7 @@ function Subject() {
         progress: undefined,
         theme: "colored",
         transition: Bounce,
-    })
+      })
     }
   };
 
@@ -113,7 +123,7 @@ function Subject() {
           progress: undefined,
           theme: "colored",
           transition: Bounce,
-      });
+        });
         fetchSubjects();
       }
     } catch (err) {
@@ -128,14 +138,15 @@ function Subject() {
         progress: undefined,
         theme: "colored",
         transition: Bounce,
-    })
+      })
     }
   };
 
   useEffect(() => {
-    fetchSubjects();
+    fetchSubjects(); 
   }, []);
 
+  console.log(subjects);
   return (
     <div className="container my-5">
       <div className="card shadow-sm mb-4">
@@ -145,7 +156,7 @@ function Subject() {
             initialValues={{
               subjectName: '',
               subjectCode: '',
-              subjectMedium: '',
+              medium: '',
               subjectType: '',
               instituteId: userId,
             }}
@@ -180,8 +191,17 @@ function Subject() {
                   </div>
                   <div className="col-md-6">
                     <label>Subject Medium</label>
-                    <Field type="text" name="subjectMedium" className="form-control" />
-                    <ErrorMessage name="subjectMedium" component="div" className="text-danger" />
+                    <Field as="select" name="medium" className="form-select">
+                      <option value="" disabled>
+                        Select Medium
+                      </option>
+                      {medium?.map((medium) => (
+                        <option key={medium?._id} value={medium?._id}>
+                          {medium?.mediumName}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage name="medium" component="div" className="text-danger" />
                   </div>
                 </div>
                 <div className="text-center">
@@ -218,7 +238,7 @@ function Subject() {
                     <td>{index + 1}</td>
                     <td>{subject.subjectName}</td>
                     <td>{subject.subjectCode}</td>
-                    <td>{subject.subjectMedium}</td>
+                    <td>{subject?.medium?.mediumName || 'Not Provided'}</td>
                     <td>{subject.subjectType}</td>
                     <td>
                       <button
@@ -258,7 +278,7 @@ function Subject() {
                   initialValues={{
                     subjectName: selectedSubject.subjectName,
                     subjectCode: selectedSubject.subjectCode,
-                    subjectMedium: selectedSubject.subjectMedium,
+                    medium: selectedSubject.medium,
                     subjectType: selectedSubject.subjectType,
                   }}
                   validationSchema={validationSchema}
@@ -289,8 +309,8 @@ function Subject() {
                       </div>
                       <div className="mb-3">
                         <label>Subject Medium</label>
-                        <Field type="text" name="subjectMedium" className="form-control" />
-                        <ErrorMessage name="subjectMedium" component="div" className="text-danger" />
+                        <Field type="text" name="medium" className="form-control" />
+                        <ErrorMessage name="medium" component="div" className="text-danger" />
                       </div>
                       <div className="text-center">
                         <button type="submit" className="btn btn-primary">
@@ -317,3 +337,4 @@ function Subject() {
 }
 
 export default Subject;
+      
