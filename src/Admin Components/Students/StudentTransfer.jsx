@@ -6,7 +6,29 @@ import axios from "axios";
 import { MainContext } from "../../Controller/MainProvider";
 const StudentTransfer = () => {
   const [Data, setData] = useState({});
-  const { Student } = useContext(MainContext);
+  const { Student, userId } = useContext(MainContext);
+  const [tcData, setTcData] = useState({});
+  const [tcDataGet, setTcDataGet] = useState([]);
+
+  const getData = async () => {
+    const response = await axios
+      .get(`/api/tc-request/get/institute/${userId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setTcData(res.data);
+          console.log("Transfer Certificate Data:", tcData);
+        } else {
+          console.log(res);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <>
@@ -109,119 +131,83 @@ const StudentTransfer = () => {
                       <th className="fw-bold">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="border-0">
-                    <tr>
-                      <td className="d-flex justify-content-center">
-                        <img
-                          // src={hostel?.imageUrl}
-                          alt="img"
-                          className="img-fluid rounded-circle"
-                          style={{ width: "50px", height: "45px" }}
-                        />
-                      </td>
-                      {/* <td className="fw-bold">{hostel?.name}</td>
-                      <td>{hostel?.type}</td>
-                      <td>{hostel?.contactInfo.address}</td>
-                      <td>{hostel?.maximumStudentCapacity}</td> */}
-                      <td
-                        style={{
-                          maxWidth: "300px",
-                          whiteSpace: "normal",
-                          wordWrap: "break-word",
-                        }}
-                        className="text-start"
-                      >
-                        {/* {hostel?.description} */}
-                      </td>
-                      <td className="">
-                        <div className="d-flex align-items-center justify-content-center">
-                          <div className="dropdown">
-                            <p
-                              className="btn btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-2 bg-violet-200 text-violet-600	"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <i
-                                className="fa fa-ellipsis-v fs-5"
-                                aria-hidden="true"
-                              ></i>
-                            </p>
-                            <ul className="dropdown-menu dropdown-menu-right p-3">
-                              <li>
-                                <button
-                                  className="dropdown-item btn-warning rounded-1 bg-purple-200 text-purple-600 fw-bold hover:bg-purple-500 hover:text-purple-50"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#view_hostel"
-                                  // onClick={() => setSelectedHostel(hostel)}
-                                >
-                                  <i
-                                    className="fa fa-eye me-2"
-                                    aria-hidden="true"
-                                  ></i>
-                                  View Details
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item btn-success rounded-1 bg-orange-200 text-orange-600 mt-2 fw-bold  hover:bg-orange-500 hover:text-orange-50"
-                                  data-bs-toggle="modal"
-                                  data-bs-target={``}
-                                  // onClick={() => setSelectedId(hostel?._id)}
-                                  type="button"
-                                >
-                                  <i
-                                    className="fa fa-pencil-square me-2"
-                                    aria-hidden="true"
-                                  ></i>
-                                  Approve
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item btn-danger rounded-1 bg-red-200 text-red-600 mt-2 fw-bold  hover:bg-red-500 hover:text-red-50"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#delete-modal"
-                                  // onClick={() => setSelectedId(hostel?._id)}
-                                >
-                                  <i
-                                    className="fa fa-trash me-2"
-                                    aria-hidden="true"
-                                  ></i>
-                                  Reject
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Edit Hostel */}
-                      <div className="modal fade" id="">
-                        <div className="modal-dialog modal-dialog-centered modal-lg">
-                          <div className="modal-content">
-                            <div className="modal-header">
-                              <h4 className="modal-title fw-bold fs-5 bg-blue-200 text-blue-700 px-3 rounded shadow-sm p-1">
+                  {/* {tcData?.map((studentData, index) => {
+                    <tbody className="border-0">
+                      <tr>
+                        <td className="fw-bold">
+                          {studentData?.academicDetails.previous.rollNo}
+                        </td>
+                        <td>{studentData?.personalDetails?.firstName}</td>
+                        <td>{studentData?.academicDetails?.previous?.class}</td>
+                        <td>
+                          {studentData?.academicDetails?.previous?.section}
+                        </td>
+                        <td>{studentData?.personalDetails?.gender}</td>
+                        <td>{studentData?.reson}</td>
+                        <td className="">
+                          <div className="d-flex align-items-center justify-content-center">
+                            <div className="dropdown">
+                              <p
+                                className="btn btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-2 bg-violet-200 text-violet-600	"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
                                 <i
-                                  className="fa fa-pencil-square-o me-2"
+                                  className="fa fa-ellipsis-v fs-5"
                                   aria-hidden="true"
                                 ></i>
-                                Edit Hostel
-                              </h4>
-                              <button
-                                type="button"
-                                className="btn-close btn-secondary custom-btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                              >
-                                <i className="ti ti-x" />
-                              </button>
+                              </p>
+                              <ul className="dropdown-menu dropdown-menu-right p-3">
+                                <li>
+                                  <button
+                                    className="dropdown-item btn-warning rounded-1 bg-purple-200 text-purple-600 fw-bold hover:bg-purple-500 hover:text-purple-50"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#view_hostel"
+                                    // onClick={() => setSelectedHostel(hostel)}
+                                  >
+                                    <i
+                                      className="fa fa-eye me-2"
+                                      aria-hidden="true"
+                                    ></i>
+                                    View Details
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    className="dropdown-item btn-success rounded-1 bg-orange-200 text-orange-600 mt-2 fw-bold  hover:bg-orange-500 hover:text-orange-50"
+                                    data-bs-toggle="modal"
+                                    data-bs-target={``}
+                                    // onClick={() => setSelectedId(hostel?._id)}
+                                    type="button"
+                                  >
+                                    <i
+                                      className="fa fa-pencil-square me-2"
+                                      aria-hidden="true"
+                                    ></i>
+                                    Approve
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    className="dropdown-item btn-danger rounded-1 bg-red-200 text-red-600 mt-2 fw-bold  hover:bg-red-500 hover:text-red-50"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#delete-modal"
+                                    // onClick={() => setSelectedId(hostel?._id)}
+                                  >
+                                    <i
+                                      className="fa fa-trash me-2"
+                                      aria-hidden="true"
+                                    ></i>
+                                    Reject
+                                  </button>
+                                </li>
+                              </ul>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      {/* /Edit Hostel */}
-                    </tr>
-                  </tbody>
+                        </td>
+                      </tr>
+                    </tbody>;
+                  })} */}
                 </table>
               </div>
             </div>

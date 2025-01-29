@@ -20,7 +20,20 @@ export const MainProvider = ({ children }) => {
   const [Student, setStudent] = useState(null)
   const [instituteId, setInstituteId] = useState(null)
   const [sidebaropen, setsidebaropen] = useState(false)
-
+  const [Semester, setSemester] = useState(null)
+  const [Shift, setShift] = useState(null)
+  const [Medium, setMedium] = useState(null)
+  const [Section, setSection] = useState(null)
+  const [Stream, setStream] = useState(null)
+  const [Subject, setSubject] = useState(null)
+=========
+  const [StudentTrash, setStudentTrash] = useState([]);
+  const [studentData, setStudentData] = useState([]);
+  const [institute, setInstitute] = useState(null);
+  const [Student, setStudent] = useState(null);
+  const [instituteId, setInstituteId] = useState(null);
+  const [sidebaropen, setsidebaropen] = useState(false);
+>>>>>>>>> Temporary merge branch 2
 
   // for stop open inspect
 
@@ -448,7 +461,35 @@ export const MainProvider = ({ children }) => {
 
 
   return (
-    <MainContext.Provider value={{ instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+    <MainContext.Provider value={{fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+=========
+  return (
+    <MainContext.Provider
+      value={{
+        instituteId,
+        setsidebaropen,
+        sidebaropen,
+        token,
+        userId,
+        designation,
+        Islogin,
+        fetchInstitute,
+        institute,
+        Student,
+        editedData,
+        handleEdit,
+        fetchTrashData,
+        fetchStudentData,
+        StudentTrash,
+        HandleLogOut,
+        studentData,
+        setStudentData,
+        handlePrint,
+        exportToExcel,
+        handleExportCSV,
+      }}
+    >
+>>>>>>>>> Temporary merge branch 2
       {children}
     </MainContext.Provider>
   );
