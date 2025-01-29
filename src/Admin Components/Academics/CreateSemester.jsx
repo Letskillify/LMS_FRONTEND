@@ -2,11 +2,12 @@ import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { MainContext } from "../../Controller/MainProvider";
+import { MainContext } from '../../Controller/MainProvider';
+import { Bounce, toast } from "react-toastify";
 
 const CreateSemester = () => {
+    const { userId, Semester, fetchSemester } = useContext(MainContext); // Get userId from context
     const [semesters, setSemesters] = useState([]);
-    const { userId } = useContext(MainContext); // Get userId from context
     const [error, setError] = useState(null); // State for error messages
     const [showModal, setShowModal] = useState(false); // Modal state
     const [editingSemester, setEditingSemester] = useState(null); // State to track the semester being edited
@@ -18,7 +19,7 @@ const CreateSemester = () => {
     }, [semesters, userId]);
 
     const initialValues = {
-        instituteId: userId || "", // Fallback to empty string if userId is undefined
+        instituteId: userId || "",
         semesterName: editingSemester ? editingSemester.semesterName : "",
         semesterStartMonth: editingSemester ? editingSemester.semesterStartMonth : "",
         semesterEndMonth: editingSemester ? editingSemester.semesterEndMonth : "",
@@ -46,16 +47,8 @@ const CreateSemester = () => {
         }
     }, [semesters, userId]);
 
-    const isSemesterNameTaken = (name) => {
-        return semesters.some((semester) => semester.semesterName.toLowerCase() === name.toLowerCase());
-    };
 
     const onSubmit = async (values, { resetForm }) => {
-        if (isSemesterNameTaken(values.semesterName)) {
-            setError("Semester already exists. Please try a different name.");
-            return;
-        }
-
         try {
             if (editingSemester) {
                 const response = await axios.put(`/api/semester/update/${editingSemester._id}`, values);
@@ -76,7 +69,17 @@ const CreateSemester = () => {
             setShowModal(false);
         } catch (error) {
             console.error("Error creating/updating semester:", error);
-            alert("Failed to create/update semester. Please try again.");
+            toast.error(error.response.data.message || "Error creating/updating semester", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         }
     };
 
@@ -89,7 +92,17 @@ const CreateSemester = () => {
             alert("Semester deleted successfully!");
         } catch (error) {
             console.error("Error deleting semester:", error);
-            alert("Failed to delete semester. Please try again.");
+            toast.error(error.response.data.message || "Error deleting semester", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         }
     };
 
@@ -97,6 +110,13 @@ const CreateSemester = () => {
         setEditingSemester(semester);
         setShowModal(true);
     };
+    
+
+    useEffect(() => {
+        if (userId) {
+            fetchSemesters();
+        }
+    }, [semesters, userId]);
 
     return (
         <div className="container mt-5 mb-5">
@@ -121,24 +141,24 @@ const CreateSemester = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {semesters.length > 0 ? (
-                                    semesters.map((semester, index) => (
+                                {semesters?.length > 0 ? (
+                                    semesters?.map((semester, index) => (
                                         <tr key={semester._id}>
                                             <td>{index + 1}</td>
-                                            <td>{semester.semesterName}</td>
+                                            <td className= "text-capitalizetext-capitalize">{semester.semesterName}</td>
                                             <td>{semester.semesterStartMonth}</td>
                                             <td>{semester.semesterEndMonth}</td>
                                             <td>
                                                 <div className="d-flex gap-2">
                                                     <button
-                                                        className="btn btn-success"
+                                                        className="btn btn-success btn-sm"
                                                         onClick={() => handleEdit(semester)}
                                                     >
                                                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
 
                                                     </button>
                                                     <button
-                                                        className="btn btn-danger"
+                                                        className="btn btn-danger btn-sm"
                                                         onClick={() => handleDelete(semester._id)}
                                                     >
                                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
