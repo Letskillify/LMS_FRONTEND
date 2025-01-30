@@ -6,17 +6,11 @@ import { MainContext } from '../../Controller/MainProvider';
 import { Bounce, toast } from "react-toastify";
 
 const CreateSemester = () => {
-    const { userId, Semester, fetchSemester } = useContext(MainContext); // Get userId from context
+    const { userId, Semester, fetchSemester } = useContext(MainContext); 
     const [semesters, setSemesters] = useState([]);
-    const [error, setError] = useState(null); // State for error messages
-    const [showModal, setShowModal] = useState(false); // Modal state
-    const [editingSemester, setEditingSemester] = useState(null); // State to track the semester being edited
-
-    useEffect(() => {
-        if (!userId) {
-            setError("Institute ID is missing. Please make sure you are logged in.");
-        }
-    }, [semesters, userId]);
+    const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false); 
+    const [editingSemester, setEditingSemester] = useState(null); 
 
     const initialValues = {
         instituteId: userId || "",

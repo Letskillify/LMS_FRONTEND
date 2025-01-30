@@ -187,7 +187,6 @@ function Section() {
                 <h5 className="card-title">List Section</h5>
                 <div>
                   <a href="#" className="text-primary me-3">All</a>
-                  <a href="#" className="text-primary">Trashed</a>
                 </div>
               </div>
               <div className="d-flex justify-content-end mb-3">
