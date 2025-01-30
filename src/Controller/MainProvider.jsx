@@ -460,7 +460,6 @@ export const MainProvider = ({ children }) => {
     setCourse(Array.isArray(data) ? data : []);
   };  
 
-
   return (
     <MainContext.Provider value={{fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
       {children}
