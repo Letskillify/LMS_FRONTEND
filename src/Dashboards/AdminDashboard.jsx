@@ -101,6 +101,7 @@ import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
 import Inventory from '../Admin Components/stock/Inventory.jsx'
 import Vourchar from '../Admin Components/Vouchars/Vouchars.jsx'
+import Inventory from '../Admin Components/stock/Inventory.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
