@@ -84,8 +84,6 @@ import Medium from '../Admin Components/Academics/Medium.jsx'
 import Section from '../Admin Components/Academics/Section.jsx'
 import Stream from '../Admin Components/Academics/Stream.jsx'
 import Subject from '../Admin Components/Academics/Subject.jsx'
-import Inventory from '../Admin Components/stock/Inventory.jsx'
-import Vourchar from '../Admin Components/Vouchars/Vouchars.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -173,9 +171,6 @@ const AdminDashboard = () => {
                 <Route path="/sections" element={<Section />}></Route>
                 <Route path="/streams" element={<Stream />}></Route>
                 <Route path="/subjects" element={<Subject />}></Route>
-                <Route path="/stock-Account" element={<Stock/>}></Route>
-                <Route path="/stock-Inventory" element={<Inventory/>}></Route>
-                <Route path="/Vourchar" element={<Vourchar/>}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />

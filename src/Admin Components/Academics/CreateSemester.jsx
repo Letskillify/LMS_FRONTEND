@@ -6,17 +6,11 @@ import { MainContext } from '../../Controller/MainProvider';
 import { Bounce, toast } from "react-toastify";
 
 const CreateSemester = () => {
+    const { userId, Semester, fetchSemester } = useContext(MainContext); 
     const [semesters, setSemesters] = useState([]);
-    const { userId } = useContext(MainContext); // Get userId from context
-    const [error, setError] = useState(null); // State for error messages
-    const [showModal, setShowModal] = useState(false); // Modal state
-    const [editingSemester, setEditingSemester] = useState(null); // State to track the semester being edited
-
-    useEffect(() => {
-        if (!userId) {
-            setError("Institute ID is missing. Please make sure you are logged in.");
-        }
-    }, [semesters, userId]);
+    const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false); 
+    const [editingSemester, setEditingSemester] = useState(null); 
 
     const initialValues = {
         instituteId: userId || "",
@@ -35,12 +29,17 @@ const CreateSemester = () => {
         try {
             const response = await axios.get("/api/semester/get");
             setSemesters(response.data);
-
         } catch (error) {
             console.error("Error fetching semesters:", error);
+            alert("Failed to load semesters.");
         }
     };
 
+    useEffect(() => {
+        if (userId) {
+            fetchSemesters();
+        }
+    }, [semesters, userId]);
 
 
     const onSubmit = async (values, { resetForm }) => {
@@ -52,18 +51,16 @@ const CreateSemester = () => {
                         semester._id === editingSemester._id ? response.data : semester
                     )
                 );
-                toast.success("Semester updated successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+                alert("Semester updated successfully!");
+            } else {
+                const response = await axios.post("/api/semester/post", values);
+                setSemesters((prevSemesters) => [...prevSemesters, response.data]);
+                alert("Semester created successfully!");
             }
+
+            resetForm();
+            setError(null);
+            setShowModal(false);
         } catch (error) {
             console.error("Error creating/updating semester:", error);
             toast.error(error.response.data.message || "Error creating/updating semester", {
@@ -86,17 +83,7 @@ const CreateSemester = () => {
             setSemesters((prevSemesters) =>
                 prevSemesters.filter((semester) => semester._id !== semesterId)
             );
-            toast.success("Semester deleted successfully", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            alert("Semester deleted successfully!");
         } catch (error) {
             console.error("Error deleting semester:", error);
             toast.error(error.response.data.message || "Error deleting semester", {
@@ -148,8 +135,8 @@ const CreateSemester = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {semesters.length > 0 ? (
-                                    semesters.map((semester, index) => (
+                                {semesters?.length > 0 ? (
+                                    semesters?.map((semester, index) => (
                                         <tr key={semester._id}>
                                             <td>{index + 1}</td>
                                             <td className= "text-capitalizetext-capitalize">{semester.semesterName}</td>

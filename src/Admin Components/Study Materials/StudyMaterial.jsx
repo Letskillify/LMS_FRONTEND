@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 // import Slider from "react-slick";
@@ -7,9 +7,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import {
+  useFileUploader,
   useImageUploader,
   useVideoUploader,
 } from "../../Custom Hooks/CustomeHook";
+import { MainContext } from "../../Controller/MainProvider";
 
 function StudyMaterial() {
   const [mainData, setMainData] = useState([]);
@@ -26,10 +28,14 @@ function StudyMaterial() {
   const [selectedId, setSelectedId] = useState(null);
   const [edit, setEdit] = useState("");
   const { uploadedData, handleImageUpload } = useImageUploader();
-  const [fileType, setFileType] = useState("image");
+  // const [fileType, setFileType] = useState("image");
   const { uploadedVideos, uploadProgress, isLoading, handleVideoUpload } =
     useVideoUploader();
   const [uploadCompleted, setUploadCompleted] = useState(false);
+  const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
+  const { userId } = useContext(MainContext);
+  const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
+    useFileUploader();
 
   async function getData() {
     const response = await axios
@@ -68,11 +74,15 @@ function StudyMaterial() {
     }
   };
 
+  console.log(uploadedFiles);
+
   const handleSubmit = (values, { setSubmitting }, modalId) => {
-    const data = { ...values, fileURL: uploadedData?.fileURL };
-
-    console.log(data);
-
+    const data = {
+      ...values,
+      fileURL: uploadedData?.fileURL || uploadedVideos?.fileURL,
+      document: uploadedFiles?.document,
+    };
+    // console.log("Form Data:", data);
     axios
       .put(
         `http://localhost:5500/api/study-material/update/${selectedId}`,
@@ -114,15 +124,17 @@ function StudyMaterial() {
 
   // Filter select or search bar
   const applyFilter = (e) => {
-    e.preventDefault();
-    const newFilteredData = originalstudyMaterialData?.filter((data) => {
-      const matchesName = data?.title
-        .toLowerCase()
-        .includes(find.toLowerCase());
-      return matchesName;
-    });
+    const searchValue = e.target.value.toLowerCase();
+    console.log("Search value:", searchValue);
+    setFind(searchValue);
 
-    setStudyMaterialData(newFilteredData);
+    const filteredData = studyMaterialData.filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchValue) ||
+        item.subject.toLowerCase().includes(searchValue)
+    );
+
+    setStudyMaterialData(filteredData);
   };
   const resetFilters = (e) => {
     console.log("clicked");
@@ -140,6 +152,7 @@ function StudyMaterial() {
       const data = {
         ...e,
         fileURL: uploadedData?.fileURL || uploadedVideos?.fileURL,
+        document: uploadedFiles?.document,
       };
       console.log("Form Data:", e);
 
@@ -163,6 +176,7 @@ function StudyMaterial() {
       alert("Please wait while the data is being uploaded");
     }
     setUploadCompleted(false);
+    setUploadFileCompleted(false);
   }
 
   useEffect(() => {
@@ -179,6 +193,18 @@ function StudyMaterial() {
       setUploadCompleted(true);
     }
   }, [uploadProgress]);
+
+  useEffect(() => {
+    if (uploadedFiles === 100) {
+      setUploadFileCompleted(true);
+    }
+  }, [uploadedFiles]);
+
+  // useEffect(() => {
+  //   if (uploadedFiles === 100) {
+  //     setUploadCompleted(true);
+  //   }
+  // },[uploadedFiles]);
 
   console.log(filteredData);
   console.log(mainData);
@@ -226,51 +252,22 @@ function StudyMaterial() {
             <div className="bg-white p-3 border rounded-1 d-flex align-items-center justify-content-between flex-wrap mb-4 pb-0 shadow-sm">
               <h4 className="mb-3 fw-bold fs-5">{Material}</h4>
               <div className="d-flex align-items-center flex-wrap">
-                <div className="dropdown mb-3 me-2">
-                  <a
-                    className="btn text-dark border border-2 bg-white"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
+                <div className="mb-3 me-2">
+                  <input
+                    type="search"
+                    placeholder="Search"
+                    className="form-control w-100 p-2 border rounded "
+                    value={find}
+                    onChange={applyFilter}
+                  />
+                </div>
+                <div className={`mb-3 ${find ? "d-block" : "d-none"}`}>
+                  <button
+                    className="btn btn-secondary me-2"
+                    onClick={resetFilters}
                   >
-                    <i className="fa fa-filter me-2" />
-                    Filter
-                  </a>
-                  <div className="dropdown-menu  shadow">
-                    <form>
-                      <div className="d-flex align-items-center border-bottom p-3">
-                        <h4>Filter</h4>
-                      </div>
-                      <div className="p-3 pb-0 border-bottom">
-                        <div className="row align-items-center">
-                          <div className=" col-lg-12 col-md-12">
-                            <div className="mb-3">
-                              <label className="form-label">Name</label>
-                              <input
-                                type="search"
-                                placeholder="Search Name"
-                                className="w-100 p-2 border rounded"
-                                onChange={(e) => setFind(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-3 d-flex align-items-center justify-content-end">
-                        <button
-                          className="btn btn-secondary me-2"
-                          onClick={resetFilters}
-                        >
-                          Reset
-                        </button>
-                        <button
-                          className="btn btn-primary"
-                          onClick={applyFilter}
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                    Reset
+                  </button>
                 </div>
                 {/* Second Header */}
 
@@ -291,8 +288,7 @@ function StudyMaterial() {
                   <div className="modal-dialog modal-dialog-centered modal-lg">
                     <div className="modal-content">
                       <div className="modal-header">
-                        <h4 className="modal-title fs-5 fw-bold bg-blue-200 text-blue-600 px-2 rounded shadow-sm p-1">
-                          <i className="fa fa-plus me-2" aria-hidden="true"></i>
+                        <h4 className="modal-title fs-5 fw-bold p-1">
                           Add Material
                         </h4>
                         <button
@@ -304,13 +300,17 @@ function StudyMaterial() {
                           <i className="ti ti-x" />
                         </button>
                       </div>
-                      <div className="modal-body">
+                      <div className="modal-body pt-0">
                         <Formik
                           initialValues={{
+                            instituteId: userId,
                             title: "",
                             subject: "",
+                            course: "",
+                            semester: "",
                             description: "",
                             fileURL: "",
+                            document: "",
                             uploaderName: "",
                             uploadedDate: "",
                             category: "",
@@ -350,6 +350,38 @@ function StudyMaterial() {
                                     className="form-control shadow-sm border-2"
                                     placeholder="Subject"
                                     aria-label="Subject"
+                                  />
+                                </div>
+                              </div>
+                              <div className="row mt-2">
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Course
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="course"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Course"
+                                    aria-label="Course"
+                                  />
+                                </div>
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Semester
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    name="semester"
+                                    className="form-control shadow-sm border-2"
+                                    placeholder="Semester"
+                                    aria-label="Semester"
                                   />
                                 </div>
                               </div>
@@ -397,8 +429,8 @@ function StudyMaterial() {
                                     className="form-label fw-normal mb-1 fs-6"
                                   >
                                     {values.category === "video"
-                                      ? "Upload Video"
-                                      : "Upload Image"}
+                                      ? "Upload Thumbnail Video"
+                                      : "Upload Thumbnail Image"}
                                   </label>
                                   {values.category === "video" ? (
                                     <Field
@@ -423,38 +455,95 @@ function StudyMaterial() {
                                   )}
                                   {/* Progress Bar */}
                                   <div className="upload-container">
-                                    {values.category === "video" ?
-                                      (
-                                        uploadProgress < 100 ? (
-                                          isLoading ? (
+                                    {values.category === "video" ? (
+                                      uploadProgress < 100 ? (
+                                        isLoading ? (
+                                          <div
+                                            className="progress mt-3"
+                                            role="progressbar"
+                                            aria-label="Example with label"
+                                            aria-valuenow={uploadProgress}
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                          >
                                             <div
-                                              className="progress mt-3"
-                                              role="progressbar"
-                                              aria-label="Example with label"
-                                              aria-valuenow={uploadProgress}
-                                              aria-valuemin="0"
-                                              aria-valuemax="100"
+                                              className="progress-bar"
+                                              style={{
+                                                width: `${uploadProgress}%`,
+                                              }}
                                             >
-                                              <div
-                                                className="progress-bar"
-                                                style={{
-                                                  width: `${uploadProgress}%`,
-                                                }}
-                                              >
-                                                {uploadProgress}%
-                                              </div>
+                                              {uploadProgress}%
                                             </div>
-                                          ) : uploadCompleted ? (
-                                            <div className="text-success fw-semibold mt-3">
-                                              Upload Completed!
-                                            </div>
-                                          ) : null
+                                          </div>
+                                        ) : uploadCompleted ? (
+                                          <div className="text-success fw-semibold mt-3">
+                                            Upload Completed!
+                                          </div>
                                         ) : null
-                                      ) : null}
+                                      ) : null
+                                    ) : null}
                                   </div>
                                   {/* Progress Bar */}
                                 </div>
 
+                                <div className="col-6">
+                                  <label
+                                    htmlFor=""
+                                    className="form-label fw-normal mb-1 fs-6"
+                                  >
+                                    Upload File
+                                  </label>
+                                  {values.category === "video" ? (
+                                    <Field
+                                      type="file"
+                                      name="document"
+                                      accept="video/mp4, video/webm, video/ogg"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleVideoUpload(e, "document")
+                                      }
+                                    />
+                                  ) : (
+                                    <Field
+                                      type="file"
+                                      name="document"
+                                      accept="application/pdf, .doc, .docx"
+                                      className="form-control shadow-sm border-2"
+                                      onChange={(e) =>
+                                        handleFileUpload(e, "document")
+                                      }
+                                    />
+                                  )}
+                                  <div className="upload-container">
+                                    {fileuploadProgress < 100 ? (
+                                      isfileLoading ? (
+                                        <div
+                                          className="progress mt-3"
+                                          role="progressbar"
+                                          aria-label="Example with label"
+                                          aria-valuenow={fileuploadProgress}
+                                          aria-valuemin="0"
+                                          aria-valuemax="100"
+                                        >
+                                          <div
+                                            className="progress-bar"
+                                            style={{
+                                              width: `${fileuploadProgress}%`,
+                                            }}
+                                          >
+                                            {fileuploadProgress}%
+                                          </div>
+                                        </div>
+                                      ) : uploadfileCompleted ? (
+                                        <div className="text-success fw-semibold mt-3">
+                                          Upload Completed!
+                                        </div>
+                                      ) : null
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="row mt-3">
                                 <div className="col-6">
                                   <label
                                     htmlFor=""
@@ -470,8 +559,6 @@ function StudyMaterial() {
                                     aria-label="UploaderName"
                                   />
                                 </div>
-                              </div>
-                              <div className="row mt-3">
                                 <div className="col-6">
                                   <label
                                     htmlFor=""
@@ -485,21 +572,6 @@ function StudyMaterial() {
                                     className="form-control shadow-sm border-2"
                                     placeholder="UploaderDate"
                                     aria-label="UploaderDate"
-                                  />
-                                </div>
-                                <div className="col-6">
-                                  <label
-                                    htmlFor=""
-                                    className="form-label fw-normal mb-1 fs-6"
-                                  >
-                                    Tags
-                                  </label>
-                                  <Field
-                                    type="text"
-                                    name="tags"
-                                    className="form-control shadow-sm border-2"
-                                    placeholder="Tags"
-                                    aria-label="Tags"
                                   />
                                 </div>
                               </div>
@@ -541,30 +613,33 @@ function StudyMaterial() {
             {/* Three Buttons */}
             <div className="text-center">
               <button
-                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Book"
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${
+                  Material === "Book"
                     ? "bg-primary text-white "
                     : "text-primary bg-white"
-                  }`}
+                }`}
                 onClick={() => setMaterial("Book")}
               >
                 <i className="fa fa-book me-2" aria-hidden="true"></i>
                 Books Section
               </button>
               <button
-                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Note"
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${
+                  Material === "Note"
                     ? "bg-primary text-white"
                     : "text-primary bg-white"
-                  }`}
+                }`}
                 onClick={() => setMaterial("Note")}
               >
                 <i className="fa fa-sticky-note me-2" aria-hidden="true"></i>
                 Notes Section
               </button>
               <button
-                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${Material === "Video"
+                className={`btn rounded-2 m-2 border-primary border-3 fw-bold ${
+                  Material === "Video"
                     ? "bg-primary text-white"
                     : "text-primary bg-white"
-                  }`}
+                }`}
                 onClick={() => setMaterial("Video")}
               >
                 <i className="fa fa-video-camera me-2" aria-hidden="true"></i>
@@ -588,14 +663,14 @@ function StudyMaterial() {
                         key={index}
                       >
                         <div className="card flex-fill shadow">
-                          <div className="card-body pb-1">
+                          <div className="card-body pb-1 pt-3">
                             <div>
                               <div className="col-12 text-center mx-auto mb-3">
                                 {Material === "Video" ? (
                                   <video
                                     src={teacher?.fileURL}
                                     className="img-fluid mx-auto"
-                                    style={{ width: "250px" }}
+                                    style={{ maxWidth: "100%" }}
                                     controls
                                     alt={teacher?.fileURL}
                                   >
@@ -606,19 +681,23 @@ function StudyMaterial() {
                                     src={teacher?.fileURL}
                                     className="img-fluid mx-auto"
                                     alt={teacher?.fileURL}
-                                    style={{ width: "150px" }}
+                                    style={{
+                                      maxWidth: "100%",
+                                      height: "210px",
+                                    }}
                                   />
                                 )}
                               </div>
-
-                              <div className="card-footer pb-0 text-dark bg-white">
+                              <div className="card-footer pb-0 pt-2 text-dark bg-white">
                                 <div className="d-flex">
-                                  <p className="mb-2 fw-bold">Title : </p>
-                                  <p className="ms-1"> {teacher?.title}</p>
+                                  <p className="fw-bold mb-2">Title : </p>
+                                  <p className="ms-1 mb-0"> {teacher?.title}</p>
                                 </div>
                                 <div className="d-flex">
-                                  <p className="mb-2 fw-bold">Subject :</p>
-                                  <p className="ms-1">{teacher?.subject}</p>
+                                  <p className="fw-bold mb-2">Subject :</p>
+                                  <p className="ms-1 mb-0">
+                                    {teacher?.subject}
+                                  </p>
                                 </div>
                                 <div className="">
                                   <p className="mb-0 fw-bold">Description :</p>
@@ -630,6 +709,7 @@ function StudyMaterial() {
                           <div className="card-footer pb-3 pt-0 d-flex align-items-center justify-content-between ">
                             <button
                               className="btn btn-primary text-white fw-bold btn-sm"
+                              style={{ fontSize: "14px" }}
                               data-bs-toggle="modal"
                               data-bs-target={`#edit_material_${index}`}
                               onClick={() => setSelectedId(teacher._id)}
@@ -643,6 +723,7 @@ function StudyMaterial() {
                             <button
                               type="button"
                               className="btn btn-danger text-white fw-bold btn-sm"
+                              style={{ fontSize: "14px" }}
                               onClick={() => setSelectedId(teacher._id)}
                               data-bs-toggle="modal"
                               data-bs-target="#delete_material"
@@ -694,12 +775,14 @@ function StudyMaterial() {
                                   initialValues={{
                                     title: teacher?.title,
                                     subject: teacher?.subject,
+                                    course: teacher?.course,
+                                    semester: teacher?.semester,
                                     description: teacher?.description,
                                     fileURL: null,
+                                    document: null,
                                     uploaderName: teacher?.uploaderName,
                                     uploadedDate: teacher?.uploadedDate,
                                     category: teacher?.category,
-                                    tags: teacher?.tags,
                                   }}
                                 >
                                   {({ isSubmitting }) => (
@@ -736,20 +819,20 @@ function StudyMaterial() {
                                           />
                                         </div>
                                       </div>
-                                      <div className="row  mt-3">
+                                      <div className="row mt-2">
                                         <div className="col-6">
                                           <label
                                             htmlFor=""
                                             className="form-label fw-normal mb-1 fs-6"
                                           >
-                                            Description
+                                            Course
                                           </label>
                                           <Field
                                             type="text"
-                                            name="description"
+                                            name="course"
                                             className="form-control shadow-sm border-2"
-                                            placeholder="Description"
-                                            aria-label="Description"
+                                            placeholder="Course"
+                                            aria-label="Course"
                                           />
                                         </div>
                                         <div className="col-6">
@@ -757,9 +840,26 @@ function StudyMaterial() {
                                             htmlFor=""
                                             className="form-label fw-normal mb-1 fs-6"
                                           >
+                                            Semester
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="semester"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Semester"
+                                            aria-label="Semester"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="row  mt-3">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
                                             {teacher.category === "video"
-                                              ? "Upload Video"
-                                              : "Upload Image"}
+                                              ? "Edit Thumbnail Video"
+                                              : "Edit Thumbnail Image"}
                                           </label>
                                           {teacher.fileURL ? (
                                             <div>
@@ -817,9 +917,9 @@ function StudyMaterial() {
                                           )}
                                           {/* Progress Bar */}
                                           <div className="upload-container">
-                                            {isLoading === true ? (
-                                              teacher.category === "video" ? (
-                                                uploadProgress < 100 ? (
+                                            {teacher.category === "video" ? (
+                                              uploadProgress < 100 ? (
+                                                isLoading ? (
                                                   <div
                                                     className="progress mt-3"
                                                     role="progressbar"
@@ -839,15 +939,91 @@ function StudyMaterial() {
                                                       {uploadProgress}%
                                                     </div>
                                                   </div>
-                                                ) : (
+                                                ) : uploadCompleted ? (
                                                   <div className="text-success fw-semibold mt-3">
                                                     Upload Completed!
                                                   </div>
-                                                )
+                                                ) : null
                                               ) : null
                                             ) : null}
                                           </div>
                                           {/* Progress Bar */}
+                                        </div>
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
+                                            Edit File
+                                          </label>
+                                          {teacher.document ? (
+                                            <div>
+                                              {edit === "Document" ? (
+                                                <Field
+                                                  type="file"
+                                                  name="document"
+                                                  id="document"
+                                                  accept="application/pdf, .doc, .docx"
+                                                  className="form-control shadow-sm border-2"
+                                                  onChange={(e) =>
+                                                    handleFileUpload(
+                                                      e,
+                                                      "document"
+                                                    )
+                                                  }
+                                                />
+                                              ) : (
+                                                <button
+                                                  className="btn border w-100 text-start shadow-sm"
+                                                  onClick={() =>
+                                                    setEdit("Document")
+                                                  }
+                                                >
+                                                  Edit
+                                                </button>
+                                              )}
+                                              <div className="upload-container">
+                                                {fileuploadProgress < 100 ? (
+                                                  isfileLoading ? (
+                                                    <div
+                                                      className="progress mt-3"
+                                                      role="progressbar"
+                                                      aria-label="Example with label"
+                                                      aria-valuenow={
+                                                        fileuploadProgress
+                                                      }
+                                                      aria-valuemin="0"
+                                                      aria-valuemax="100"
+                                                    >
+                                                      <div
+                                                        className="progress-bar"
+                                                        style={{
+                                                          width: `${fileuploadProgress}%`,
+                                                        }}
+                                                      >
+                                                        {fileuploadProgress}%
+                                                      </div>
+                                                    </div>
+                                                  ) : uploadfileCompleted ? (
+                                                    <div className="text-success fw-semibold mt-3">
+                                                      Upload Completed!
+                                                    </div>
+                                                  ) : null
+                                                ) : null}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <Field
+                                              type="file"
+                                              name="document"
+                                              id="document"
+                                              accept="application/pdf, .doc, .docx"
+                                              className="form-control shadow-sm border-2"
+                                              onChange={(e) =>
+                                                handleFileUpload(e, "document")
+                                              }
+                                            />
+                                          )}
                                         </div>
                                       </div>
                                       <div className="row mt-3">
@@ -871,6 +1047,23 @@ function StudyMaterial() {
                                             htmlFor=""
                                             className="form-label fw-normal mb-1 fs-6"
                                           >
+                                            Description
+                                          </label>
+                                          <Field
+                                            type="text"
+                                            name="description"
+                                            className="form-control shadow-sm border-2"
+                                            placeholder="Description"
+                                            aria-label="Description"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="row mt-3">
+                                        <div className="col-6">
+                                          <label
+                                            htmlFor=""
+                                            className="form-label fw-normal mb-1 fs-6"
+                                          >
                                             Uploader Date
                                           </label>
                                           <Field
@@ -881,8 +1074,6 @@ function StudyMaterial() {
                                             aria-label="UploaderDate"
                                           />
                                         </div>
-                                      </div>
-                                      <div className="row mt-3">
                                         <div className="col-6">
                                           <label
                                             htmlFor=""
@@ -901,21 +1092,6 @@ function StudyMaterial() {
                                             <option value="note">Notes</option>
                                             <option value="video">Video</option>
                                           </Field>
-                                        </div>
-                                        <div className="col-6">
-                                          <label
-                                            htmlFor=""
-                                            className="form-label fw-normal mb-1 fs-6"
-                                          >
-                                            Tags
-                                          </label>
-                                          <Field
-                                            type="text"
-                                            name="tags"
-                                            className="form-control shadow-sm border-2"
-                                            placeholder="Tags"
-                                            aria-label="Tags"
-                                          />
                                         </div>
                                       </div>
                                       <div className="d-flex mt-4 justify-content-end text-center">
