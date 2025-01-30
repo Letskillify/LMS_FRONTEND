@@ -219,6 +219,8 @@ const AdminDashboard = () => {
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
               <Route path="fee-type" element={<FeeType />}></Route>
+                <Route path="/stock-Account" element={<Stock/>}></Route>
+                <Route path="/stock-Inventory" element={<Inventory/>}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
