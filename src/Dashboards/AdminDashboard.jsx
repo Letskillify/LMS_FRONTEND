@@ -97,6 +97,7 @@ import Course from '../Admin Components/Academics/Course.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
+import Inventory from '../Admin Components/stock/Inventory.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -203,6 +204,8 @@ const AdminDashboard = () => {
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
               <Route path="fee-type" element={<FeeType />}></Route>
+                <Route path="/stock-Account" element={<Stock/>}></Route>
+                <Route path="/stock-Inventory" element={<Inventory/>}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
