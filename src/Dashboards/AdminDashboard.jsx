@@ -171,6 +171,8 @@ const AdminDashboard = () => {
                 <Route path="/sections" element={<Section />}></Route>
                 <Route path="/streams" element={<Stream />}></Route>
                 <Route path="/subjects" element={<Subject />}></Route>
+                <Route path="/board" element={<Board />}></Route>
+                <Route path="/classgroup" element={<ClassGroup />}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
