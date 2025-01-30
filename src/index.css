@@ -15,6 +15,24 @@
 .bg-themsecondary {
     background-color: var(--themesecondary);
 }
+.css-13cymwt-control {
+    /* display: block !important; */
+    width: 100% !important;
+    padding: 1px !important;
+    -moz-padding-start: calc(0.875rem - 3px) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 400 !important;
+    line-height: 1.53 !important;
+    color: #697a8d !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    border: 1px solid #d9dee3 !important;
+    border-radius: 0.375rem !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
 
 
 .manage span {

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Formik, Form, Field, useFormikContext } from 'formik';
 // import * as Yup from 'yup';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import LMSTable from '../Students/LMSTable';
+// import LMSTable from '../Students/LMSTable';
 import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
