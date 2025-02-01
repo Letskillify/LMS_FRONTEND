@@ -103,6 +103,12 @@ import Inventory from '../Admin Components/stock/Inventory.jsx'
 import Vourchar from '../Admin Components/Vouchars/Vouchars.jsx'
 import Inventory from '../Admin Components/stock/Inventory.jsx'
 import Vourchar from '../Admin Components/Vouchars/Vouchars.jsx'
+import Board from '../Admin Components/Academics/Board.jsx'
+import ClassGroup from '../Admin Components/Academics/ClassGroup.jsx'
+import Purchase from '../Admin Components/Vouchars/Purchase.jsx'
+import ExpenseForm from '../Admin Components/Vouchars/ExpenseForm.jsx'
+import Sale from '../Admin Components/Vouchars/Sale.jsx'
+import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
