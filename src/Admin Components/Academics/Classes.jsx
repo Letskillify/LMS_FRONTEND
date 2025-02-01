@@ -31,6 +31,9 @@ const Classes = () => {
     const handleAddForm = () => {
         setAddSubject([...addSubject, {}]);
     };
+    const handleEditAddForm = () => {
+        setSelectEdit([...selectEdit, subject]);
+    };
     const handleRemoveForm = (index) => {
         const updatedForms = [...addSubject];
         updatedForms.splice(index, 1);
@@ -81,9 +84,11 @@ const Classes = () => {
             });
         }
     };
-    const handleEdit = async (course, id) => {
+    const handleEdit = async (classes, id) => {
+        console.log(classes);
+        
         try {
-            const response = await axios.put(`/api/class/update/${id}`, course, {
+            const response = await axios.put(`/api/class/update/${id}`, classes, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -103,8 +108,8 @@ const Classes = () => {
                 fetchClass();
             }
         } catch (error) {
-            console.error('Error updating course:', error);
-            toast.error(error.response?.data?.message || "Error updating course", {
+            console.error('Error updating class:', error);
+            toast.error(error.response?.data?.message || "Error updating class", {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -584,28 +589,24 @@ const Classes = () => {
                             <div className="modal-body px-4 py-3">
                                 {/* {error && <div className="alert alert-danger">{error}</div>} */}
                                 <Formik
-                                    // initialValues={{
-                                    //     className: selectEdit?.className,
-                                    //     section: selectEdit?.section?.map(s => s._id),
-                                    //     medium: selectEdit?.medium?.map(s => s._id),
-                                    //     stream: selectEdit?.stream?.map(s => s._id),
-                                    //     semester: selectEdit?.semester?.map(s => s._id),
-                                    //     shift: selectEdit?.shift?.map(s => s._id),
-                                    //     board: selectEdit?.board?.map(s => s._id),
-                                    //     instituteId: userId,
-                                    //     courseDescription: selectEdit?.courseDescription,
-                                    //     courseType: selectEdit?.courseType,
-                                    //     courseDuration: selectEdit?.courseDuration,
-                                    //     courseCompleted: selectEdit?.courseCompleted,
-                                    //     includeSemester: selectEdit?.includeSemester,
-                                    // }}
+                                    initialValues={{
+                                        courses: selectEdit?.courses?._id                                        ,
+                                        board: selectEdit?.board?._id,
+                                        courseGroup: selectEdit?.courseGroup?._id,
+                                        medium: selectEdit?.medium?._id,
+                                        section: selectEdit?.section?._id,
+                                        semester: selectEdit?.semester?._id,
+                                        shift: selectEdit?.shift?._id,
+                                        stream: selectEdit?.stream?._id,
+                                        subject: selectEdit?.subject,
+                                        instituteId: userId,
+                                    }}
                                     // validationSchema={validationSchema}
                                     onSubmit={(value) => handleEdit(value, selectEdit._id)}
                                 >
                                     {({ values, setFieldValue }) => (
                                         <Form>
                                             <div className="row">
-                                                <p className='text-center text-info mb-4'>Name is auto generated select course and all other details</p>
                                                 {/* <div className="col-12 col-md-6 mb-3">
                                                  <label htmlFor="className" className="form-label">
                                                      Class Name
@@ -801,7 +802,7 @@ const Classes = () => {
                                                     />
                                                 </div>
                                                 <div class="row">
-                                                    {addSubject.map((subject, index) => (
+                                                    {selectEdit.subject.map((subject, index) => (
                                                         <>
                                                             <div className="col-12 col-md-6 mb-3">
                                                                 <label htmlFor="stream" className="form-label">
@@ -811,7 +812,8 @@ const Classes = () => {
                                                                     id="stream"
                                                                     name={`subject.${index}.name`}
                                                                     className="form-select"
-                                                                    
+                                                                    value={values.subject[index]?.name?._id}
+                                                                    onChange={(e) => setFieldValue(`subject.${index}.name`, e.target.value)}
                                                                 >
                                                                     <option value="">Select Subject</option>
                                                                     {Course?.find(course => course._id === values.courses)?.subjects?.map((subject) => (

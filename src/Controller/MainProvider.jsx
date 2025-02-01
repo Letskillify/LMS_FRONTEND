@@ -375,6 +375,7 @@ export const MainProvider = ({ children }) => {
   const fetchInstitute = async () => {
     const data = await getApi(`/api/institute/get/${userId}`);
     setInstitute(Array.isArray(data) ? data : []);
+    setInstituteId(data?._id);
   };
   const fetchStudent = async () => {
     const data = await getApi(`/api/student/get/${userId}`);
