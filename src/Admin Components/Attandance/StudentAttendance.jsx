@@ -4,6 +4,7 @@ import AttendanceModal from "./attendanceModal";
 import axios from "axios";
 import "./attendance.css";
 import { MainContext } from "../../Controller/MainProvider";
+import { GET_STUDENTS, GET_STUDENTS_BY_COURSE_AND_SECTION, MARK_ATTENDANCE } from "../../ApiConstants/Routes";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Calendar = () => {
@@ -13,74 +14,81 @@ const Calendar = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [filters, setFilters] = useState({
     course: "",
-    class: "",
     section: "",
   });
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [coursesOptions, setCoursesOptions] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
   const [sectionsOptions, setSectionsOptions] = useState([]);
 
-  const { userId } = useContext(MainContext);
+  const { instituteId, userId } = useContext(MainContext);
 
   useEffect(() => {
+    if (!instituteId) return;
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `/api/courses/get-by-institute/${userId}`
+          `/api/courses/get/institute/${instituteId}`
         );
-        setFilters((prev) => ({ ...prev, course: response.data[0] }));
-        setCoursesOptions(response?.data?.Courses);
+        // setFilters((prev) => ({ ...prev, course: response.data }));
+        setCoursesOptions(response?.data);
+        // setSectionsOptions(response?.data?.section);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
     };
 
+    const fetchSections = async () => {
+      try {
+        const response = await axios.get(
+          `/api/section/get/institute/${instituteId}`
+        );
+        // setSectionsOptions(response?.data);
+      } catch (error) {
+        console.error("Error fetching sections:", error);
+      }
+    };
+
     fetchCourses();
+    fetchSections();
 
     return () => {
       setStudents([]);
     };
-  }, []);
+  }, [instituteId]);
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    console.log("key", key, "value", value);
+    setFilters((prev) => ({ ...prev, [key]: value._id }));
+
+    if (key === "section") {
+      setSelectedSection(value);
+    }
 
     if (key === "course") {
       setSelectedCourse(value);
-
-      // Fetch sections based on selected course
-      if (value) {
-        const selectedCourseData = coursesOptions.find(
-          (course) => course._id === value
-        );
-        if (selectedCourseData && selectedCourseData.courseSection) {
-          setSectionsOptions(selectedCourseData.courseSection);
-        } else {
-          setSectionsOptions([]);
-        }
-      } else {
-        setSectionsOptions([]);
-      }
+      setSectionsOptions(value.section);
+      console.log("kfhjdskjfgdsjhgfuygdsuygf");
     }
   };
 
   const applyFilters = async () => {
-    const { course, class: classFilter, section } = filters;
-
-    if (!course || !classFilter || !section) {
-      alert("Please select all filters!");
-      return;
-    }
-
     setLoading(true);
     try {
-      const response = await axios.get(`/api/student/get`, {
-        params: { course, class: classFilter, section },
-      });
-      setStudents(response.data);
-      setShowCalendar(true); // Show the calendar only after fetching data
+      const response = await axios.get(
+        GET_STUDENTS_BY_COURSE_AND_SECTION,
+        {
+          params: {
+            courseId: selectedCourse?._id,
+            sectionId: selectedSection?._id,
+            instituteId: instituteId,
+          },
+        }
+      );
+      setStudents(response?.data);
+      setShowCalendar(true);
     } catch (error) {
       console.error("Error fetching students:", error);
       alert("Failed to fetch students. Please try again.");
@@ -175,9 +183,16 @@ const Calendar = () => {
               <Form.Control
                 as="select"
                 value={filters.course}
-                onChange={(e) => handleFilterChange("course", e.target.value)}
+                onChange={(e) => {
+                  const selectedCourse = coursesOptions.find(
+                    (course) => course._id === e.target.value
+                  );
+                  handleFilterChange("course", selectedCourse);
+                }}
               >
-                <option value="">Select Course</option>
+                <option disabled value="">
+                  Select Course
+                </option>
                 {coursesOptions?.map((course) => (
                   <option key={course._id} value={course._id}>
                     {course.courseName}
@@ -192,17 +207,22 @@ const Calendar = () => {
               <Form.Control
                 as="select"
                 value={filters.section}
-                onChange={(e) => handleFilterChange("section", e.target.value)}
+                onChange={(e) => {
+                  const selectedSection = sectionsOptions.find(
+                    (section) => section._id === e.target.value
+                  )
+                  handleFilterChange("section", selectedSection);
+                }}
                 disabled={!filters.course}
               >
-                <option value="">
+                <option disabled value="">
                   {!filters.course
                     ? "Please select a course first"
                     : "Select Section"}
                 </option>
-                {sectionsOptions.map((sectionId) => (
-                  <option key={sectionId} value={sectionId}>
-                    {sectionId} {/* Display section name or ID */}
+                {sectionsOptions?.map((section) => (
+                  <option key={section?._id} value={section?._id}>
+                    {section?.sectionName}
                   </option>
                 ))}
               </Form.Control>
@@ -264,8 +284,13 @@ const Calendar = () => {
           onHide={closeModal}
           date={selectedDate}
           type="Students"
-          fetchUrl="/api/student/get"
-          submitUrl="/api/attendance/mark"
+          data = {students}
+          fetchUrl={GET_STUDENTS}
+          submitUrl={MARK_ATTENDANCE}
+          instituteId={instituteId}
+          userId = {userId} 
+          sectionId={selectedSection?._id}
+          courseId={selectedCourse?._id}
           columns={[
             {
               label: "Student Name",
