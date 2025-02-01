@@ -130,10 +130,12 @@ function SideDrawer() {
         '/shifts',
         '/mediums',
         '/sections',
-        '/courses',
+        '/course',
         '/streams',
         '/subjects',
         '/board',
+        '/coursegroup',
+        '/classes',
 
     ]
     // const admission
@@ -213,12 +215,22 @@ function SideDrawer() {
                                 </NavLink>
                                 <NavLink activeclassname="active" className="menu-item" to="/board">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Board</div>
+                                        <div>Boards</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/classgroup">
+                                <NavLink activeclassname="active" className="menu-item" to="/course">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Class Group</div>
+                                        <div>Courses</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/coursegroup">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Course Group</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/classes">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Classes</div>
                                     </a>
                                 </NavLink>
                             </ul>

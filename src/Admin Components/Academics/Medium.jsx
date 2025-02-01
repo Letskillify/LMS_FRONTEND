@@ -69,7 +69,7 @@ function Medium() {
 
 
   return (
-    <div className="container py-5">
+    <div className="px-4 py-5">
       <div className="row">
         {/* Create Medium Section */}
         <div className="col-md-4 mt-2">

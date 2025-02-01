@@ -143,7 +143,7 @@ function stream() {
   }, []);
 
   return (
-    <div className="container py-5">
+    <div className="px-4 py-5">
       <div className="row">
         {/* Create stream Section */}
         <div className="col-md-4 mt-2">
@@ -195,13 +195,13 @@ function stream() {
               </div>
               <div className="d-flex justify-content-end mb-3">
                 <div>
-                  <button className="btn btn-secondary btn-sm me-2">
+                  <button className="btn btn-primary btn-sm me-2">
                     <i className="fa fa-refresh" aria-hidden="true"></i>
                   </button>
                   <button className="btn btn-secondary btn-sm me-2">
                     <i className="fa fa-list-alt" aria-hidden="true"></i>
                   </button>
-                  <button className="btn btn-secondary btn-sm">
+                  <button className="btn btn-info btn-sm">
                     <i className="fa fa-download" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -228,13 +228,13 @@ function stream() {
                       <th scope="row">{index + 1}</th>
                       <td className='text-capitalize'>{item.streamName}</td>
                       <td>
-                        <button className="btn btn-edit btn-lg "  onClick={() => {
+                        <button className="btn btn-primary btn-sm me-2"  onClick={() => {
                             setPopup(true);
                             setSelectedstream(item);
                           }}>
                           <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </button>
-                        <button className="btn btn-delete btn-lg" onClick={() => handlestreamDelete(item._id)}>
+                        <button className="btn btn-danger btn-sm" onClick={() => handlestreamDelete(item._id)}>
                           <i className="fa fa-trash-o" aria-hidden="true"></i>
                         </button>
                       </td>

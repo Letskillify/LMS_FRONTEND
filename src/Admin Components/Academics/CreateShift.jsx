@@ -2,12 +2,11 @@ import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { MainContext } from "../../Controller/MainProvider";
 import { Bounce, toast } from "react-toastify";
+import { MainContext } from "../../Controller/MainProvider";
 
 const CreateShift = () => {
-    const [shifts, setShifts] = useState([]);
-    const { userId } = useContext(MainContext); // Get userId from context
+    const { userId, Shift, fetchShift } = useContext(MainContext); // Get userId from context
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState(null);
     const [editingShift, setEditingShift] = useState(null);
@@ -29,16 +28,6 @@ const CreateShift = () => {
         ).required("Shift End Time is required"),
         instituteId: Yup.string().required("Institute ID is required"),
     })
-
-    const fetchShift = async () => {
-        try {
-            const response = await axios.get("/api/shift/get");
-            setShifts(response.data);
-        }
-        catch (error) {
-            console.error("Error fetching shift:", error);
-        }
-    };
     const handleShifts = async (values, { resetForm }) => {
         console.log(values);
 
@@ -60,6 +49,7 @@ const CreateShift = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
+                setShowModal(false);
                 resetForm();
                 fetchShift();
             }
@@ -82,7 +72,7 @@ const CreateShift = () => {
     const handleShfitDelete = async (id) => {
         try {
             const response = await axios.delete(`/api/shift/delete/${id}`);
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast.success("shift deleted successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -94,7 +84,6 @@ const CreateShift = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                setShifts(shifts.filter((item => item._id !== id)));
                 fetchShift();
             }
         } catch (error) {
@@ -120,7 +109,7 @@ const CreateShift = () => {
                     'Content-Type': 'application/json',
                 }
             });
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast.success("shift updated successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -132,7 +121,7 @@ const CreateShift = () => {
                     theme: "colored",
                     transition: Bounce,
                 })
-                setShowModal(false);
+                setEdit(false);
                 fetchShift();
             }
         }
@@ -178,8 +167,8 @@ const CreateShift = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {shifts.length > 0 ? (
-                                    shifts.map((shift, index) => (
+                                {Shift?.length > 0 ? (
+                                    Shift?.map((shift, index) => (
                                         <tr key={shift._id}>
                                             <td>{index + 1}</td>
                                             <td>{shift.shiftName}</td>
@@ -334,7 +323,7 @@ const CreateShift = () => {
                                                                         type="submit"
                                                                         className="btn btn-success w-25 text-uppercase fw-bold"
                                                                     >
-                                                                        {editingShift ? "Update Shift" : "Create Shift"}
+                                                                        Update Shift
                                                                     </button>
                                                                 </div>
                                                             </Form>

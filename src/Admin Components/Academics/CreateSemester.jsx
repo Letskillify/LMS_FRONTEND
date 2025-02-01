@@ -1,27 +1,16 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { MainContext } from "../../Controller/MainProvider";
 import { Bounce, toast } from "react-toastify";
+import { MainContext } from "../../Controller/MainProvider";
 
 const CreateSemester = () => {
-    const [semesters, setSemesters] = useState([]);
-    const { userId } = useContext(MainContext); // Get userId from context
+    const { userId, Semester, fetchSemester } = useContext(MainContext); // Get userId from context
     const [showModal, setShowModal] = useState(false); // State for modal visibility
     const [error, setError] = useState(null); // State for error message
     const [editingSemester, setEditingSemester] = useState(null);
     const [Edit, setEdit] = useState(false);
     const [SelectEdit, setSelectEdit] = useState(null);
-
-    const fetchSemesters = async () => {
-        try {
-            const response = await axios.get("/api/semester/get");
-            setSemesters(response.data);
-        }
-        catch (error) {
-            console.error("Error fetching semesters:", error);
-        }
-    };
 
     const handleSemesters = async (values, { resetForm }) => {
         try {
@@ -43,7 +32,7 @@ const CreateSemester = () => {
                     transition: Bounce,
                 });
                 resetForm();
-                fetchSemesters();
+                fetchSemester();
 
             }
         } catch (error) {
@@ -64,7 +53,7 @@ const CreateSemester = () => {
     const handleSemestersDelete = async (id) => {
         try {
             const response = await axios.delete(`/api/semester/delete/${id}`);
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast.success("Semester deleted successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -76,8 +65,8 @@ const CreateSemester = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                setSemesters(semesters.filter((item => item._id !== id)));
-                fetchSemesters();
+                fetchSemester();
+                setShowModal(false)
             }
         } catch (error) {
             console.error("Error deleting semester:", error);
@@ -103,7 +92,7 @@ const CreateSemester = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            if (response.status === 201) { 
+            if (response.status === 200) {
                 toast.success("Semester updated successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -115,8 +104,8 @@ const CreateSemester = () => {
                     theme: "colored",
                     transition: Bounce,
                 })
-                setPopup(false);
-                fetchSemesters();
+                setEdit(false)
+                fetchSemester();
             }
         }
         catch (error) {
@@ -136,11 +125,11 @@ const CreateSemester = () => {
     };
 
     useEffect(() => {
-        fetchSemesters();
+        fetchSemester();
     }, []);
 
     return (
-        <div className="container mt-5 mb-5">
+        <div className="px-4 mt-5 mb-5">
             <div className="card">
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h3 className="card-title mb-0 text-uppercase fw-bold">Semesters</h3>
@@ -162,8 +151,8 @@ const CreateSemester = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {semesters.length > 0 ? (
-                                    semesters.map((semester, index) => (
+                                {Semester?.length > 0 ? (
+                                    Semester.map((semester, index) => (
                                         <tr key={semester._id}>
                                             <td>{index + 1}</td>
                                             <td>{semester.semesterName}</td>
@@ -173,7 +162,7 @@ const CreateSemester = () => {
                                                 <div className="d-flex gap-2">
                                                     <button
                                                         className="btn btn-success btn-sm"
-                                                        onClick={() => {setEdit(true); setSelectEdit(semester)}}
+                                                        onClick={() => { setEdit(true); setSelectEdit(semester) }}
 
                                                     >
                                                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
@@ -213,7 +202,7 @@ const CreateSemester = () => {
                                             <div className="modal-content border-0 rounded-4 shadow-lg" style={{ background: "#f7f7f7" }}>
                                                 <div className="modal-header bg-gradient-to-r from-primary to-secondary text-white">
                                                     <h3 className="modal-title fw-bold text-uppercase">
-                                                        {editingSemester ? "Edit Semester" : "Create Semester"}
+                                                        Edit Semester
                                                     </h3>
                                                     <button
                                                         type="button"
@@ -298,7 +287,7 @@ const CreateSemester = () => {
                                                                         type="submit"
                                                                         className="btn btn-success w-50 text-uppercase fw-bold"
                                                                     >
-                                                                        {editingSemester ? "Update Semester" : "Create Semester"}
+                                                                       Update Semester
                                                                     </button>
                                                                 </div>
                                                             </Form>
@@ -329,7 +318,7 @@ const CreateSemester = () => {
                         <div className="modal-content border-0 rounded-4 shadow-lg" style={{ background: "#f7f7f7" }}>
                             <div className="modal-header bg-gradient-to-r from-primary to-secondary text-white">
                                 <h3 className="modal-title fw-bold text-uppercase">
-                                    {editingSemester ? "Edit Semester" : "Create Semester"}
+                                    Create Semester
                                 </h3>
                                 <button
                                     type="button"

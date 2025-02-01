@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Table, Form, Row, Col } from "react-bootstrap";
+import { Modal, Button, Table, Form, Spinner } from "react-bootstrap";
 import axios from "axios";
+import { GET_ATTENDANCE_BY_COURSE_SECTION } from "../../ApiConstants/Routes";
+import { Bounce, toast } from "react-toastify";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 const AttendanceModal = ({
@@ -8,53 +10,68 @@ const AttendanceModal = ({
   onHide,
   date,
   type,
-  fetchUrl,
+  data,
   submitUrl,
   columns,
-  filters,
+  instituteId,
+  userId,
+  courseId,
+  sectionId,
 }) => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [filterValues, setFilterValues] = useState({});
+  const [dataToMapp, setDataToMapp] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    setDataToMapp(data);
+    setLoading(false);
+  }, [data]);
+
+  useEffect(() => {
+    const fetchAttendanceData = async () => {
       try {
-        const response = await axios.get(`${base_url}${fetchUrl}`, {
-          params: { date },
+        const res = await axios.get(`${GET_ATTENDANCE_BY_COURSE_SECTION}`, {
+          params: {
+            courseId: courseId,
+            section: sectionId,
+            date: date,
+          },
         });
-        setData(response.data.map((item) => ({ ...item, attendance: "" })));
-        setLoading(false);
+
+        if (res?.data) {
+          const fetchedAttendanceData = res?.data?.attendees;
+          console.log("fetchedAttendanceData", fetchedAttendanceData);
+          setAttendanceData(fetchedAttendanceData);
+
+          if (fetchedAttendanceData && fetchedAttendanceData.length > 0) {
+            setIsUpdating(true);
+          }
+
+          setDataToMapp((prevData) =>
+            prevData.map((item) => {
+              const attendanceItem = fetchedAttendanceData?.find(
+                (attendee) => attendee.studentId._id === item._id
+              );
+              if (attendanceItem) {
+                return { ...item, attendance: attendanceItem.status };
+              }
+              return item;
+            })
+          );
+          setLoading(false);
+        }
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching attendance data:", error);
+        setLoading(false);
       }
     };
-    fetchData();
-  }, [fetchUrl, date]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [filterValues, data]);
-
-  const applyFilters = () => {
-    let filtered = [...data];
-    Object.keys(filterValues).forEach((key) => {
-      if (filterValues[key]) {
-        filtered = filtered.filter((item) =>
-          filters[key].accessor(item).includes(filterValues[key])
-        );
-      }
-    });
-    setFilteredData(filtered);
-  };
-
-  const handleFilterChange = (key, value) => {
-    setFilterValues((prev) => ({ ...prev, [key]: value }));
-  };
+    fetchAttendanceData();
+  }, [courseId, sectionId, date]);
 
   const handleAttendanceChange = (id, status) => {
-    setData((prev) =>
+    setDataToMapp((prev) =>
       prev.map((item) =>
         item._id === id ? { ...item, attendance: status } : item
       )
@@ -63,50 +80,87 @@ const AttendanceModal = ({
 
   const submitAttendance = async () => {
     try {
-      const attendanceData = data
+      const attendanceData = dataToMapp
         .filter(({ attendance }) => attendance)
         .map(({ _id, attendance }) => ({
-          id: _id,
+          studentId: _id,
           status: attendance,
-          date: date,
         }));
 
       if (!attendanceData.length) {
-        alert("No attendance marked!");
+        toast.error("Please mark attendance for at least one student", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        });
         return;
       }
 
-      //   const courseId = data[0]?.courseDetails?._id;
-      //   const section = data[0]?.section?._id;
-      //   const subjectId = data[0]?.subjectDetails?._id;
+      const url = isUpdating ? `${submitUrl}/update` : submitUrl;
+      const method = isUpdating ? "put" : "post";
 
-      //   const payload = {
-      //     instituteId: instituteId,
-      //     courseId: courseId,
-      //     section: section,
-      //     subjectId: subjectId,
-      //     attendees: attendanceData,
-      //     date: date,
-      //   };
-
-      await axios.post(`${base_url}${submitUrl}`, {
+      await axios[method](`${url}`, {
         date,
         attendees: attendanceData,
+        instituteId: instituteId,
+        courseId: courseId,
+        section: sectionId,
+        markedBy: userId,
       });
-      alert("Attendance saved successfully!");
+      toast.success(
+        `Attendance ${isUpdating ? "updated" : "submitted"} successfully`,
+        {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        }
+      );
       onHide();
     } catch (error) {
-      console.error("Error submitting attendance", error);
+      toast.error(
+        `Error ${isUpdating ? "updating" : "submitting"} attendance`,
+        {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        }
+      );
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="d-flex justify-content-center align-items-center">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          Attendance for {type} on {date}
+          {isUpdating ? "Update" : "Mark"} Attendance for {type} on {date}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -120,30 +174,32 @@ const AttendanceModal = ({
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((item) => (
-              <tr key={item._id}>
-                {columns.map((col, index) => (
-                  <td key={index}>{col.accessor(item)}</td>
-                ))}
-                <td>
-                  <Form.Group>
-                    {["Present", "Absent", "Leave"].map((status) => (
-                      <Form.Check
-                        key={status}
-                        type="radio"
-                        name={`attendance-${item._id}`}
-                        label={status}
-                        value={status}
-                        checked={item.attendance === status}
-                        onChange={() =>
-                          handleAttendanceChange(item._id, status)
-                        }
-                      />
+            {dataToMapp && dataToMapp.length > 0
+              ? dataToMapp.map((item) => (
+                  <tr key={item._id}>
+                    {columns.map((col, index) => (
+                      <td key={index}>{col.accessor(item)}</td>
                     ))}
-                  </Form.Group>
-                </td>
-              </tr>
-            ))}
+                    <td>
+                      <Form.Group>
+                        {["Present", "Absent", "Leave"].map((status) => (
+                          <Form.Check
+                            key={status}
+                            type="radio"
+                            name={`attendance-${item._id}`}
+                            label={status}
+                            value={status}
+                            checked={item.attendance === status}
+                            onChange={() =>
+                              handleAttendanceChange(item._id, status)
+                            }
+                          />
+                        ))}
+                      </Form.Group>
+                    </td>
+                  </tr>
+                ))
+              : null}
           </tbody>
         </Table>
       </Modal.Body>
@@ -152,7 +208,7 @@ const AttendanceModal = ({
           Close
         </Button>
         <Button variant="primary" onClick={submitAttendance}>
-          Save Attendance
+          {isUpdating ? "Update" : "Save"} Attendance
         </Button>
       </Modal.Footer>
     </Modal>

@@ -126,11 +126,9 @@ function Stock() {
 console.log("Forms:", forms);
 
     const handleAddForm = () => {
-        console.log("Button clicked! Adding a new form.");
-        setcontactPersons([...forms, {}]); // Add a new empty form
+        setcontactPersons([...contactPersons, {}]); // Add a new empty form
     };
     const handleAddBank = () => {
-        console.log("Button clicked! Adding a new form.");
         setForms2([...forms2, {}]); // Add a new empty form
     };
 
