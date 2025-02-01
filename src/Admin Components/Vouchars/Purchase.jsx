@@ -160,12 +160,10 @@ const Purchase = () => {
             trackingNumber: Yup.string(),
             estimatedDeliveryDate: Yup.date(),
             actualDeliveryDate: Yup.date(),
-            shippingAmount: Yup.number()
-                .typeError("Must be a valid number")
-                .when("isShippingPaid", {
-                    is: true,
-                    then: Yup.number().required("Shipping amount is required"),
-                }),
+            shippingAmount: Yup.number().when("isShippingPaid", {
+                is: true,
+                then: Yup.number().typeError("Must be a valid number"),
+            }),
         }),
 
         // additionalCharges: Yup.array().of(
@@ -186,7 +184,7 @@ const Purchase = () => {
         <div className="container mt-5">
             <Formik
                 initialValues={initialValues}
-                validationSchema={validationSchema}
+                // validationSchema={validationSchema}
                 onSubmit={handlePurchase}
 
             >
@@ -301,11 +299,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Name"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Shipping address is required';
+                                                        if (value === '') {
+                                                            return 'Shipping address is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage name="shippingDetails.name" component="div" className="text-danger" />
@@ -318,11 +314,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Contact Number"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Contact number is required';
+                                                        if (value === '') {
+                                                            return 'Contact number is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
 
@@ -344,11 +338,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Address"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Address is required';
+                                                        if (value === '') {
+                                                            return 'Address is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -365,11 +357,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter City"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'City is required';
+                                                        if (value === '') {
+                                                            return 'City is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -388,11 +378,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter State"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'State is required';
+                                                        if (value === '') {
+                                                            return 'State is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -409,11 +397,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Country"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Country is required';
+                                                        if (value === '') {
+                                                            return 'Country is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -432,11 +418,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Pincode"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Pincode is required';
+                                                        if (value === '') {
+                                                            return 'Pincode is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -475,11 +459,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Estimated Delivery Date"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Estimated Delivery Date is required';
+                                                        if (value === '') {
+                                                            return 'Estimated Delivery Date is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -496,11 +478,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Actual Delivery Date"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Actual Delivery Date is required';
+                                                        if (value === '') {
+                                                            return 'Actual Delivery Date is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -520,11 +500,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Tracking Number"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Tracking Number is required';
+                                                        if (value === '') {
+                                                            return 'Tracking Number is required'
                                                         }
-                                                        return error;
                                                     }}
                                                 />
                                                 <ErrorMessage
@@ -541,11 +519,9 @@ const Purchase = () => {
                                                     className="form-control"
                                                     placeholder="Enter Shipping Amount"
                                                     validate={(value) => {
-                                                        let error;
-                                                        if (!value) {
-                                                            error = 'Shipping Amount is required';
+                                                        if (value === '') {
+                                                            return 'Shipping Amount is required'
                                                         }
-                                                        return error;
                                                     }}
 
                                                 />
@@ -566,32 +542,27 @@ const Purchase = () => {
                                         <div className="row" key={index}>
                                             <div className="col-md-5">
                                                 <label className="form-label">Reason:</label>
-                                                <Field
+                                                <input
                                                     type="text"
-                                                    name={`additionalCharges.${index}.reason`}
+                                                    name="reason"
                                                     className="form-control"
                                                     placeholder="Enter reason"
-                                                    validate={(value) => {
-                                                        if (!value) {
-                                                            return 'Reason is required'
-                                                        }
-                                                    }}
+                                                    value={charge.reason}
+                                                    onChange={(e) => handleChange(index, e)}
+                                                    required
                                                 />
-                                                <ErrorMessage name={`additionalCharges.${index}.reason`} component="div" className="text-danger" />
                                             </div>
 
                                             <div className="col-md-5">
                                                 <label className="form-label">Charges:</label>
-                                                <Field
+                                                <input
                                                     type="number"
-                                                    name={`additionalCharges.${index}.charges`}
+                                                    name="charges"
                                                     className="form-control"
                                                     placeholder="Enter charges amount"
-                                                    validate={(value) => {
-                                                        if (!value) {
-                                                            return 'Charges is required'
-                                                        }
-                                                    }}
+                                                    value={charge.charges}
+                                                    onChange={(e) => handleChange(index, e)}
+                                                    required
                                                 />
                                             </div>
 
@@ -632,7 +603,6 @@ const Purchase = () => {
 };
 
 export default Purchase;
-
 
 
 
