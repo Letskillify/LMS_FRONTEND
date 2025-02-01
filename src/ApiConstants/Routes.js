@@ -6,3 +6,4 @@ export const GET_COURSES = "/api/courses/get";
 export const GET_SECTIONS = "/api/section/get";
 export const GET_ATTENDANCE_BY_COURSE_SECTION = "/api/attendance/get/course-section";
 export const MARK_ATTENDANCE = "/api/attendance/mark";
+export const GET_TEACHERS = "/api/teacher/get-all";

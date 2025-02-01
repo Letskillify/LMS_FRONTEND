@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Table, Form } from "react-bootstrap";
+import { Modal, Button, Table, Form, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { GET_ATTENDANCE_BY_COURSE_SECTION } from "../../ApiConstants/Routes";
+import { Bounce, toast } from "react-toastify";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 const AttendanceModal = ({
@@ -20,6 +21,7 @@ const AttendanceModal = ({
   const [dataToMapp, setDataToMapp] = useState([]);
   const [loading, setLoading] = useState(true);
   const [attendanceData, setAttendanceData] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     setDataToMapp(data);
@@ -41,6 +43,10 @@ const AttendanceModal = ({
           const fetchedAttendanceData = res?.data?.attendees;
           console.log("fetchedAttendanceData", fetchedAttendanceData);
           setAttendanceData(fetchedAttendanceData);
+
+          if (fetchedAttendanceData && fetchedAttendanceData.length > 0) {
+            setIsUpdating(true);
+          }
 
           setDataToMapp((prevData) =>
             prevData.map((item) => {
@@ -67,7 +73,7 @@ const AttendanceModal = ({
   const handleAttendanceChange = (id, status) => {
     setDataToMapp((prev) =>
       prev.map((item) =>
-        item._id === id ? { ...item, status: status } : item
+        item._id === id ? { ...item, attendance: status } : item
       )
     );
   };
@@ -82,11 +88,25 @@ const AttendanceModal = ({
         }));
 
       if (!attendanceData.length) {
-        alert("No attendance marked!");
+        toast.error("Please mark attendance for at least one student", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        });
         return;
       }
 
-      await axios.post(`${submitUrl}`, {
+      const url = isUpdating ? `${submitUrl}/update` : submitUrl;
+      const method = isUpdating ? "put" : "post";
+
+      await axios[method](`${url}`, {
         date,
         attendees: attendanceData,
         instituteId: instituteId,
@@ -94,20 +114,53 @@ const AttendanceModal = ({
         section: sectionId,
         markedBy: userId,
       });
-      alert("Attendance saved successfully!");
+      toast.success(
+        `Attendance ${isUpdating ? "updated" : "submitted"} successfully`,
+        {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        }
+      );
       onHide();
     } catch (error) {
-      console.error("Error submitting attendance", error);
+      toast.error(
+        `Error ${isUpdating ? "updating" : "submitting"} attendance`,
+        {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          limit: 1,
+          theme: "colored",
+          transition: Bounce,
+        }
+      );
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="d-flex justify-content-center align-items-center">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          Attendance for {type} on {date}
+          {isUpdating ? "Update" : "Mark"} Attendance for {type} on {date}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -155,7 +208,7 @@ const AttendanceModal = ({
           Close
         </Button>
         <Button variant="primary" onClick={submitAttendance}>
-          Save Attendance
+          {isUpdating ? "Update" : "Save"} Attendance
         </Button>
       </Modal.Footer>
     </Modal>
