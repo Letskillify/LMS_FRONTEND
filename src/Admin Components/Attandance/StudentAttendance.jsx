@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Modal, Button, Form, Row, Col, Table } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col, Table, Spinner } from "react-bootstrap";
 import AttendanceModal from "./attendanceModal";
 import axios from "axios";
 import "./attendance.css";
 import { MainContext } from "../../Controller/MainProvider";
-import { GET_STUDENTS, GET_STUDENTS_BY_COURSE_AND_SECTION, MARK_ATTENDANCE } from "../../ApiConstants/Routes";
+import {
+  GET_STUDENTS,
+  GET_STUDENTS_BY_COURSE_AND_SECTION,
+  MARK_ATTENDANCE,
+} from "../../ApiConstants/Routes";
+import { Bounce, toast } from "react-toastify";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Calendar = () => {
@@ -60,38 +65,44 @@ const Calendar = () => {
   }, [instituteId]);
 
   const handleFilterChange = (key, value) => {
-    console.log("key", key, "value", value);
     setFilters((prev) => ({ ...prev, [key]: value._id }));
+
+    setShowCalendar(false);
 
     if (key === "section") {
       setSelectedSection(value);
     }
-
     if (key === "course") {
       setSelectedCourse(value);
       setSectionsOptions(value.section);
-      console.log("kfhjdskjfgdsjhgfuygdsuygf");
     }
   };
 
   const applyFilters = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        GET_STUDENTS_BY_COURSE_AND_SECTION,
-        {
-          params: {
-            courseId: selectedCourse?._id,
-            sectionId: selectedSection?._id,
-            instituteId: instituteId,
-          },
-        }
-      );
+      const response = await axios.get(GET_STUDENTS_BY_COURSE_AND_SECTION, {
+        params: {
+          courseId: selectedCourse?._id,
+          sectionId: selectedSection?._id,
+          instituteId: instituteId,
+        },
+      });
       setStudents(response?.data);
       setShowCalendar(true);
     } catch (error) {
-      console.error("Error fetching students:", error);
-      alert("Failed to fetch students. Please try again.");
+      toast.error("No students found for the selected course and section.", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        limit: 1,
+        theme: "colored",
+        transition: Bounce,
+      });
     } finally {
       setLoading(false);
     }
@@ -99,7 +110,18 @@ const Calendar = () => {
 
   const handleDateClick = (date) => {
     if (new Date(date) > new Date()) {
-      alert("Cannot mark attendance for future dates.");
+      toast.error("Cannot mark attendance for future dates.", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        limit: 1,
+        theme: "colored",
+        transition: Bounce,
+      })
       return;
     }
     setSelectedDate(date);
@@ -210,7 +232,7 @@ const Calendar = () => {
                 onChange={(e) => {
                   const selectedSection = sectionsOptions.find(
                     (section) => section._id === e.target.value
-                  )
+                  );
                   handleFilterChange("section", selectedSection);
                 }}
                 disabled={!filters.course}
@@ -236,7 +258,11 @@ const Calendar = () => {
         </Row>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && (
+        <div className="d-flex justify-content-center align-items-center">
+          <Spinner animation="border" variant="primary" />
+        </div>
+      )}
 
       {showCalendar && (
         <div className="bg-light mx-2 p-4 rounded">
@@ -284,11 +310,11 @@ const Calendar = () => {
           onHide={closeModal}
           date={selectedDate}
           type="Students"
-          data = {students}
+          data={students}
           fetchUrl={GET_STUDENTS}
           submitUrl={MARK_ATTENDANCE}
           instituteId={instituteId}
-          userId = {userId} 
+          userId={userId}
           sectionId={selectedSection?._id}
           courseId={selectedCourse?._id}
           columns={[
