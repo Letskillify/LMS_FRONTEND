@@ -140,7 +140,7 @@ function Section() {
     fetchSections();
   }, []);
   return (
-    <div className="container py-5">
+    <div className="px-5 py-5">
       <div className="row">
         <div className="col-md-4 mt-2">
           <div className="card">
@@ -225,13 +225,13 @@ function Section() {
                         <th scope="row">{index + 1}</th>
                         <td className='sections text-capitalize'>{item?.sectionName}</td>
                         <td>
-                          <button className="btn btn-edit btn-lg" onClick={() => {
+                          <button className="btn btn-primary me-2" onClick={() => {
                               setPopup(true);
                               setSelectedSection(item);
                             }}>
                             <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                           </button>
-                          <button className="btn btn-delete btn-lg" onClick={() => handleSectionDelete(item._id)}>  
+                          <button className="btn btn-danger" onClick={() => handleSectionDelete(item._id)}>  
                             <i className="fa fa-trash-o" aria-hidden="true"></i>
                           </button>
                         </td>
@@ -248,7 +248,7 @@ function Section() {
       </div>
 
       {popup && selectedSection && (
-        <div className="modal show d-block" tabIndex="-1">
+        <div className="modal show d-block pt-5" tabIndex="-1" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">

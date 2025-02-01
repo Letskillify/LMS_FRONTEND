@@ -7,37 +7,18 @@ import { Bounce, toast } from "react-toastify";
 
 const validationSchema = Yup.object({
   subjectName: Yup.string().required('Subject name is required'),
-  subjectCode: Yup.string().required('Subject code is required'),
-  medium: Yup.string().required('Subject medium is required'),
   subjectType: Yup.string().required('Subject type is required'),
 });
 
 function Subject() {
-  const { userId } = useContext(MainContext);
-  const [subjects, setSubjects] = useState([]);
+  const { userId, fetchSubject, Subject } = useContext(MainContext);
   const [popup, setPopup] = useState(false);
+   const [search, setSearch] = useState('')
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const [medium, setMedium] = useState([])
-
-  const fetchSubjects = async () => {
-    try {
-      const response = await axios.get('/api/subject/get');
-      setSubjects(response.data);
-    } catch (err) {
-      console.error('Error fetching subjects:', err);
-    }
-  };
-
-
-  useEffect(() => {
-    axios.get('/api/medium/get').then(response => {
-      setMedium(response.data);
-    })
-  }, [])
 
   const handleSubject = async (values, { resetForm }) => {
     console.log(values);
-    
+
     try {
       const response = await axios.post('/api/subject/post', values, {
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +35,7 @@ function Subject() {
           theme: "colored",
           transition: Bounce,
         });
-        fetchSubjects();
+        fetchSubject();
         resetForm();
       }
     } catch (err) {
@@ -90,7 +71,7 @@ function Subject() {
           theme: "colored",
           transition: Bounce,
         });
-        fetchSubjects();
+        fetchSubject();
         setPopup(false);
       }
     } catch (err) {
@@ -124,7 +105,7 @@ function Subject() {
           theme: "colored",
           transition: Bounce,
         });
-        fetchSubjects();
+        fetchSubject();
       }
     } catch (err) {
       console.error('Failed to delete data:', err);
@@ -143,130 +124,153 @@ function Subject() {
   };
 
   useEffect(() => {
-    fetchSubjects(); 
+    fetchSubject();
   }, []);
+  const filteredSubjects = Subject?.filter(subject => {
+    return (
+        subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
+        subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
+    );
+});
 
-  console.log(subjects);
   return (
-    <div className="container my-5">
-      <div className="card shadow-sm mb-4">
-        <h2 className="text-center mt-5 mb-4">Subject Management</h2>
-        <div className="card-body">
-          <Formik
-            initialValues={{
-              subjectName: '',
-              subjectCode: '',
-              medium: '',
-              subjectType: '',
-              instituteId: userId,
-            }}
-            validationSchema={validationSchema}
-            onSubmit={handleSubject}
-          >
-            {() => (
-              <Form>
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label>Subject Name</label>
-                    <Field type="text" name="subjectName" className="form-control" />
-                    <ErrorMessage name="subjectName" component="div" className="text-danger" />
-                  </div>
-                  <div className="col-md-6">
-                    <label>Subject Code</label>
-                    <Field type="text" name="subjectCode" className="form-control" />
-                    <ErrorMessage name="subjectCode" component="div" className="text-danger" />
-                  </div>
-                </div>
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label>Subject Type</label>
-                    <Field as="select" name="subjectType" className="form-select">
-                      <option value="" disabled>
-                        Select Type
-                      </option>
-                      <option value="Theory">Theory</option>
-                      <option value="Practical">Practical</option>
-                    </Field>
-                    <ErrorMessage name="subjectType" component="div" className="text-danger" />
-                  </div>
-                  <div className="col-md-6">
-                    <label>Subject Medium</label>
-                    <Field as="select" name="medium" className="form-select">
-                      <option value="" disabled>
-                        Select Medium
-                      </option>
-                      {medium?.map((medium) => (
-                        <option key={medium?._id} value={medium?._id}>
-                          {medium?.mediumName}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage name="medium" component="div" className="text-danger" />
-                  </div>
-                </div>
-                <div className="text-center">
-                  <button type="submit" className="btn btn-primary">
-                    Save
-                  </button>
-                  <button type="reset" className="btn btn-secondary ms-2">
-                    Reset
-                  </button>
-                </div>
-              </Form>
-            )}
-          </Formik>
+    <div className="px-4 my-5">
+      <div class="row">
+        <div className="col-md-5 col-12">
+          <div className="card shadow-sm mb-4">
+            <h4 className="mt-5 mb-4 ms-4">Subjects</h4>
+            <div className="card-body">
+              <Formik
+                initialValues={{
+                  subjectName: '',
+                  subjectType: '',
+                  instituteId: userId,
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubject}
+              >
+                {() => (
+                  <Form>
+                    <div className="row ">
+                      <div className="col-md-12 mb-3">
+                        <label>Subject Name</label>
+                        <Field type="text" name="subjectName" className="form-control" placeholder="Enter Subject Name" />
+                        <ErrorMessage name="subjectName" component="div" className="text-danger" />
+                      </div>
+                      <div className="col-md-12 mb-3">
+                        <label>Subject Type</label>
+                        <Field as="select" name="subjectType" className="form-select" placeholder="Select Type">
+                          <option value="" disabled>
+                            Select Type
+                          </option>
+                          <option value="Theory">Theory</option>
+                          <option value="Practical">Practical</option>
+                        </Field>
+                        <ErrorMessage name="subjectType" component="div" className="text-danger" />
+                      </div>
+                    </div>
+                    <div className="">
+                      <button type="submit" className="btn btn-primary">
+                        Submit
+                      </button>
+                      <button type="reset" className="btn btn-secondary ms-2">
+                        Reset
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-bordered">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Medium</th>
-                  <th>Type</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subjects.map((subject, index) => (
-                  <tr key={subject._id}>
-                    <td>{index + 1}</td>
-                    <td>{subject.subjectName}</td>
-                    <td>{subject.subjectCode}</td>
-                    <td>{subject?.medium?.mediumName || 'Not Provided'}</td>
-                    <td>{subject.subjectType}</td>
-                    <td>
-                      <button
-                        className="btn btn-primary btn-sm me-2"
-                        onClick={() => {
-                          setPopup(true);
-                          setSelectedSubject(subject);
-                        }}
-                      >
-                        <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleSubjectDelete(subject._id)}
-                      >
-                        <i className="fa fa-trash-o" aria-hidden="true"></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className='col-md-7 col-12'>
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="card-title">List stream</h5>
+                <div>
+                  <a href="#" className="text-primary me-3">
+                    All
+                  </a>
+                </div>
+              </div>
+              <div className="d-flex justify-content-end mb-3">
+                <div>
+                  <button className="btn btn-secondary btn-sm me-2">
+                    <i className="fa fa-refresh" aria-hidden="true"></i>
+                  </button>
+                  <button className="btn btn-secondary btn-sm me-2">
+                    <i className="fa fa-list-alt" aria-hidden="true"></i>
+                  </button>
+                  <button className="btn btn-secondary btn-sm">
+                    <i className="fa fa-download" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    className="form-control ms-4 form-control-sm"
+                    placeholder="Search"
+                    style={{ width: '200px' }}
+                    value={search} onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="table-responsive">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
+                      filteredSubjects.map((subject, index) => (
+                        <tr key={subject._id}>
+                          <td>{index + 1}</td>
+                          <td>{subject.subjectName}</td>
+                          <td>{subject.subjectType}</td>
+                          <td>
+                            <button
+                              className="btn btn-primary btn me-2"
+                              onClick={() => {
+                                setPopup(true);
+                                setSelectedSubject(subject);
+                              }}
+                            >
+                              <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            </button>
+                            <button
+                              className="btn btn-danger btn"
+                              onClick={() => handleSubjectDelete(subject._id)}
+                            >
+                              <i className="fa fa-trash-o" aria-hidden="true"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center">
+                          No subjects found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
+
+
       {popup && selectedSubject && (
-        <div className="modal show d-block">
+        <div className="modal show d-block pt-5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -277,11 +281,8 @@ function Subject() {
                 <Formik
                   initialValues={{
                     subjectName: selectedSubject.subjectName,
-                    subjectCode: selectedSubject.subjectCode,
-                    medium: selectedSubject.medium,
                     subjectType: selectedSubject.subjectType,
                   }}
-                  validationSchema={validationSchema}
                   onSubmit={(values) => handleSubjectEdit(selectedSubject._id, values)}
                 >
                   {() => (
@@ -290,11 +291,6 @@ function Subject() {
                         <label>Subject Name</label>
                         <Field type="text" name="subjectName" className="form-control" />
                         <ErrorMessage name="subjectName" component="div" className="text-danger" />
-                      </div>
-                      <div className="mb-3">
-                        <label>Subject Code</label>
-                        <Field type="text" name="subjectCode" className="form-control" />
-                        <ErrorMessage name="subjectCode" component="div" className="text-danger" />
                       </div>
                       <div className="mb-3">
                         <label>Subject Type</label>
@@ -306,11 +302,6 @@ function Subject() {
                           <option value="Practical">Practical</option>
                         </Field>
                         <ErrorMessage name="subjectType" component="div" className="text-danger" />
-                      </div>
-                      <div className="mb-3">
-                        <label>Subject Medium</label>
-                        <Field type="text" name="medium" className="form-control" />
-                        <ErrorMessage name="medium" component="div" className="text-danger" />
                       </div>
                       <div className="text-center">
                         <button type="submit" className="btn btn-primary">
@@ -337,4 +328,3 @@ function Subject() {
 }
 
 export default Subject;
-      

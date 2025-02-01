@@ -104,7 +104,7 @@ function Courses() {
     }, []);
 
     return (
-        <div className="container">
+        <div className="px-4">
             <div className="my-5 p-4 border rounded shadow">
                 <Formik
                     enableReinitialize
