@@ -84,6 +84,12 @@ import Medium from '../Admin Components/Academics/Medium.jsx'
 import Section from '../Admin Components/Academics/Section.jsx'
 import Stream from '../Admin Components/Academics/Stream.jsx'
 import Subject from '../Admin Components/Academics/Subject.jsx'
+import Board from '../Admin Components/Academics/Board.jsx'
+import ClassGroup from '../Admin Components/Academics/ClassGroup.jsx'
+import Purchase from '../Admin Components/Vouchars/Purchase.jsx'
+import ExpenseForm from '../Admin Components/Vouchars/ExpenseForm.jsx'
+import Sale from '../Admin Components/Vouchars/Sale.jsx'
+import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -173,6 +179,10 @@ const AdminDashboard = () => {
                 <Route path="/subjects" element={<Subject />}></Route>
                 <Route path="/board" element={<Board />}></Route>
                 <Route path="/classgroup" element={<ClassGroup />}></Route>
+                <Route path="/Voucher-purchase" element={<Purchase/>}></Route>
+                <Route path="/Vourchar-expense" element={<ExpenseForm/>}></Route>
+                <Route path="/Vourchar-Sale" element={<Sale />}></Route>
+                <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
