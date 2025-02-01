@@ -66,23 +66,29 @@ export const MainProvider = ({ children }) => {
   //////////////////////////////////////////////////////////////////////////////
 
   // const [exams, setExams] = useState()
+
+
   useEffect(() => {
-    fetchStudentData();
-    fetchTrashData();
-    fetchInstitute();
     fetchStudent();
     fetchTeacher();
-    fetchSemester();
-    fetchShift();
-    fetchMedium();
-    fetchSection();
-    fetchStream();
-    fetchSubject();
-    fetchBoard();
-    fetchCourse();
-    fetchCourseGroup();
-    fetchClass();
+    fetchInstitute();
   }, []);
+
+  // Fetch Other Data Only After instituteId is Available
+  useEffect(() => {
+    if (instituteId) {
+      fetchSemester();
+      fetchShift();
+      fetchMedium();
+      fetchSection();
+      fetchStream();
+      fetchSubject();
+      fetchBoard();
+      fetchCourse();
+      fetchCourseGroup();
+      fetchClass();
+    }
+  }, [instituteId]);
 
   const fetchStudentData = async () => {
     const data = await getApi("/api/student/get");
@@ -374,69 +380,68 @@ export const MainProvider = ({ children }) => {
   // Fetch Institute Data
   const fetchInstitute = async () => {
     const data = await getApi(`/api/institute/get/${userId}`);
-    setInstitute(Array.isArray(data) ? data : []);
+    setInstitute(data);
     setInstituteId(data?._id);
+
   };
   const fetchStudent = async () => {
     const data = await getApi(`/api/student/get/${userId}`);
-    setStudent(Array.isArray(data) ? data : []);
+    setStudent(data);
     if (data) {
-      setInstituteId(data?.instituteId._id);
+      setInstituteId(data?.instituteId?._id);
     }
   };
   const fetchTeacher = async () => {
     const data = await getApi(`/api/teacher/get/${userId}`);
-    setTeacher(Array.isArray(data) ? data : []);
+    setTeacher(data);
     if (data) {
-      setInstituteId(data?.instituteId);
+      setInstituteId(data?.instituteId._id);
     }
   };
 
 
 
   const fetchSemester = async () => {
-    const data = await getApi(`/api/semester/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/semester/get/institute/${instituteId}`);
     setSemester(Array.isArray(data) ? data : []);
   };
   const fetchShift = async () => {
-    const data = await getApi(`/api/shift/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/shift/get/institute/${instituteId}`);
     setShift(Array.isArray(data) ? data : []);
   };
   const fetchMedium = async () => {
-    const data = await getApi(`/api/medium/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/medium/get/institute/${instituteId}`);
     setMedium(Array.isArray(data) ? data : []);
   };
   const fetchSection = async () => {
-    const data = await getApi(`/api/Section/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/Section/get/institute/${instituteId}`);
     setSection(Array.isArray(data) ? data : []);
   };
   const fetchStream = async () => {
-    const data = await getApi(`/api/stream/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/stream/get/institute/${instituteId}`);
     setStream(Array.isArray(data) ? data : []);
   };
   const fetchSubject = async () => {
-    const data = await getApi(`/api/subject/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/subject/get/institute/${instituteId}`);
     setSubject(Array.isArray(data) ? data : []);
   };
 
   const fetchBoard = async () => {
-    const data = await getApi(`/api/board/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/board/get/institute/${instituteId}`);
     setBoard(Array.isArray(data) ? data : []);
   };
   const fetchCourse = async () => {
-    const data = await getApi(`/api/courses/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/courses/get/institute/${instituteId}`);
     setCourse(Array.isArray(data) ? data : []);
   };
   const fetchCourseGroup = async () => {
-    const data = await getApi(`/api/course-group/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/course-group/get/institute/${instituteId}`);
     setCourseGroup(Array.isArray(data) ? data : []);
   };
   const fetchClass = async () => {
-    const data = await getApi(`/api/class/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    const data = await getApi(`/api/class/get/institute/${instituteId}`);
     setClass(Array.isArray(data) ? data : []);
   };
-
-
 
   return (
     <MainContext.Provider value={{ fetchClass, Class, fetchCourseGroup, CourseGroup, fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>

@@ -70,8 +70,8 @@ const Classes = () => {
                 });
             }
         } catch (error) {
-            console.error("Error adding course:", error);
-            toast.error(error.response.data.message || "Error adding course", {
+            console.error("Error adding class:", error);
+            toast.error(error.response.data.message || "Error adding class", {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -86,7 +86,7 @@ const Classes = () => {
     };
     const handleEdit = async (classes, id) => {
         console.log(classes);
-        
+
         try {
             const response = await axios.put(`/api/class/update/${id}`, classes, {
                 headers: {
@@ -104,7 +104,7 @@ const Classes = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                setEditShow(false);
+                setEditShow(false)
                 fetchClass();
             }
         } catch (error) {
@@ -148,8 +148,8 @@ const Classes = () => {
                 fetchClass();
             }
         } catch (error) {
-            console.error('Error deleting course:', error);
-            toast.error(error.response?.data?.message || "Error deleting course", {
+            console.error('Error deleting class:', error);
+            toast.error(error.response?.data?.message || "Error deleting class", {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -162,8 +162,6 @@ const Classes = () => {
             });
         }
     };
-
-    console.log(Class);
 
 
     return (
@@ -216,12 +214,12 @@ const Classes = () => {
                                 {(filteredClasses || Class)?.length > 0 ? (
                                     (filteredClasses || Class)?.slice(0, Show)?.map((classes) => (
                                         <tr key={classes._id} className="text-center" >
-                                            <td>{classes?.className}</td>
-                                            <td>{classes?.courses?.courseName}</td>
-                                            <td>{classes?.section?.sectionName}</td>
-                                            <td>{classes?.semester?.semesterName}</td>
-                                            <td>{classes?.medium?.mediumName}</td>
-                                            <td>{classes?.stream?.streamName}</td>
+                                            <td>{classes?.className || '-'}</td>
+                                            <td>{classes?.courses?.courseName || '-'}</td>
+                                            <td>{classes?.section?.sectionName || '-'}</td>
+                                            <td>{classes?.semester?.semesterName || '-'}</td>
+                                            <td>{classes?.medium?.mediumName || '-'}</td>
+                                            <td>{classes?.stream?.streamName || '-'}</td>
                                             <td>
                                                 <button
                                                     className="btn btn-success btn-icon rounded-pill me-1"
@@ -231,7 +229,7 @@ const Classes = () => {
                                                 </button>
                                                 <Link
                                                     className="btn btn-danger btn-icon rounded-pill"
-                                                    onClick={() => handleDelete(course?._id)}
+                                                    onClick={() => handleDelete(classes?._id)}
                                                 >
                                                     <i className="bx bx-trash"></i>
                                                 </Link>
@@ -590,7 +588,7 @@ const Classes = () => {
                                 {/* {error && <div className="alert alert-danger">{error}</div>} */}
                                 <Formik
                                     initialValues={{
-                                        courses: selectEdit?.courses?._id                                        ,
+                                        courses: selectEdit?.courses?._id,
                                         board: selectEdit?.board?._id,
                                         courseGroup: selectEdit?.courseGroup?._id,
                                         medium: selectEdit?.medium?._id,
@@ -652,7 +650,7 @@ const Classes = () => {
                                                         id="board"
                                                         name="board"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Board</option>
                                                         {Course?.find(course => course._id === values.courses)?.board?.map((board) => (
@@ -674,7 +672,7 @@ const Classes = () => {
                                                         id="courseGroup"
                                                         name="courseGroup"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value={null} >Select Course Group</option>
                                                         {CourseGroup.length > 0 ? (
@@ -700,7 +698,7 @@ const Classes = () => {
                                                         id="medium"
                                                         name="medium"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Medium</option>
                                                         {Course?.find(course => course._id === values.courses)?.medium?.map((medium) => (
@@ -722,7 +720,7 @@ const Classes = () => {
                                                         id="section"
                                                         name="section"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Section</option>
                                                         {Course?.find(course => course._id === values.courses)?.section?.map((section) => (
@@ -744,7 +742,7 @@ const Classes = () => {
                                                         id="semester"
                                                         name="semester"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Semester</option>
                                                         {Course?.find(course => course._id === values.courses)?.semester?.map((semester) => (
@@ -766,7 +764,7 @@ const Classes = () => {
                                                         id="shift"
                                                         name="shift"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Shift</option>
                                                         {Course?.find(course => course._id === values.courses)?.shift?.map((shift) => (
@@ -788,7 +786,7 @@ const Classes = () => {
                                                         id="stream"
                                                         name="stream"
                                                         className="form-select"
-                                                        
+
                                                     >
                                                         <option value="">Select Stream</option>
                                                         {Course?.find(course => course._id === values.courses)?.stream?.map((stream) => (
@@ -801,68 +799,51 @@ const Classes = () => {
                                                         className="invalid-feedback d-block"
                                                     />
                                                 </div>
-                                                <div class="row">
-                                                    {selectEdit.subject.map((subject, index) => (
-                                                        <>
-                                                            <div className="col-12 col-md-6 mb-3">
-                                                                <label htmlFor="stream" className="form-label">
-                                                                    Subject Name
-                                                                </label>
-                                                                <Field as="select"
-                                                                    id="stream"
-                                                                    name={`subject.${index}.name`}
-                                                                    className="form-select"
-                                                                    value={values.subject[index]?.name?._id}
-                                                                    onChange={(e) => setFieldValue(`subject.${index}.name`, e.target.value)}
-                                                                >
-                                                                    <option value="">Select Subject</option>
-                                                                    {Course?.find(course => course._id === values.courses)?.subjects?.map((subject) => (
-                                                                        <option key={subject._id} value={subject._id}>{subject.subjectName}</option>
-                                                                    ))}
-                                                                </Field>
-                                                                <ErrorMessage
-                                                                    name="stream"
-                                                                    component="div"
-                                                                    className="invalid-feedback d-block"
-                                                                />
-                                                            </div>
-                                                            <div className="col-12 col-md-6 mb-3">
-                                                                <label htmlFor="subject" className="form-label">
-                                                                    Subject Code
-                                                                </label>
-                                                                <div className='d-flex'>
-                                                                    <Field
-                                                                        type="text"
-                                                                        id="subject"
-                                                                        name={`subject.${index}.code`}
-                                                                        className="form-control"
-                                                                    />
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-primary btn-sm text-uppercase ms-2 px-3"
-                                                                        onClick={handleAddForm}
-                                                                    >
-                                                                        <i class="fa fa-plus" aria-hidden="true"></i>
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-danger btn-sm text-uppercase ms-2 px-3"
-                                                                        onClick={() => handleRemoveForm(index)}
-                                                                    >
-                                                                        <i class="fa fa-minus" aria-hidden="true"></i>
-                                                                    </button>
-                                                                </div>
-                                                                <ErrorMessage
-                                                                    name="subject"
-                                                                    component="div"
-                                                                    className="invalid-feedback d-block"
-                                                                />
-                                                            </div>
-                                                        </>
-                                                    ))}
-                                                    <div className='col-5 mb-4'>
+                                                {selectEdit.subject.map((subject, index) => (
+                                                    <>
+                                                        <div className="col-12 col-md-6 mb-3">
+                                                            <label htmlFor="stream" className="form-label">
+                                                                Subject Name
+                                                            </label>
+                                                            <Field as="select"
+                                                                id="stream"
+                                                                name={`subject.${index}.name`}
+                                                                className="form-select"
+                                                                value={values.subject[index]?.name?._id}
+                                                                onChange={(e) => setFieldValue(`subject.${index}.name`, e.target.value)}
+                                                            >
+                                                                <option value="">Select Subject</option>
+                                                                {Course?.find(course => course._id === values.courses)?.subjects?.map((subject) => (
+                                                                    <option key={subject._id} value={subject._id}>{subject.subjectName}</option>
+                                                                ))}
+                                                            </Field>
+                                                            <ErrorMessage
+                                                                name="stream"
+                                                                component="div"
+                                                                className="invalid-feedback d-block"
+                                                            />
+                                                        </div>
+                                                        <div className="col-12 col-md-6 mb-3">
+                                                            <label htmlFor="subject" className="form-label">
+                                                                Subject Code
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                id="subject"
+                                                                name={`subject.${index}.code`}
+                                                                className="form-control"
+                                                            />
 
-                                                    </div>
+                                                            <ErrorMessage
+                                                                name="subject"
+                                                                component="div"
+                                                                className="invalid-feedback d-block"
+                                                            />
+                                                        </div>
+                                                    </>
+                                                ))}
+                                                <div className='col-5 mb-4'>
+
                                                 </div>
 
                                             </div>
@@ -870,7 +851,7 @@ const Classes = () => {
                                                 <button
                                                     type="button"
                                                     className="btn btn-secondary text-uppercase"
-                                                    onClick={() => setshowModal(false)}
+                                                    onClick={() => setEditShow(false)}
                                                 >
                                                     Close
                                                 </button>
