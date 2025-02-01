@@ -4,13 +4,13 @@ import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { MainContext } from '../../Controller/MainProvider';
 
-function ClassGroup() {
+function CourseGroup() {
     const [courseGroups, setCourseGroups] = useState([]);
     const [editingGroup, setEditingGroup] = useState(null); // State to track the group being edited
     const { userId } = useContext(MainContext);
 
     useEffect(() => {
-        fetchCourseGroups(); // Fetch course groups on component mount
+        fetchCourseGroups(); 
     }, []);
 
     const fetchCourseGroups = async () => {
@@ -127,17 +127,16 @@ function ClassGroup() {
     };
 
     return (
-        <div className="container py-5">
+        <div className="px-4 py-5">
             <div className="row">
                 {/* Create Course Group */}
                 <div className="mt-5">
                     <div className="card">
                         <div className="card-body">
-                            <h5 className="card-title">Create Course Group</h5>
+                            <h5 className="card-title mb-5">Course Group</h5>
                             <Formik
                                 initialValues={{
                                     courseGroupName: '',
-                                    includedInCourseGroup: '',
                                     description: '',
                                     instituteId: userId
                                 }}
@@ -146,7 +145,7 @@ function ClassGroup() {
                                 {() => (
                                     <Form className="row g-3">
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label  className="form-label">Course Group Name</label>
+                                            <label className="form-label">Course Group Name</label>
                                             <Field
                                                 type="text"
                                                 className="form-control"
@@ -155,18 +154,8 @@ function ClassGroup() {
                                                 placeholder="Enter course group name"
                                             />
                                         </div>
-                                        <div className="col-12 col-md-6 mb-3">
-                                            <label  className="form-label">Included Courses</label>
-                                            <Field
-                                                type="text"
-                                                className="form-control"
-                                                id="includedInCourseGroup"
-                                                name="includedInCourseGroup"
-                                                placeholder="Enter courses (comma separated)"
-                                            />
-                                        </div>
-                                        <div className="col-12 mb-3">
-                                            <label  className="form-label">Description</label>
+                                        <div className="col-md-6 col-12 mb-3">
+                                            <label className="form-label">Description</label>
                                             <Field
                                                 as="textarea"
                                                 className="form-control"
@@ -190,13 +179,12 @@ function ClassGroup() {
                 <div className="mt-5">
                     <div className="card">
                         <div className="card-body">
-                            <h5 className="card-title">List of Course Groups</h5>
+                            <h5 className="card-title mb-4">List of Course Groups</h5>
                             <table className="table table-bordered text-center">
                                 <thead>
                                     <tr>
                                         <th scope="col">No.</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Included Courses</th>
                                         <th scope="col">Description</th>
                                         <th scope="col">Actions</th>
                                     </tr>
@@ -207,7 +195,6 @@ function ClassGroup() {
                                             <tr key={group._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{group.courseGroupName}</td>
-                                                <td>{group.includedInCourseGroup}</td>
                                                 <td>{group.description}</td>
                                                 <td>
                                                     <button
@@ -222,7 +209,7 @@ function ClassGroup() {
                                                         className="btn btn-danger btn-sm "
                                                         onClick={() => handleDelete(group._id)}
                                                     >
-                                                      <i className="fa fa-trash-o" aria-hidden="true"></i>
+                                                        <i className="fa fa-trash-o" aria-hidden="true"></i>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -239,7 +226,7 @@ function ClassGroup() {
                 </div>
 
                 {/* Edit Course Group Modal */}
-                {editingGroup &&  (
+                {editingGroup && (
                     <div
                         className="modal fade"
                         id="editCourseGroupModal"
@@ -271,7 +258,7 @@ function ClassGroup() {
                                     {() => (
                                         <Form className="modal-body">
                                             <div className="mb-3">
-                                                <label  className="form-label">Course Group Name</label>
+                                                <label className="form-label">Course Group Name</label>
                                                 <Field
                                                     type="text"
                                                     className="form-control"
@@ -280,16 +267,7 @@ function ClassGroup() {
                                                 />
                                             </div>
                                             <div className="mb-3">
-                                                <label  className="form-label">Included Courses</label>
-                                                <Field
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="includedInCourseGroup"
-                                                    name="includedInCourseGroup"
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label  className="form-label">Description</label>
+                                                <label className="form-label">Description</label>
                                                 <Field
                                                     as="textarea"
                                                     className="form-control"
@@ -303,7 +281,7 @@ function ClassGroup() {
                                             </button>
                                         </Form>
                                     )}
- </Formik>
+                                </Formik>
                             </div>
                         </div>
                     </div>
@@ -313,4 +291,4 @@ function ClassGroup() {
     );
 }
 
-export default ClassGroup;
+export default CourseGroup;

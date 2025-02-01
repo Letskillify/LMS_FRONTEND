@@ -29,6 +29,8 @@ export const MainProvider = ({ children }) => {
   const [Subject, setSubject] = useState(null)
   const [Board, setBoard] = useState(null)
   const [Course, setCourse] = useState(null)
+  const [CourseGroup, setCourseGroup] = useState(null)
+  const [Class, setClass] = useState(null)
 
   // for stop open inspect
 
@@ -78,6 +80,8 @@ export const MainProvider = ({ children }) => {
     fetchSubject();
     fetchBoard();
     fetchCourse();
+    fetchCourseGroup();
+    fetchClass();
   }, []);
 
   const fetchStudentData = async () => {
@@ -149,13 +153,10 @@ export const MainProvider = ({ children }) => {
       WhatsApp: student?.contactInfo?.whatsapp || "N/A",
       AlternateContact: student?.contactInfo?.alternateContact || "N/A",
       Address:
-        `${student?.contactInfo?.address?.houseNo || ""}, ${
-          student?.contactInfo?.address?.streetName || ""
-        }, ${student?.contactInfo?.address?.city || ""}, ${
-          student?.contactInfo?.address?.state || ""
-        }, ${student?.contactInfo?.address?.country || ""}, ${
-          student?.contactInfo?.address?.pincode || ""
-        }`.trim() || "N/A",
+        `${student?.contactInfo?.address?.houseNo || ""}, ${student?.contactInfo?.address?.streetName || ""
+          }, ${student?.contactInfo?.address?.city || ""}, ${student?.contactInfo?.address?.state || ""
+          }, ${student?.contactInfo?.address?.country || ""}, ${student?.contactInfo?.address?.pincode || ""
+          }`.trim() || "N/A",
       FatherName: student?.parentDetails?.Father?.name || "N/A",
       FatherContact: student?.parentDetails?.Father?.contactNumber || "N/A",
       MotherName: student?.parentDetails?.Mother?.name || "N/A",
@@ -209,44 +210,32 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Personal Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Profile Photo</th><td><img src="${
-            studentData?.personalDetails?.profilePhoto
-          }" alt="Profile Photo" width="100"></td></tr>
-          <tr><th>First Name</th><td>${
-            studentData?.personalDetails?.firstName || "Not Provided"
-          }</td></tr>
-          <tr><th>Last Name</th><td>${
-            studentData?.personalDetails?.lastName || "Not Provided"
-          }</td></tr>
-          <tr><th>Date of Birth</th><td>${
-            studentData?.personalDetails?.dateOfBirth || "Not Provided"
-          }</td></tr>
-          <tr><th>Gender</th><td>${
-            studentData?.personalDetails?.gender || "Not Provided"
-          }</td></tr>
-          <tr><th>Blood Group</th><td>${
-            studentData?.personalDetails?.bloodGroup || "Not Provided"
-          }</td></tr>
-          <tr><th>Aadhar Number</th><td>${
-            studentData?.personalDetails?.aadharNo || "Not Provided"
-          }</td></tr>
-          <tr><th>Marital Status</th><td>${
-            studentData?.personalDetails?.maritalStatus
-              ? "Married"
-              : "Unmarried"
-          }</td></tr>
-          <tr><th>Nationality</th><td>${
-            studentData?.personalDetails?.nationality || "Not Provided"
-          }</td></tr>
-          <tr><th>Religion</th><td>${
-            studentData?.personalDetails?.religion || "Not Provided"
-          }</td></tr>
-          <tr><th>Category</th><td>${
-            studentData?.personalDetails?.category || "Not Provided"
-          }</td></tr>
-          <tr><th>Caste</th><td>${
-            studentData?.personalDetails?.caste || "Not Provided"
-          }</td></tr>
+          <tr><th>Profile Photo</th><td><img src="${studentData?.personalDetails?.profilePhoto
+        }" alt="Profile Photo" width="100"></td></tr>
+          <tr><th>First Name</th><td>${studentData?.personalDetails?.firstName || "Not Provided"
+        }</td></tr>
+          <tr><th>Last Name</th><td>${studentData?.personalDetails?.lastName || "Not Provided"
+        }</td></tr>
+          <tr><th>Date of Birth</th><td>${studentData?.personalDetails?.dateOfBirth || "Not Provided"
+        }</td></tr>
+          <tr><th>Gender</th><td>${studentData?.personalDetails?.gender || "Not Provided"
+        }</td></tr>
+          <tr><th>Blood Group</th><td>${studentData?.personalDetails?.bloodGroup || "Not Provided"
+        }</td></tr>
+          <tr><th>Aadhar Number</th><td>${studentData?.personalDetails?.aadharNo || "Not Provided"
+        }</td></tr>
+          <tr><th>Marital Status</th><td>${studentData?.personalDetails?.maritalStatus
+          ? "Married"
+          : "Unmarried"
+        }</td></tr>
+          <tr><th>Nationality</th><td>${studentData?.personalDetails?.nationality || "Not Provided"
+        }</td></tr>
+          <tr><th>Religion</th><td>${studentData?.personalDetails?.religion || "Not Provided"
+        }</td></tr>
+          <tr><th>Category</th><td>${studentData?.personalDetails?.category || "Not Provided"
+        }</td></tr>
+          <tr><th>Caste</th><td>${studentData?.personalDetails?.caste || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -254,27 +243,19 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Contact Information</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Email</th><td>${
-            studentData?.contactInfo?.email || "Not Provided"
-          }</td></tr>
-          <tr><th>Mobile</th><td>${
-            studentData?.contactInfo?.mobile || "Not Provided"
-          }</td></tr>
-          <tr><th>WhatsApp</th><td>${
-            studentData?.contactInfo?.whatsapp || "Not Provided"
-          }</td></tr>
-          <tr><th>Alternate Contact</th><td>${
-            studentData?.contactInfo?.alternateContact || "Not Provided"
-          }</td></tr>
-          <tr><th>Address</th><td>${
-            studentData?.contactInfo?.address?.houseNo || "Not Provided"
-          }, ${
-        studentData?.contactInfo?.address?.streetName || "Not Provided"
-      }, ${studentData?.contactInfo?.address?.city || "Not Provided"}, ${
-        studentData?.contactInfo?.address?.state || "Not Provided"
-      }, ${
-        studentData?.contactInfo?.address?.country || "Not Provided"
-      }</td></tr>
+          <tr><th>Email</th><td>${studentData?.contactInfo?.email || "Not Provided"
+        }</td></tr>
+          <tr><th>Mobile</th><td>${studentData?.contactInfo?.mobile || "Not Provided"
+        }</td></tr>
+          <tr><th>WhatsApp</th><td>${studentData?.contactInfo?.whatsapp || "Not Provided"
+        }</td></tr>
+          <tr><th>Alternate Contact</th><td>${studentData?.contactInfo?.alternateContact || "Not Provided"
+        }</td></tr>
+          <tr><th>Address</th><td>${studentData?.contactInfo?.address?.houseNo || "Not Provided"
+        }, ${studentData?.contactInfo?.address?.streetName || "Not Provided"
+        }, ${studentData?.contactInfo?.address?.city || "Not Provided"}, ${studentData?.contactInfo?.address?.state || "Not Provided"
+        }, ${studentData?.contactInfo?.address?.country || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -282,15 +263,12 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Parent Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Father Name</th><td>${
-            studentData?.parentDetails?.Father?.name || "Not Provided"
-          }</td></tr>
-          <tr><th>Mother Name</th><td>${
-            studentData?.parentDetails?.Mother?.name || "Not Provided"
-          }</td></tr>
-          <tr><th>Guardian Name</th><td>${
-            studentData?.parentDetails?.Guardian?.name || "Not Provided"
-          }</td></tr>
+          <tr><th>Father Name</th><td>${studentData?.parentDetails?.Father?.name || "Not Provided"
+        }</td></tr>
+          <tr><th>Mother Name</th><td>${studentData?.parentDetails?.Mother?.name || "Not Provided"
+        }</td></tr>
+          <tr><th>Guardian Name</th><td>${studentData?.parentDetails?.Guardian?.name || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -298,15 +276,12 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Academic Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Previous School</th><td>${
-            studentData?.academicDetails?.previous?.schoolName || "Not Provided"
-          }</td></tr>
-          <tr><th>Class</th><td>${
-            studentData?.academicDetails?.previous?.class || "Not Provided"
-          }</td></tr>
-          <tr><th>Percentage</th><td>${
-            studentData?.academicDetails?.previous?.percentage || "Not Provided"
-          }</td></tr>
+          <tr><th>Previous School</th><td>${studentData?.academicDetails?.previous?.schoolName || "Not Provided"
+        }</td></tr>
+          <tr><th>Class</th><td>${studentData?.academicDetails?.previous?.class || "Not Provided"
+        }</td></tr>
+          <tr><th>Percentage</th><td>${studentData?.academicDetails?.previous?.percentage || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -314,12 +289,10 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Enrollment Details</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Admission Type</th><td>${
-            studentData?.enrollmentDetails?.admissionType || "Not Provided"
-          }</td></tr>
-          <tr><th>Admission Date</th><td>${
-            studentData?.enrollmentDetails?.admissionDate || "Not Provided"
-          }</td></tr>
+          <tr><th>Admission Type</th><td>${studentData?.enrollmentDetails?.admissionType || "Not Provided"
+        }</td></tr>
+          <tr><th>Admission Date</th><td>${studentData?.enrollmentDetails?.admissionDate || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -327,12 +300,10 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>Documents</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Marksheet</th><td>${
-            studentData?.documents?.marksheet || "Not Provided"
-          }</td></tr>
-          <tr><th>Transfer Certificate</th><td>${
-            studentData?.documents?.transferCertificate || "Not Provided"
-          }</td></tr>
+          <tr><th>Marksheet</th><td>${studentData?.documents?.marksheet || "Not Provided"
+        }</td></tr>
+          <tr><th>Transfer Certificate</th><td>${studentData?.documents?.transferCertificate || "Not Provided"
+        }</td></tr>
         </table>
       `);
 
@@ -340,18 +311,14 @@ export const MainProvider = ({ children }) => {
       printWindow.document.write("<h3>System Information</h3>");
       printWindow.document.write(`
         <table border="1" cellpadding="10">
-          <tr><th>Student ID</th><td>${
-            studentData?.StuID || "Not Provided"
-          }</td></tr>
-          <tr><th>Profile Completed</th><td>${
-            studentData?.is_profile_complete ? "Yes" : "No"
-          }</td></tr>
-          <tr><th>Created At</th><td>${
-            studentData?.createdAt || "Not Provided"
-          }</td></tr>
-          <tr><th>Updated At</th><td>${
-            studentData?.updatedAt || "Not Provided"
-          }</td></tr>
+          <tr><th>Student ID</th><td>${studentData?.StuID || "Not Provided"
+        }</td></tr>
+          <tr><th>Profile Completed</th><td>${studentData?.is_profile_complete ? "Yes" : "No"
+        }</td></tr>
+          <tr><th>Created At</th><td>${studentData?.createdAt || "Not Provided"
+        }</td></tr>
+          <tr><th>Updated At</th><td>${studentData?.updatedAt || "Not Provided"
+        }</td></tr>
         </table>
       `);
     });
@@ -423,7 +390,7 @@ export const MainProvider = ({ children }) => {
       setInstituteId(data?.instituteId);
     }
   };
-  
+
 
 
   const fetchSemester = async () => {
@@ -454,14 +421,24 @@ export const MainProvider = ({ children }) => {
   const fetchBoard = async () => {
     const data = await getApi(`/api/board/get/institute/${designation === "Institute" ? userId : instituteId}`);
     setBoard(Array.isArray(data) ? data : []);
-  };  
+  };
   const fetchCourse = async () => {
     const data = await getApi(`/api/courses/get/institute/${designation === "Institute" ? userId : instituteId}`);
     setCourse(Array.isArray(data) ? data : []);
-  };  
+  };
+  const fetchCourseGroup = async () => {
+    const data = await getApi(`/api/course-group/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    setCourseGroup(Array.isArray(data) ? data : []);
+  };
+  const fetchClass = async () => {
+    const data = await getApi(`/api/class/get/institute/${designation === "Institute" ? userId : instituteId}`);
+    setClass(Array.isArray(data) ? data : []);
+  };
+
+
 
   return (
-    <MainContext.Provider value={{fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+    <MainContext.Provider value={{ fetchClass, Class, fetchCourseGroup, CourseGroup, fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
       {children}
     </MainContext.Provider>
   );
