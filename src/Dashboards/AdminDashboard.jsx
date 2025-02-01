@@ -84,6 +84,12 @@ import Medium from '../Admin Components/Academics/Medium.jsx'
 import Section from '../Admin Components/Academics/Section.jsx'
 import Stream from '../Admin Components/Academics/Stream.jsx'
 import Subject from '../Admin Components/Academics/Subject.jsx'
+import Board from '../Admin Components/Academics/Board.jsx'
+// import ClassGroup from '../Admin Components/Academics/c`'
+import Purchase from '../Admin Components/Vouchars/Purchase.jsx'
+import ExpenseForm from '../Admin Components/Vouchars/ExpenseForm.jsx'
+import Sale from '../Admin Components/Vouchars/Sale.jsx'
+import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
 import Classes from '../Admin Components/Academics/Classes.jsx'
 import Course from '../Admin Components/Academics/Course.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
@@ -175,6 +181,12 @@ const AdminDashboard = () => {
                 <Route path="/sections" element={<Section />}></Route>
                 <Route path="/streams" element={<Stream />}></Route>
                 <Route path="/subjects" element={<Subject />}></Route>
+                <Route path="/board" element={<Board />}></Route>
+                {/* <Route path="/classgroup" element={<ClassGroup />}></Route> */}
+                <Route path="/Voucher-purchase" element={<Purchase/>}></Route>
+                <Route path="/Vourchar-expense" element={<ExpenseForm/>}></Route>
+                <Route path="/Vourchar-Sale" element={<Sale />}></Route>
+                <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
                 <Route path="/course" element={<Course />}></Route>
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
