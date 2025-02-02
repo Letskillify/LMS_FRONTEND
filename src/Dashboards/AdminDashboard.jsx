@@ -13,11 +13,9 @@ import StudentInfo from '../Admin Components/Students/StudentInfo.jsx'
 import AdmitStudents from '../Admin Components/Admission/AdmitStudents.jsx'
 import AdmitBulk from '../Admin Components/Admission/AdmitBulk.jsx'
 import ManageParents from '../Admin Components/Parents/ManageParents.jsx'
-import StudentIdCard from '../Admin Components/idCardPrint/idCard.jsx'
-import StaffIdCard from '../Admin Components/idCardPrint/StaffIdCard.jsx'
-import IdCardStu from '../Admin Components/idCardPrint/IdCardStu.jsx'
-import IdCardStaff from '../Admin Components/idCardPrint/IdCardStaff.jsx'
-import Accountant from '../Admin Components/Accountant/Accountant.jsx'
+import idCard from "../Admin Components/idCardPrint/IdCardPrint.jsx"
+import StudentIdCard from "../Admin Components/idCardPrint/idCard.jsx"
+import StaffIdCard from "../Admin Components/idCardPrint/StaffIdCard.jsx"
 import Fee from '../Admin Components/Fee Payment/Fee.jsx'
 import FeeManage from '../Admin Components/Fee Payment/FeeManage.jsx'
 import ManageAttendance from '../Admin Components/Attandance/manageAttendance.jsx'
@@ -86,7 +84,8 @@ import Stream from '../Admin Components/Academics/Stream.jsx'
 import Subject from '../Admin Components/Academics/Subject.jsx'
 import Classes from '../Admin Components/Academics/Classes.jsx'
 import Course from '../Admin Components/Academics/Course.jsx'
-
+import IdCard from '../Admin Components/idCardPrint/idCard.jsx'
+import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
   return (
@@ -118,11 +117,11 @@ const AdminDashboard = () => {
                 <Route path="/studentInfo" element={<StudentInfo />}></Route>
                 <Route path="/manage-accounts" element={<ManageParents />}></Route>
                 <Route path="/editparents" element={<EditParents />}></Route>
-                <Route path='/student-id-Card' element={<StudentIdCard />}></Route>
+                <Route path='/student-id-card' element={<StudentIdCard />}></Route>
                 <Route path='/staff-id-card' element={<StaffIdCard />}></Route>
-                <Route path='/id-card-stu' element={<IdCardStu />}></Route>
-                <Route path='/id-card-staff' element={<IdCardStaff />}></Route>
-                <Route path='/accountant' element={<Accountant />}></Route>
+                <Route path='/id-card-stu' element={<IdCard />}></Route>
+                <Route path='/id-card-staff' element={<StaffIdCard />}></Route>
+                <Route path='/id-card-print' element={<IdCardPrint />}></Route>
                 <Route path='/feepayment' element={<Fee />}></Route>
                 <Route path='/Check' element={<FeeManage />}></Route>
                 <Route path='/manage-attendance' element={<ManageAttendance />}></Route>
