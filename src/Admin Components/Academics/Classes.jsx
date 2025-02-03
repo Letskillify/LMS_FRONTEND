@@ -85,7 +85,6 @@ const Classes = () => {
         }
     };
     const handleEdit = async (classes, id) => {
-        console.log(classes);
 
         try {
             const response = await axios.put(`/api/class/update/${id}`, classes, {
