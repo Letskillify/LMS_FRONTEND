@@ -26,7 +26,7 @@ const PendingFeesTracker = () => {
 
   const handleSendRemindermsg = (student) => {
     try {
-      const response = axios.post('http://localhost:5500/api/fees/reminder', student, {
+      const response = axios.post('api/fees/reminder', student, {
         headers: {
           'Content-Type': 'application/json'
         }

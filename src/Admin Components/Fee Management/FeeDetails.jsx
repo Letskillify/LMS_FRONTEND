@@ -74,6 +74,7 @@ function FeeDetails() {
     useEffect(() => {
         axios.get('api/fees/get').then(res => setStudentsData(res.data)).catch(err => console.log(err));
     }, []);
+    console.log(studentsData, 'studentsData');
 
 
 
@@ -154,7 +155,7 @@ function FeeDetails() {
                         {(searchData || studentsData).map((student, index) => (
                             <tr key={index}>
                                 <td>
-                                    {student?.studentId?.personalDetails?.firstName + " " + student?.studentId?.personalDetails?.lastName}
+                                    {student?.personalDetails?.firstName + " " + student?.studentId?.personalDetails?.lastName}
                                     <br />
                                     <small>{student?.studentId?.enrollmentDetails?.rollNo}</small>
                                 </td>
@@ -263,3 +264,5 @@ function FeeDetails() {
 }
 
 export default FeeDetails;
+
+
