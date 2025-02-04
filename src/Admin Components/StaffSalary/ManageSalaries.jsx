@@ -1,9 +1,35 @@
-import { React, useState } from "react";
-
+import { useEffect, useState } from "react";
+import { GET_ALL_SALARIES } from "../../ApiConstants/Routes";
+import { Spinner } from "react-bootstrap";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import AddSalaryModal from "./AddSalaryModal";
 import Json from "./manageSalaries.json";
+
 const ManageSalaries = () => {
+  const showToast = useGlobalToast();
+  const [salaryData, setSalaryData] = useState([]);
+  const [staffData, setStaffData] = useState([]);
+  const [allowanceData, setAllowanceData] = useState([]);
+  const [deductionData, setDeductionData] = useState([]);
+  const [currentSalaryStaff, setCurrentSalaryStaff] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [showAddSalaryModal, setShowAddSalaryModal] = useState(false);
+  const [staffType, setStaffType] = useState("");
+  const [modalFormData, setModalFormData] = useState({
+    staff: "",
+    staffType: "",
+    basicSalary: "",
+    allowances: [],
+    deductions: [],
+    netSalary: "",
+    salaryMonth: new Date().toISOString().slice(0, 7),
+    present: "",
+    absent: "",
+    late: "",
+    loanRepayment: "",
+  });
 
   const totalPages = Math.ceil(Json.length / itemsPerPage);
   const CurrentItem = Json.slice(
@@ -15,6 +41,90 @@ const ManageSalaries = () => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
   const [form, setForm] = useState(false);
+  const toggleAddSalaryModal = () => {
+    setStaffData([]);
+    setStaffType("");
+    setShowAddSalaryModal(!showAddSalaryModal);
+    setModalFormData({
+      staff: "",
+      staffType: "",
+      basicSalary: "",
+      allowances: [],
+      deductions: [],
+      netSalary: "",
+      salaryMonth: new Date().toISOString().slice(0, 7),
+      present: "",
+      absent: "",
+      late: "",
+      loanRepayment: "",
+    });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const response = await fetch(`${GET_ALL_SALARIES}`);
+      const data = await response.json();
+      if (
+        response.status === 200 ||
+        response.status === 304 ||
+        response.success
+      ) {
+        setSalaryData(data);
+        setIsLoading(false);
+      } else {
+        showToast("Something went wrong!", "error");
+        setIsLoading(false);
+      }
+    };
+
+    const fetchSalaryAllowance = async () => {
+      const response = await fetch(`/api/salary/allowance/get`);
+      const data = await response.json();
+      if (response.ok) {
+        setAllowanceData(data);
+      } else {
+        showToast("Something went wrong!", "error");
+      }
+    };
+
+    const fetchSalaryDeduction = async () => {
+      const response = await fetch(`/api/salary/deduction/get`);
+      const data = await response.json();
+      if (response.ok) {
+        setDeductionData(data);
+      } else {
+        showToast("Something went wrong!", "error");
+      }
+    };
+
+    fetchSalaryDeduction();
+    fetchSalaryAllowance();
+    fetchData();
+  }, []);
+
+  const fetchStaffData = async () => {
+    const response = await fetch(`/api/${staffType === "TeachingStaff" ? "teacher" : "staff"}/get-all`);
+    const data = await response.json();
+    if (response.ok) {
+      setStaffData(data);
+    } else {
+      showToast("Something went wrong!", "error");
+    }
+  };
+
+  useEffect(() => {
+    if (staffType === "") return;
+    fetchStaffData();
+  }, [staffType]);
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" />{" "}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -62,6 +172,13 @@ const ManageSalaries = () => {
                 <button
                   style={{ fontSize: "14px" }}
                   className="me-4 btn btn-success border"
+                  onClick={toggleAddSalaryModal}
+                >
+                  <i className="fa fa-plus" aria-hidden="true"></i> Add Salary
+                </button>
+                <button
+                  style={{ fontSize: "14px" }}
+                  className="me-4 btn btn-info border"
                 >
                   <i className="fa fa-file-excel-o" aria-hidden="true"></i>{" "}
                   Excel
@@ -123,28 +240,38 @@ const ManageSalaries = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {CurrentItem.map((v) => (
-                    <tr key={v.id}>
-                      <td>{v.id}</td>
+                  {salaryData.map((salary) => (
+                    <tr key={salary._id}>
+                      <td>{salary.salaryId}</td>
                       <td>
-                        <img
-                          width={"30px"}
-                          className="rounded-circle "
-                          src={v.photo}
-                          alt=""
-                        />
+                        {salary?.photo ? (
+                          <img
+                            width="30px"
+                            className="rounded-circle"
+                            src={salary?.photo || "/placeholder.svg"}
+                            alt="User Profile"
+                          />
+                        ) : (
+                          <i
+                            className="fa fa-user-circle-o fa-2x"
+                            aria-hidden="true"
+                          ></i>
+                        )}
                       </td>
-                      <td>{v.name}</td>
-                      <td>{v.salary_month}</td>
-                      <td>{v.present}</td>
-                      <td>{v.absent}</td>
-                      <td>{v.late}</td>
-                      <td>{v.basic}</td>
-                      <td>{v.salary_generated}</td>
-                      <td>{v.amount_paid}</td>
-                      <td>{v.loan_repayment}</td>
                       <td>
-                        {v.statu.toLowerCase() === "issued" && (
+                        {salary?.staff?.fullName?.firstName}{" "}
+                        {salary?.staff?.fullName?.lastName}
+                      </td>
+                      <td>{salary.salaryMonth}</td>
+                      <td>{salary.present}</td>
+                      <td>{salary.absent}</td>
+                      <td>{salary.late}</td>
+                      <td>{salary.basicSalary}</td>
+                      <td>{salary.salaryGenerated}</td>
+                      <td>{salary.netSalary}</td>
+                      <td>{salary.loanRepayment}</td>
+                      <td>
+                        {salary.status.toLowerCase() === "issued" && (
                           <button
                             className="btn btn-primary px-1 py-1 w-100"
                             data-bs-toggle="modal"
@@ -154,11 +281,12 @@ const ManageSalaries = () => {
                             Print Slip
                           </button>
                         )}
-                        {v.statu.toLowerCase() === "pending" && (
+                        {salary.status.toLowerCase() === "pending" && (
                           <button
                             className="btn btn-success px-1 py-1 w-100 "
                             data-bs-toggle="modal"
                             data-bs-target="#modalCenter01"
+                            onClick={() => setCurrentSalaryStaff(salary)}
                             style={{ fontSize: "13px" }}
                           >
                             Make Payment
@@ -166,38 +294,38 @@ const ManageSalaries = () => {
                         )}
                       </td>
                       <td>
-                        {v.statu.toLowerCase() === "issued" && (
+                        {salary.status.toLowerCase() === "issued" && (
                           <button
                             className="btn btn-warning px-1 py-1 w-100"
                             style={{ fontSize: "13px" }}
                           >
-                            {v.statu}
+                            {salary.status}
                           </button>
                         )}
-                        {v.statu.toLowerCase() === "pending" && (
+                        {salary.status.toLowerCase() === "pending" && (
                           <button
                             className="btn btn-danger px-1 py-1 w-100"
                             style={{ fontSize: "13px" }}
                           >
-                            {v.statu}
+                            {salary.status}
                           </button>
                         )}
                       </td>
                       <td>
-                        {v.statu.toLowerCase() === "issued" && (
+                        {salary.status.toLowerCase() === "issued" && (
                           <button
                             className="btn btn-danger px-1 py-1 w-100"
                             style={{ fontSize: "13px" }}
                           >
-                            {v.delete}
+                            {salary.delete}
                           </button>
                         )}
-                        {v.statu.toLowerCase() === "pending" && (
+                        {salary.status.toLowerCase() === "pending" && (
                           <button
                             className="btn btn-success px-1 py-1 w-100"
                             style={{ fontSize: "13px" }}
                           >
-                            {v.delete}
+                            {salary.delete}
                           </button>
                         )}
                       </td>
@@ -243,6 +371,11 @@ const ManageSalaries = () => {
                                       <input
                                         type="text"
                                         name=""
+                                        readOnly
+                                        value={
+                                          currentSalaryStaff?.staff?.instituteId
+                                            ?.name
+                                        }
                                         className="inpt ps-2"
                                         placeholder="Enter your name "
                                         id=""
@@ -255,6 +388,14 @@ const ManageSalaries = () => {
                                       <input
                                         type="employee"
                                         className="ps-2 inpt"
+                                        readOnly
+                                        value={
+                                          currentSalaryStaff?.staff?.fullName
+                                            ?.firstName +
+                                          " " +
+                                          currentSalaryStaff?.staff?.fullName
+                                            ?.lastName
+                                        }
                                         placeholder="Enter your employee"
                                       />
                                     </td>
@@ -263,8 +404,10 @@ const ManageSalaries = () => {
                                     <td>Month</td>
                                     <td className="text-end">
                                       <input
-                                        type="Month"
+                                        type="salaryMonth"
                                         className="ps-2 inpt"
+                                        value={currentSalaryStaff.salaryMonth}
+                                        readOnly
                                         placeholder="Enter your month"
                                       />
                                     </td>
@@ -275,6 +418,10 @@ const ManageSalaries = () => {
                                       <input
                                         type="generatedSalary"
                                         className="ps-2 inpt"
+                                        readOnly
+                                        value={
+                                          currentSalaryStaff.salaryGenerated
+                                        }
                                         name=""
                                         id=""
                                         placeholder="Enter your generatedSalary"
@@ -614,11 +761,19 @@ const ManageSalaries = () => {
               </div>
             </div>
           </div>
-
-          {/* Save Button */}
-          {/* <button className="btn btn-primary mb-4 mt-4  ">Save Attendance</button> */}
         </div>
       </div>
+      <AddSalaryModal
+        staffData={staffData}
+        show={showAddSalaryModal}
+        allowanceData={allowanceData}
+        deductionData={deductionData}
+        staffType={staffType}
+        setStaffType={setStaffType}
+        handleClose={toggleAddSalaryModal}
+        formData={modalFormData}
+        setFormData={setModalFormData}
+      />
     </>
   );
 };
