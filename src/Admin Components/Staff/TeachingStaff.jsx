@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -7,6 +7,7 @@ import PersonalDetailsForm from "./Forms/PersonalDetailsForm";
 import EmploymentAndSalaryDetailsForm from "./Forms/EmploymentAndSalaryDetailsForm";
 import DocumentationAndPasswordForm from "./Forms/DocumentationAndPasswordForm";
 import axios from "axios";
+import { MainContext } from "../../Controller/MainProvider";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 function TeachingStaff() {
@@ -104,8 +105,9 @@ function TeachingStaff() {
   const [staffs, setStaffs] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [staffIdToDelete, setStaffIdToDelete] = useState(null);
-  console.log();
 
+  const { userId } =useContext(MainContext)
+  console.log("userId", userId)
   const handleModalClose = () => {
     setStep(1);
     resetFormData();
@@ -359,7 +361,7 @@ function TeachingStaff() {
   const handleDelete = async (staff_id) => {
     try {
       const response = await fetch(
-        `${base_url}/teacher/delete-permantely/${staff_id}`,
+        `/api/teacher/delete-permantely/${staff_id}`,
         {
           method: "DELETE",
         }

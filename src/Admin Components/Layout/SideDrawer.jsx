@@ -618,11 +618,6 @@ function SideDrawer() {
                                         <div>Salary Generation setting</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/salaryGeneration">
-                                    <a href="javascript:void(0);" className="menu-link">
-                                        <div>Salary Generation</div>
-                                    </a>
-                                </NavLink>
                                 <NavLink activeclassname="active" className="menu-item" to="/managesalaries">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Manage Salaries</div>
