@@ -109,14 +109,29 @@ const ReceiptForm = () => {
     const taxAmount = taxDetails.reduce((sum, tax) => sum + tax.amount, 0);
     const grandTotal = totalAmount + taxAmount;
 
-    const handleSubmit = async(values) => {
-       try {
-        const response = await axios.post("http://localhost:5500/api/receipts", values,{
-            headers: { 'Content-Type': 'application/json' },
-            method: "POST",
-        });
-        if (response.status === 200) {
-            toast.success("Receipt added successfully", {
+    const handleSubmit = async (values) => {
+        try {
+            const response = await axios.post("http://localhost:5500/api/receipts", values, {
+                headers: { 'Content-Type': 'application/json' },
+                method: "POST",
+            });
+            if (response.status === 200) {
+                toast.success("Receipt added successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                    transition: Bounce,
+                });
+
+            }
+
+        } catch (error) {
+            console.log(error);
+            toast.error("Receipt added successfully", {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -126,23 +141,8 @@ const ReceiptForm = () => {
                 theme: "colored",
                 transition: Bounce,
             });
-            
+
         }
-        
-       } catch (error) {
-        console.log(error);
-        toast.error("Receipt added successfully", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-            transition: Bounce,
-        });
-        
-       }
     };
 
     return (
@@ -150,7 +150,10 @@ const ReceiptForm = () => {
         <div className="container mt-4 ">
             <div className="bg-white p-4 rounded">
                 <h2 className="mb-4 text-center">Receipt Form</h2>
-                <Formik initialValues={receiptInitialValues} validationSchema={receiptValidationSchema} onSubmit={handleSubmit}>
+                <Formik initialValues={receiptInitialValues}
+                    validationSchema={receiptValidationSchema}
+                //  onSubmit={handleSubmit}
+                >
                     {({ errors, touched }) => (
                         <Form>
                             {/* Payer Details */}
@@ -159,20 +162,35 @@ const ReceiptForm = () => {
                                 <div className="col-md-6">
                                     <label className="form-label">Name</label>
                                     <Field type="text" name="name" className="form-control" placeholder="Enter Name" />
+                                    {errors.payerDetails?.name && touched.payerDetails?.name && (
+                                        <div className="text-danger">{errors.payerDetails.name}</div>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label">Email</label>
                                     <Field type="email" name="email" className="form-control" placeholder="Enter Email" />
+                                    {errors.payerDetails?.email && touched.payerDetails?.email && (
+                                        <div className="text-danger">{errors.payerDetails.email}</div>
+                                    )}
+
                                 </div>
                             </div>
                             <div className="row mb-3">
                                 <div className="col-md-6">
                                     <label className="form-label">Phone</label>
                                     <Field type="tel" name="phone" className="form-control" placeholder="Enter Phone" />
+                                    {errors.payerDetails?.phone && touched.payerDetails?.phone && (
+                                        <div className="text-danger">{errors.payerDetails.phone}</div>
+                                    )}
+
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label">Address</label>
                                     <Field type="text" name="address" className="form-control" placeholder="Enter Address" />
+                                    {errors.payerDetails?.address && touched.payerDetails?.address && (
+                                        <div className="text-danger">{errors.payerDetails.address}</div>
+                                    )}
+
                                 </div>
                             </div>
 
@@ -188,7 +206,7 @@ const ReceiptForm = () => {
                                             name={`items.${index}.itemName`}
                                             value={item.itemName}
                                             onChange={(e) => handleItemChange(index, "itemName", e.target.value)}
-                                            required
+
                                         />
                                     </div>
                                     <div className="col-md-2">
@@ -200,7 +218,7 @@ const ReceiptForm = () => {
                                             min="1"
                                             value={item.quantity}
                                             onChange={(e) => handleItemChange(index, "quantity", parseInt(e.target.value))}
-                                            required
+
                                         />
                                     </div>
                                     <div className="col-md-3">
@@ -212,7 +230,7 @@ const ReceiptForm = () => {
                                             min="0"
                                             value={item.unitPrice}
                                             onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value))}
-                                            required
+
                                         />
                                     </div>
                                     <div className="col-md-3">
@@ -261,18 +279,18 @@ const ReceiptForm = () => {
                             {/* Payment Method */}
                             <div className="row">
 
-                            <div className="col-6 mb-3">
-                                <label className="form-label">Payment Method</label>
-                                <select className="form-select" name="paymentMethod">
-                                    <option value="">Select Payment Method</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="Credit Card">Credit Card</option>
-                                    <option value="Cheque">Cheque</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div className=" col-6 mb-3">
+                                <div className="col-6 mb-3">
+                                    <label className="form-label">Payment Method</label>
+                                    <select className="form-select" name="paymentMethod">
+                                        <option value="">Select Payment Method</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div className=" col-6 mb-3">
                                     <label className="form-label">Date</label>
                                     <Field type="date" className="form-control" name="date" />
                                 </div>
