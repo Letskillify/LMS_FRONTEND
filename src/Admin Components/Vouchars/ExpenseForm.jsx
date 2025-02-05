@@ -50,25 +50,25 @@ const initialValues = {
     notes: "",
 };
 
-
 // Validation Schema
-const validationSchema = Yup.object({
+const validationSchema = Yup.object().shape({
     category: Yup.string().required('Category is required'),
     description: Yup.string(),
     expenseItems: Yup.array().of(
-        Yup.object({
+        Yup.object().shape({
             itemName: Yup.string().required('Item name is required'),
             quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
-            unitPrice: Yup.number().min(0, 'Unit price must be at least 0').required('Unit price is required')
+            unitPrice: Yup.number().min(0, 'Unit price must be at least 0').required('Unit price is required'),
+            subTotal: Yup.number().min(0, 'sub Total price must be at least 0').required('sub Total price is required')
         })
     ),
     additionalCharges: Yup.array().of(
-        Yup.object({
+        Yup.object().shape({   
             chargeName: Yup.string().required('Charge name is required'),
             amount: Yup.number().min(0, 'Charge amount must be at least 0').required('Charge amount is required')
         })
     ),
-    shippingDetails: Yup.object({
+    shippingDetails: Yup.object().shape({
         address: Yup.string().when('isShippingPaid', {
             is: true,
             then: Yup.string().required('Shipping address is required')
@@ -90,8 +90,14 @@ const validationSchema = Yup.object({
             then: Yup.number().min(0, 'Shipping amount must be at least 0').required('Shipping amount is required')
         })
     }),
-    paidTo: Yup.object({
+    paidTo: Yup.object().shape({
         name: Yup.string().required('Paid to (Name is required'),
+        email: Yup.string().email('Invalid email format').required('Email is required'),
+        phone: Yup.string().required('Phone is required'),
+        address: Yup.string().required('Address is required')
+    }),
+    paidBy: Yup.object().shape({
+        name: Yup.string().required('Paid by (Name is required'),
         email: Yup.string().email('Invalid email format').required('Email is required'),
         phone: Yup.string().required('Phone is required'),
         address: Yup.string().required('Address is required')
@@ -166,7 +172,7 @@ const ExpenseForm = () => {
                         validationSchema={validationSchema}
                         onSubmit={(values) => hanldeExpenseItems(values)}
                     >
-                        {({ values }) => (
+                        {({ values, handleChange, handleSubmit, errors, touched }) => (
                             <Form>
                                 <div className="border rounded ">
                                     <h5 className="text-primary mb-4 ms-2 mt-3">Expense Details</h5>
@@ -197,7 +203,6 @@ const ExpenseForm = () => {
                                                     <ErrorMessage name="date" component="div" className="text-danger" />
                                                 </div>
                                                 <div className="col-4">
-
                                                     <label className=''>Category</label>
                                                     <Field
                                                         as="select"
@@ -220,7 +225,6 @@ const ExpenseForm = () => {
 
                                     {/* Description */}
                                     <div className="row m-3">
-
                                         <div className="form-group">
                                             <label>Description</label>
                                             <textarea
@@ -241,101 +245,91 @@ const ExpenseForm = () => {
                                                 <div className="form-row m-3">
                                                     <div className="form-group col-md-12">
                                                         <label>Item Name</label>
-                                                        <input
+                                                        <Field
                                                             type="text"
                                                             className="form-control"
-                                                            name="item[0].itemName"
+                                                            name={`expenseItems[${index}].itemName`}
                                                             placeholder="Item name"
-                                                            value={item.itemName}
-                                                            onChange={(e) => handleChange(index, e)}
                                                         />
-                                                        <ErrorMessage name="item[0].itemName" component="div" className="text-danger" />
+                                                        <ErrorMessage name={`expenseItems[${index}].itemName`} component="div" className="text-danger" />
                                                     </div>
-
                                                     <div className="row">
                                                         <div className="form-group col-md-4">
                                                             <label className='mt-3'>Quantity</label>
-                                                            <input
+                                                            <Field
                                                                 type="number"
                                                                 className="form-control"
-                                                                name="quantity"
+                                                                name={`expenseItems[${index}].quantity`}
                                                                 placeholder="Quantity"
-                                                                value={item.quantity}
-                                                                onChange={(e) => handleChange(index, e)}
                                                             />
-                                                            <ErrorMessage name="item[0].quantity" component="div" className="text-danger" />
+                                                            <ErrorMessage name={`expenseItems[${index}].quantity`} component="div" className="text-danger" />
                                                         </div>
                                                         <div className="form-group col-md-4">
                                                             <label className='mt-3'>Unit Price</label>
-                                                            <input
+                                                            <Field
                                                                 type="number"
                                                                 className="form-control"
-                                                                name="unitPrice"
+                                                                name={`expenseItems[${index}].unitPrice`}
                                                                 placeholder="Unit Price"
-                                                                value={item.unitPrice}
-                                                                onChange={(e) => handleChange(index, e)}
                                                             />
-                                                            <ErrorMessage name="item[0].unitPrice" component="div" className="text-danger" />
+                                                            <ErrorMessage name={`expenseItems[${index}].unitPrice`} component="div" className="text-danger" />
                                                         </div>
                                                         <div className="form-group col-md-4">
                                                             <label className='mt-3'>Sub Total</label>
-                                                            <input
+                                                            <Field
                                                                 type="number"
                                                                 className="form-control"
-                                                                name="subTotal"
+                                                                name={`expenseItems[${index}].subTotal`}
                                                                 placeholder="Sub Total"
-                                                                value={item.subTotal}
-                                                                onChange={(e) => handleChange(index, e)}
+                                                                disabled
                                                             />
-                                                            <ErrorMessage name="subTotal" component="div" className="text-danger" />
+                                                            <ErrorMessage name={`expenseItems[${index}].subTotal`} component="div" className="text-danger" />
                                                         </div>
                                                     </div>
-
-
                                                 </div>
                                             </div>
                                         ))}
-
                                         <button
                                             type="button"
                                             className="btn btn-secondary mb-3 m-3"
                                             onClick={handleAddForm}
                                         >
-                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            <i className="fa fa-plus" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Additional charge */}
                                 <div className="border rounded mt-3">
-
                                     <h5 className="text-primary mb-4 mt-3 ms-2">Additional Charges</h5>
-                                    <div className="expense-item mb-3">
-                                        <div className="form-row m-3">
-                                            <div className="row">
-                                                <div className="form-group col-md-6">
-                                                    <label className='mt-3'>ChargeName</label>
-                                                    <Field
-                                                        type="text"
-                                                        className="form-control"
-                                                        name="additionalCharges.chargeName"
-                                                        placeholder="Enter chargeName"
-                                                    />
-                                                    <ErrorMessage name="additionalCharges.chargeName" component="div" className="text-danger" />
-                                                </div>
-                                                <div className="form-group col-md-6">
-                                                    <label className='mt-3'>Charges</label>
-                                                    <Field
-                                                        type="number"
-                                                        className="form-control"
-                                                        name="additionalCharges.amount"
-                                                        placeholder="Enter Charges"
-                                                    />
-                                                    <ErrorMessage name="additionalCharges.amount" component="div" className="text-danger" />
+                                    {values.additionalCharges.map((charge, index) => (
+                                        <div key={index} className="expense-item mb-3">
+                                            <div className="form-row m-3">
+                                                <div className="row">
+                                                    <div className="form-group col-md-6">
+                                                        <label className='mt-3'>Charge Name</label>
+                                                        <Field
+                                                            type="text"
+                                                            className="form-control"
+                                                            name={`additionalCharges[${index}].chargeName`}
+                                                            placeholder="Enter charge name"
+                                                        />
+                                                        <ErrorMessage name={`additionalCharges[${index}].chargeName`} component="div" className="text-danger" />
+                                                    </div>
+                                                    <div className="form-group col-md-6">
+                                                        <label className='mt-3'>Amount</label>
+                                                        <Field
+                                                            type="number"
+                                                            className="form-control"
+                                                            name={`additionalCharges[${index}].amount`}
+                                                            placeholder="Enter Amount"
+                                                        />
+                                                        <ErrorMessage name={`additionalCharges[${index}].amount`} component="div" className="text-danger" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
 
 
