@@ -109,6 +109,11 @@ import Purchase from '../Admin Components/Vouchars/Purchase.jsx'
 import ExpenseForm from '../Admin Components/Vouchars/ExpenseForm.jsx'
 import Sale from '../Admin Components/Vouchars/Sale.jsx'
 import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
+import Classes from '../Admin Components/Academics/Classes.jsx'
+import Course from '../Admin Components/Academics/Course.jsx'
+import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
+import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
+import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
