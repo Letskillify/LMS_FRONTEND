@@ -1,176 +1,323 @@
-import React, { useState } from 'react';
+
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import React, { useContext, useEffect, useState } from 'react';
+import * as Yup from 'yup';
+import { MainContext } from '../../Controller/MainProvider';
+import axios from 'axios';
+
+const validationSchema = Yup.object({
+    applicableTo: Yup.array().of(Yup.string()).min(1, "At least one course must be selected"),
+    totalInstallmentsFeesAmount: Yup.number().min(0, "Amount cannot be negative").required("Total Installments Fee Amount is required"),
+    totalLumpSumFeesAmount: Yup.number().min(0, "Amount cannot be negative").required("Total Lump Sum Fee Amount is required"),
+    feeTypes: Yup.array().of(
+        Yup.object({
+            feeType: Yup.string().required("Fee type is required"),
+            amount: Yup.number().min(0, "Amount cannot be negative").required("Amount is required"),
+        })
+    ).min(1, "At least one fee type must be selected"),
+    totalNoOfInstallments: Yup.number().min(1, "At least one installment is required").required("Total number of installments is required"),
+    installmentDetails: Yup.array().of(
+        Yup.object({
+            installmentNumber: Yup.number().required("Installment number is required"),
+            installmentName: Yup.string().required("Installment name is required"),
+            installmentFeesAmount: Yup.number().min(0, "Amount cannot be negative").required("Installment amount is required"),
+            installmentDueDate: Yup.date().required("Due date is required"),
+            percentageOfTotal: Yup.number().min(0, "Percentage cannot be negative").max(100, "Cannot exceed 100%").required("Percentage is required"),
+        })
+    ).min(1, "At least one installment must be provided"),
+    batchYear: Yup.string().matches(/^\d{4}$/, "Batch year must be a 4-digit year").nullable(),
+    OverDuePenaltyAmountPerDay: Yup.number().min(0, "Penalty amount cannot be negative").required("Penalty amount is required"),
+    paymentMode: Yup.string().oneOf(["Cash", "Card", "Bank Transfer", "UPI", "Other", "Any of the above"], "Invalid payment mode").required("Payment mode is required"),
+});
 
 function FeeStructureManagement() {
-    const [feeStructures, setFeeStructures] = useState([
-        { class: 10, tuitionFee: 5000, labFee: 1000, transportFee: 1500, lateFee: 100, total: 7500 },
-        { class: 11, tuitionFee: 6000, labFee: 1200, transportFee: 1500, lateFee: 120, total: 8700 },
-        { class: 12, tuitionFee: 7000, labFee: 1500, transportFee: 1500, lateFee: 140, total: 10000 },
-    ]);
-
-    const [formData, setFormData] = useState({
-        class: '',
-        tuitionFee: '',
-        labFee: '',
-        transportFee: '',
-        lateFee: '',
-    });
-
-    const [editingIndex, setEditingIndex] = useState(null);
-
-    const handleInputChange = (e) => {
-        const { id, value } = e.target;
-        setFormData({ ...formData, [id]: value });
+    const [feeStructure, setFeeStructure] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [feetype, setFeetype] = useState([])
+    const [installment, setInstallment] = useState([
+        {
+            installmentNumber: 1,
+            installmentName: "",
+            installmentFeesAmount: 0,
+            installmentDueDate: "",
+            percentageOfTotal: 0
+        }
+    ])
+    const { userId } = useContext(MainContext);
+    const initialValues = {
+        instituteId: userId,
+        applicableTo: [],
+        totalInstallmentsFeesAmount: 0,
+        totalLumpSumFeesAmount: 0,
+        feeTypes: [{ feeType: "", amount: 0 }],
+        totalNoOfInstallments: 1,
+        installmentDetails: [{ installmentNumber: 1, installmentName: "", installmentFeesAmount: 0, installmentDueDate: "", percentageOfTotal: 0 }],
+        globalApplicability: false,
+        batchYear: "",
+        remarks: "",
+        OverDuePenaltyAmountPerDay: 0,
+        paymentMode: "Any of the above"
     };
 
-    const addFeeStructure = () => {
-        const newFeeStructure = {
-            ...formData,
-            tuitionFee: parseFloat(formData.tuitionFee) || 0,
-            labFee: parseFloat(formData.labFee) || 0,
-            transportFee: parseFloat(formData.transportFee) || 0,
-            lateFee: parseFloat(formData.lateFee) || 0,
-            total:
-                (parseFloat(formData.tuitionFee) || 0) +
-                (parseFloat(formData.labFee) || 0) +
-                (parseFloat(formData.transportFee) || 0),
-        };
+    const fetchFeeStructure = async () => {
+        try {
+            const res = await axios.get(`/api/fees-structure/get/institute/${userId}`);
+            setFeeStructure(res.data);
+        } catch (error) {
+            console.error("Error fetching fee structure:", error);
+        }
+    };
+    console.log(feeStructure, "feeStructure");
 
-        setFeeStructures([...feeStructures, newFeeStructure]);
-        setFormData({ class: '', tuitionFee: '', labFee: '', transportFee: '', lateFee: '' }); // Reset form
+
+    const fetchFeetype = async () => {
+        try {
+            const response = await axios.get(`/api/fees-type/get/institute/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            if (response.status === 200) {
+                setFeetype(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching fee types:", error);
+        }
     };
 
-    const editFeeStructure = (index) => {
-        setFormData(feeStructures[index]);
-        setEditingIndex(index);
+    console.log(feetype, "feetype");
+
+
+    const fetchClasses = async () => {
+        try {
+            const response = await axios.get(`/api/class/get/institute/${userId}`);
+            console.log("API Response:", response.data);
+            if (response.status === 200) {
+                const classData = response.data.map(item => ({ id: item._id, className: item.className }));
+                setClasses(classData);
+            } else {
+                console.error("Unexpected response status:", response.status);
+            }
+        }catch (error) {
+            console.error("Error adding fee structure:", error.response?.data || error.message);
+            alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
+        }
+
+    };
+    console.log(classes, "sxs");
+
+
+    useEffect(() => {
+        fetchFeeStructure()
+        fetchClasses()
+        fetchFeetype()
+    }, []);
+
+    const handleAddFeeStructure = async (values, { resetForm }) => {
+        console.log("valuesssss", values);
+        // try {
+        //     const response = await axios.post('/api/fees-structure/post', values);
+
+        //     if (response.status === 201) {
+        //         // setFeeStructure((prevStructure) => [...prevStructure, response.data]);
+        //         resetForm();
+        //         alert("Fee Structure added successfully!");
+        //         setInstallment(response.data.installmentDetails);
+        //     }
+        // } catch (error) {
+        //     console.error("Error adding fee structure:", error);
+        //     console.error("Error adding fee structure:", error.response?.data || error.message);
+        //     alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
+        //     // alert("Error adding fee structure.");
+        // }
     };
 
-    const updateFeeStructure = () => {
-        const updatedFeeStructure = {
-            ...formData,
-            tuitionFee: parseFloat(formData.tuitionFee) || 0,
-            labFee: parseFloat(formData.labFee) || 0,
-            transportFee: parseFloat(formData.transportFee) || 0,
-            lateFee: parseFloat(formData.lateFee) || 0,
-            total:
-                (parseFloat(formData.tuitionFee) || 0) +
-                (parseFloat(formData.labFee) || 0) +
-                (parseFloat(formData.transportFee) || 0),
-        };
+    console.log(installment, "installment");
 
-        const updatedFeeStructures = [...feeStructures];
-        updatedFeeStructures[editingIndex] = updatedFeeStructure;
-        setFeeStructures(updatedFeeStructures);
-
-        setFormData({ class: '', tuitionFee: '', labFee: '', transportFee: '', lateFee: '' });
-        setEditingIndex(null); // Reset editing mode
-    };
-
-    const deleteFeeStructure = (index) => {
-        const updatedFeeStructures = feeStructures.filter((_, i) => i !== index);
-        setFeeStructures(updatedFeeStructures);
-    };
 
     return (
-        <div className="container FeeStructure">
-            <h1 className="title border p-3 shadow-sm fw-bold m-1 card">Fee Structure Management</h1>
-            <div className="card p-5 row">
-                <h3 className="card-title">{editingIndex === null ? 'Add' : 'Edit'} Fee Structure</h3>
-                <div className="form-group">
-                    <label htmlFor="class">Class</label>
-                    <input
-                        type="text"
-                        id="class"
-                        value={formData.class}
-                        onChange={handleInputChange}
-                        placeholder="Enter class"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="tuitionFee">Tuition Fee</label>
-                    <input
-                        type="text"
-                        id="tuitionFee"
-                        value={formData.tuitionFee}
-                        onChange={handleInputChange}
-                        placeholder="Enter tuition fee"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="labFee">Lab Fee</label>
-                    <input
-                        type="text"
-                        id="labFee"
-                        value={formData.labFee}
-                        onChange={handleInputChange}
-                        placeholder="Enter lab fee"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="transportFee">Transport Fee</label>
-                    <input
-                        type="text"
-                        id="transportFee"
-                        value={formData.transportFee}
-                        onChange={handleInputChange}
-                        placeholder="Enter transport fee"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="lateFee">Late Fee (per day)</label>
-                    <input
-                        type="text"
-                        id="lateFee"
-                        value={formData.lateFee}
-                        onChange={handleInputChange}
-                        placeholder="Enter late fee"
-                    />
-                </div>
-                <button className="btn btn-primary p-2" onClick={editingIndex === null ? addFeeStructure : updateFeeStructure}>
-                    {editingIndex === null ? 'Add Fee Structure' : 'Update Fee Structure'}
-                </button>
-            </div>
+        <div className="page-wrapper">
+            <div className="container bg-white mt-4 p-5">
+                <h2 className="text-center">Fees Structure</h2>
+                <Formik
+                    initialValues={initialValues}
+                    // validationSchema={validationSchema}
+                    onSubmit={handleAddFeeStructure}
+                >
+                    {({ }) => (
+                        <Form className="mb-4">
+                            <div className="container mt-4">
+                                <div className="row mb-3">
+                                    <div className="col-md-6">
+                                        <label for="applicableTo" className="form-label">Applicable Courses</label>
+                                        <Field as="select" className="form-control" id="applicableTo" name="applicableTo" placeholder="Enter Institute ID" >
+                                            <option value="">-- Select Your Course --</option>
+                                            {classes?.map((Class) => (
+                                                <option key={Class?.id} value={Class?.id}>
+                                                    {Class?.className}
+                                                </option>
+                                            ))}
 
-            <div className="current-structures">
-                <h3 className='card-title border p-3'>Current Fee Structures</h3>
-                <div className="card">
-                    <table className="fee-table">
+                                        </Field>
+
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label" htmlFor="globalApplicability">Global Applicability</label>
+                                        <Field as="select" className="form-control" id="globalApplicability" name="globalApplicability">
+                                            <option value="">Select Global Applicability</option>
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </Field>
+                                    </div>
+                                </div>
+
+                                <div className="row mb-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Total Installment Fees</label>
+                                        <Field type="number" className="form-control" name="totalInstallmentsFeesAmount" placeholder="Enter Amount" />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Total Lump Sum Fees</label>
+                                        <Field type="number" className="form-control" name="totalLumpSumFeesAmount" placeholder="Enter Amount" />
+                                    </div>
+                                </div>
+
+                                <div className="row mb-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Total No. of Installments</label>
+                                        <Field type="number" className="form-control" name="totalNoOfInstallments" placeholder="Enter Number" />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Overdue Penalty Amount/Day</label>
+                                        <Field type="number" className="form-control" name="OverDuePenaltyAmountPerDay" placeholder="Enter Amount" />
+                                    </div>
+                                </div>
+
+                                <div className="row mb-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Batch Year</label>
+                                        <Field type="month" className="form-control" name="batchYear" placeholder="Enter Batch Year" />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Payment Mode</label>
+                                        <Field as="select" className="form-select" name="paymentMode">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Card">Card</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                            <option value="UPI">UPI</option>
+                                            <option value="Other">Other</option>
+                                            <option value="Any of the above">Any of the above</option>
+                                        </Field>
+                                    </div>
+                                </div>
+
+                                <h4 className='mt-4'>Fee Type</h4>
+                                {feetype?.map((type, index) => (
+                                    <div className="row mb-3" key={index}>
+                                        <div className="col-md-6">
+                                            <label className="form-label">Fee Type</label>
+                                            <Field as="select"
+                                                className="form-control"
+                                                name={`feeTypes.${index}.feeType`}
+                                                placeholder="Select Fee Type"
+                                            >
+                                                <option value="">Select Your Fee Type</option>
+                                                <option key={type?.id} value={type?._id}>
+                                                    {type?.feesType}
+                                                </option>
+                                            </Field>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label">Amount</label>
+                                            <Field
+                                                type="number"
+                                                className="form-control"
+                                                name={`feeTypes.${index}.amount`}
+                                                placeholder="Enter Amount" />
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <h4 className='mt-4'>Installment Details</h4>
+                                {installment?.length > 0 &&
+                                    installment?.map((_, index) => (
+                                        <div key={index}>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Number</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.installmentNumber`} placeholder="Enter Number" />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Name</label>
+                                                    <Field type="text" className="form-control" name={`installmentDetails.${index}.installmentName`} placeholder="Enter Name" />
+                                                </div>
+
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Due Date</label>
+                                                    <Field type="date" className="form-control" name={`installmentDetails.${index}.installmentDueDate`} />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Percentage Of Total</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.percentageOfTotal`} placeholder="Enter Percentage" />
+                                                </div>
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label"> Installment Fees Amount</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.installmentFeesAmount`} placeholder="Enter Amount" />
+                                                </div>
+
+
+                                                <div className="col-6">
+                                                    <label className="form-label">Remarks</label>
+                                                    <textarea type="text" className="form-control h-25" name={`installmentDetails.${index}.remarks`} placeholder="Enter Remarks" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+
+
+
+                            </div>
+
+                            <button type="submit" className="btn btn-primary">Submit</button>
+
+                        </Form>
+                    )}
+                </Formik>
+
+                <h3 className="text-center">Fee Structure Records</h3>
+                <div className="table-responsive">
+                    <table className="table table-bordered table-striped mt-3">
                         <thead>
                             <tr>
-                                <th>Class</th>
-                                <th>Tuition Fee</th>
-                                <th>Lab Fee</th>
-                                <th>Transport Fee</th>
-                                <th>Late Fee (per day)</th>
-                                <th>Total</th>
+                                <th>Total Installments Fee</th>
+                                <th>Total Lump Sum Fee</th>
+                                <th>Total Installments</th>
+                                <th>Batch Year</th>
+                                <th>Payment Mode</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {feeStructures.map((fee, index) => (
-                                <tr key={index}>
-                                    <td>{fee.class}</td>
-                                    <td>₹{fee.tuitionFee}</td>
-                                    <td>₹{fee.labFee}</td>
-                                    <td>₹{fee.transportFee}</td>
-                                    <td>₹{fee.lateFee}</td>
-                                    <td>₹{fee.total}</td>
-                                    <td>
-                                        <button
-                                            className="btn btn-success"
-                                            onClick={() => editFeeStructure(index)}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            className="btn btn-danger ms-2"
-                                            onClick={() => deleteFeeStructure(index)}
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        {/* <tbody>
+{feeStructure.map((item, index) => (
+<tr key={index}>
+<td>{item.totalInstallmentsFeesAmount}</td>
+<td>{item.totalLumpSumFeesAmount}</td>
+<td>{item.paymentMode}</td>
+<td>{item.batchYear}</td>
+<td>
+  <button className="btn btn-warning btn-sm">Edit</button>
+  <button className="btn btn-danger btn-sm">Delete</button>
+</td>
+</tr>
+))}
+</tbody> */}
                     </table>
                 </div>
             </div>
@@ -179,3 +326,4 @@ function FeeStructureManagement() {
 }
 
 export default FeeStructureManagement;
+

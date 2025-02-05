@@ -1,53 +1,174 @@
-import React from 'react'
+import React, { useState } from "react";
+import { toast, Bounce } from "react-toastify";
+import GlobalToast from "../../GlobalComponents/GlobalToast";
 
-function StaffSalarySetting() {
-    return (
-        <>
-            <div className="container-fluid container-p-y">
-                <h4 className="fw-bold py-3 mb-2"><span className="text-muted fw-light">Dashboard /</span>Staff Salary Management / Staff Salary Generation </h4>
-                <div className='mt-2 ps-2 py-2 border rounded' style={{ color: '#fff', backgroundColor: '#013473', fontSize: '19px' }}>
-                    <i className="fa fa-arrow-circle-o-right me-2" aria-hidden="true"></i> Staff Salary Generation Settings
-                </div>
-                <div className="bg-light m-5  p-3">
-                    <p className='pb-3 '>Note:These settings are only useful for monthly salaries, and will not affect subject/lecture wise or hourly salary generations.</p>
-                    <form action="">
-                        <div className="row  p-4 pt-2">
-                            <div className="col-6 row">
-                                <label className='col-4' htmlFor="arrival">Late Arrival Time:</label>
-                                <div className='col-8'>
-                                    <input className='col-12 form-control' type="time" value={'08:00'} /><br />
-                                    <p>Mark as late arrival on attendance after this time</p>
-                                </div>
-                            </div>
-                            <div className="col-6 row">
-                                <label className='col-4' htmlFor="arrival"> Free Absents:</label>
-                                <div className='col-8'>
-                                    <input type="tel" className='col-12 form-control' name="" id="" value={1} />
-                                    <br />
-                                    <p>Do not deduct salary if absent are less or equal to this</p>
-                                </div>
-                            </div>
-                            <div className="col-6 row">
-                                <label className='col-4' htmlFor="arrival"> Free Absents:</label>
-                                <div className='col-8'>
-                                    <select className='col-12 form-select' name="" id="" value={1} >
-                                        <option value="">Yes</option>
-                                        <option value="">No</option>
-                                    </select>
-                                    <br />
-                                    <p>Deduct Salary for the day if teacher is on leave</p>
-                                </div>
-                            </div>
-                            <div className="text-center mt-4 pt-4 mb-5">
-                                <button className="btn btn-primary ">Save Changes</button>
-                            </div>
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </>
-    )
-}
+const years = Array.from(
+  { length: 10 },
+  (_, i) => new Date().getFullYear() - i
+);
 
-export default StaffSalarySetting
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const fields = [
+  {
+    label: "Campus",
+    name: "campus",
+    type: "select",
+    options: ["Main Campus", "Outer Campus"],
+  },
+  { label: "Month", name: "month", type: "select", options: months },
+  { label: "Year", name: "year", type: "select", options: years },
+  { label: "Deduction Per Late Arrival", name: "deduction", type: "number" },
+  { label: "Late Arrival Time", name: "lateArrivalTime", type: "time" },
+  { label: "Free Absents", name: "freeAbsents", type: "text" },
+  {
+    label: "Deduct Salary on Leave",
+    name: "deductSalaryOnLeave",
+    type: "select",
+    options: [true, false],
+  },
+  { label: "Working Days", name: "workingDays", type: "number" },
+];
+
+const SalaryGeneration = () => {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  const showToast = GlobalToast();
+
+  const [salaryData, setSalaryData] = useState({
+    campus: "",
+    month: currentMonth,
+    year: currentYear,
+    deduction: 0,
+    lateArrivalTime: "",
+    freeAbsents: "",
+    deductSalaryOnLeave: true,
+    workingDays: 0,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSalaryData({ ...salaryData, [name]: value });
+  };
+
+  const handleGenerateSalary = async () => {
+    if (
+      !salaryData.year ||
+      !salaryData.month ||
+      !salaryData.campus ||
+      salaryData.workingDays < 1 ||
+      salaryData.workingDays > 31 ||
+      salaryData.deduction < 0 ||
+      salaryData.freeAbsents < 0
+    ) {
+      return showToast(
+        "Please fill all the required fields correctly",
+        "error"
+      );
+    }
+    try {
+      const response = await fetch(`/api/salary/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(salaryData),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast(data.message, "success");
+      } else {
+        showToast(data.message, "error");
+      }
+    } catch (error) {
+      showToast("Something went wrong!", "error");
+    }
+  };
+
+  return (
+    <div className="container-fluid container-p-y">
+      <h4 className="fw-bold py-3">
+        <span className="text-muted fw-light">Dashboard /</span> Salary Settings
+      </h4>
+      <div
+        className="ps-2 py-2 border rounded"
+        style={{ color: "#fff", backgroundColor: "#013473", fontSize: "19px" }}
+      >
+        <i className="fa fa-arrow-circle-o-right me-2" aria-hidden="true"></i>
+        Settings
+      </div>
+
+      <div className="bg-white pb-4 mx-2">
+        <form className="w-75 mx-auto py-3">
+          <div className="row g-3">
+            {fields.map(({ label, name, type, options }, index) => (
+              <div className="col-md-6" key={index}>
+                <label className="form-label fw-bold" htmlFor={name}>
+                  {label} <span className="text-danger">*</span>
+                </label>
+                {type === "select" ? (
+                  <select
+                    className="form-select"
+                    id={name}
+                    name={name}
+                    value={salaryData[name]}
+                    onChange={handleInputChange}
+                  >
+                    {options.map((option, i) => (
+                      <option key={i} value={option}>
+                        {name === "deductSalaryOnLeave"
+                          ? option === true
+                            ? "Yes"
+                            : option === false
+                            ? "No"
+                            : option
+                          : option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    className="form-control"
+                    id={name}
+                    name={name}
+                    type={type}
+                    min={0}
+                    required={true}
+                    value={salaryData[name]}
+                    onChange={handleInputChange}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleGenerateSalary}
+            >
+              Generate Salary <i className="fa fa-thumbs-up"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default SalaryGeneration;
