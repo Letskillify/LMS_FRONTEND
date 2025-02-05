@@ -16,15 +16,15 @@ const validationSchema = Yup.object({
         })
     ).min(1, "At least one fee type must be selected"),
     totalNoOfInstallments: Yup.number().min(1, "At least one installment is required").required("Total number of installments is required"),
-    // installmentDetails: Yup.array().of(
-    //     Yup.object({
-    //         installmentNumber: Yup.number().required("Installment number is required"),
-    //         installmentName: Yup.string().required("Installment name is required"),
-    //         installmentFeesAmount: Yup.number().min(0, "Amount cannot be negative").required("Installment amount is required"),
-    //         installmentDueDate: Yup.date().required("Due date is required"),
-    //         percentageOfTotal: Yup.number().min(0, "Percentage cannot be negative").max(100, "Cannot exceed 100%").required("Percentage is required"),
-    //     })
-    // ).min(1, "At least one installment must be provided"),
+    installmentDetails: Yup.array().of(
+        Yup.object({
+            installmentNumber: Yup.number().required("Installment number is required"),
+            installmentName: Yup.string().required("Installment name is required"),
+            installmentFeesAmount: Yup.number().min(0, "Amount cannot be negative").required("Installment amount is required"),
+            installmentDueDate: Yup.date().required("Due date is required"),
+            percentageOfTotal: Yup.number().min(0, "Percentage cannot be negative").max(100, "Cannot exceed 100%").required("Percentage is required"),
+        })
+    ).min(1, "At least one installment must be provided"),
     batchYear: Yup.string().matches(/^\d{4}$/, "Batch year must be a 4-digit year").nullable(),
     OverDuePenaltyAmountPerDay: Yup.number().min(0, "Penalty amount cannot be negative").required("Penalty amount is required"),
     paymentMode: Yup.string().oneOf(["Cash", "Card", "Bank Transfer", "UPI", "Other", "Any of the above"], "Invalid payment mode").required("Payment mode is required"),
@@ -34,15 +34,24 @@ function FeeStructureManagement() {
     const [feeStructure, setFeeStructure] = useState([]);
     const [classes, setClasses] = useState([]);
     const [feetype, setFeetype] = useState([])
+    const [installment, setInstallment] = useState([
+        {
+            installmentNumber: 1,
+            installmentName: "",
+            installmentFeesAmount: 0,
+            installmentDueDate: "",
+            percentageOfTotal: 0
+        }
+    ])
     const { userId } = useContext(MainContext);
     const initialValues = {
-        instituteID: userId,
+        instituteId: userId,
         applicableTo: [],
         totalInstallmentsFeesAmount: 0,
         totalLumpSumFeesAmount: 0,
         feeTypes: [{ feeType: "", amount: 0 }],
         totalNoOfInstallments: 1,
-        // installmentDetails: [{ installmentNumber: 1, installmentName: "", installmentFeesAmount: 0, installmentDueDate: "", percentageOfTotal: 0 }],
+        installmentDetails: [{ installmentNumber: 1, installmentName: "", installmentFeesAmount: 0, installmentDueDate: "", percentageOfTotal: 0 }],
         globalApplicability: false,
         batchYear: "",
         remarks: "",
@@ -50,28 +59,35 @@ function FeeStructureManagement() {
         paymentMode: "Any of the above"
     };
 
-    // const fetchFeeStructure = async () => {
-    //     try {
-    //         const { data } = await axios.get(`/api/fees-structure/get/institute/${userId}`);
-    //         setFeeStructure(data);
-    //     } catch (error) {
-    //         console.error("Error fetching fee structure:", error);
-    //     }
-    // };
+    const fetchFeeStructure = async () => {
+        try {
+            const res = await axios.get(`/api/fees-structure/get/institute/${userId}`);
+            setFeeStructure(res.data);
+        } catch (error) {
+            console.error("Error fetching fee structure:", error);
+        }
+    };
+    console.log(feeStructure, "feeStructure");
+
 
     const fetchFeetype = async () => {
         try {
-            const { data } = await axios.get(`/api/fees-type/get/institute/${userId}`);
-            if (data?.length > 0) {
-                const feetype = data.map(feetypes => ({ id: feetypes._id, feesType: feetypes.feesType }));
-                setFeetype(feetype);
-            } else {
-                console.error("No fee types found for the institute.");
+            const response = await axios.get(`/api/fees-type/get/institute/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            if (response.status === 200) {
+                setFeetype(response.data);
             }
         } catch (error) {
             console.error("Error fetching fee types:", error);
         }
     };
+
+    console.log(feetype, "feetype");
+
 
     const fetchClasses = async () => {
         try {
@@ -83,38 +99,42 @@ function FeeStructureManagement() {
             } else {
                 console.error("Unexpected response status:", response.status);
             }
-        } catch (error) {
-            console.error("Error fetching classes:", error.response?.data || error.message);
+        }catch (error) {
+            console.error("Error adding fee structure:", error.response?.data || error.message);
+            alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
         }
+
     };
     console.log(classes, "sxs");
 
 
     useEffect(() => {
-        // fetchFeeStructure()
+        fetchFeeStructure()
         fetchClasses()
         fetchFeetype()
     }, []);
 
     const handleAddFeeStructure = async (values, { resetForm }) => {
-        try {
-            const response = await axios.post('/api/fees-type/post', values, {
-                headers: { 'Content-Type': 'application/json' },
-            });
+        console.log("valuesssss", values);
+        // try {
+        //     const response = await axios.post('/api/fees-structure/post', values);
 
-            if (response.status === 201) {
-                setFeeStructure((prevStructure) => [...prevStructure, response.data]);
-                resetForm();
-                alert("Fee Structure added successfully!");
-            } else {
-                console.error("Failed to add fee structure:", response.statusText);
-                alert("Error adding fee structure.");
-            }
-        } catch (error) {
-            console.error("Error adding fee structure:", error.response?.data?.message || error.message);
-            alert("Error adding fee structure.");
-        }
+        //     if (response.status === 201) {
+        //         // setFeeStructure((prevStructure) => [...prevStructure, response.data]);
+        //         resetForm();
+        //         alert("Fee Structure added successfully!");
+        //         setInstallment(response.data.installmentDetails);
+        //     }
+        // } catch (error) {
+        //     console.error("Error adding fee structure:", error);
+        //     console.error("Error adding fee structure:", error.response?.data || error.message);
+        //     alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
+        //     // alert("Error adding fee structure.");
+        // }
     };
+
+    console.log(installment, "installment");
+
 
     return (
         <div className="page-wrapper">
@@ -131,10 +151,10 @@ function FeeStructureManagement() {
                                 <div className="row mb-3">
                                     <div className="col-md-6">
                                         <label for="applicableTo" className="form-label">Applicable Courses</label>
-                                        <Field as="select" className="form-control" id="applicableTo" name="applicableTo" placeholder="Enter Institute ID">
+                                        <Field as="select" className="form-control" id="applicableTo" name="applicableTo" placeholder="Enter Institute ID" >
                                             <option value="">-- Select Your Course --</option>
                                             {classes?.map((Class) => (
-                                                <option key={Class?.id} value={Class?._id}>
+                                                <option key={Class?.id} value={Class?.id}>
                                                     {Class?.className}
                                                 </option>
                                             ))}
@@ -143,8 +163,8 @@ function FeeStructureManagement() {
 
                                     </div>
                                     <div className="col-md-6">
-                                        <label for="instituteID" className="form-label">Global Applicability</label>
-                                        <Field as="select" className="form-control" id="instituteID" name="instituteID" placeholder="Enter Institute ID">
+                                        <label className="form-label" htmlFor="globalApplicability">Global Applicability</label>
+                                        <Field as="select" className="form-control" id="globalApplicability" name="globalApplicability">
                                             <option value="">Select Global Applicability</option>
                                             <option value="true">Yes</option>
                                             <option value="false">No</option>
@@ -193,20 +213,19 @@ function FeeStructureManagement() {
                                 </div>
 
                                 <h4 className='mt-4'>Fee Type</h4>
-                                {feetype?.map((feeType, index) => (
-                                    <div className="row mb-3" key={feeType?.id || index}>
+                                {feetype?.map((type, index) => (
+                                    <div className="row mb-3" key={index}>
                                         <div className="col-md-6">
                                             <label className="form-label">Fee Type</label>
                                             <Field as="select"
                                                 className="form-control"
                                                 name={`feeTypes.${index}.feeType`}
-                                                placeholder="Select Fee Type">
+                                                placeholder="Select Fee Type"
+                                            >
                                                 <option value="">Select Your Fee Type</option>
-                                                {feetype?.map((type) => (
-                                                    <option key={type?.id} value={type?.feesType}>
-                                                        {type?.feesType}
-                                                    </option>
-                                                ))}
+                                                <option key={type?.id} value={type?._id}>
+                                                    {type?.feesType}
+                                                </option>
                                             </Field>
                                         </div>
                                         <div className="col-md-6">
@@ -221,43 +240,46 @@ function FeeStructureManagement() {
                                 ))}
 
                                 <h4 className='mt-4'>Installment Details</h4>
-                                {/* <div>
+                                {installment?.length > 0 &&
+                                    installment?.map((_, index) => (
+                                        <div key={index}>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Number</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.installmentNumber`} placeholder="Enter Number" />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Name</label>
+                                                    <Field type="text" className="form-control" name={`installmentDetails.${index}.installmentName`} placeholder="Enter Name" />
+                                                </div>
 
-                                    <div className="row mb-3">
-                                        <div className="col-md-6">
-                                            <label className="form-label">Installment Number</label>
-                                            <Field type="number" className="form-control" name="installmentDetails.installmentNumber" placeholder="Enter Number" />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label className="form-label">Installment Name</label>
-                                            <Field type="text" className="form-control" name="installmentDetails.installmentName" placeholder="Enter Name" />
-                                        </div>
-
-                                    </div>
-                                    <div className="row mb-3">
-                                        <div className="col-md-6">
-                                            <label className="form-label">Installment Due Date</label>
-                                            <Field type="date" className="form-control" name="installmentDetails.installmentDueDate" />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label className="form-label">Installment Percentage Of Total</label>
-                                            <Field type="number" className="form-control" name="installmentDetails.percentageOfTotal" placeholder="Enter Percentage" />
-                                        </div>
-                                    </div>
-                                    <div className="row mb-3">
-                                        <div className="col-md-6">
-                                            <label className="form-label"> Installment Fees Amount</label>
-                                            <Field type="number" className="form-control" name="installmentDetails.installmentFeesAmount" placeholder="Enter Amount" />
-                                        </div>
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Due Date</label>
+                                                    <Field type="date" className="form-control" name={`installmentDetails.${index}.installmentDueDate`} />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Percentage Of Total</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.percentageOfTotal`} placeholder="Enter Percentage" />
+                                                </div>
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label"> Installment Fees Amount</label>
+                                                    <Field type="number" className="form-control" name={`installmentDetails.${index}.installmentFeesAmount`} placeholder="Enter Amount" />
+                                                </div>
 
 
-                                        <div className="col-6">
-                                            <label className="form-label">Remarks</label>
-                                            <textarea type="text" className="form-control h-25" name="remarks" placeholder="Enter Remarks" />
+                                                <div className="col-6">
+                                                    <label className="form-label">Remarks</label>
+                                                    <textarea type="text" className="form-control h-25" name={`installmentDetails.${index}.remarks`} placeholder="Enter Remarks" />
 
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div> */}
+                                    ))
+                                }
 
 
 
@@ -282,20 +304,20 @@ function FeeStructureManagement() {
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {feeStructure.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{item.totalInstallmentsFeesAmount}</td>
-                                    <td>{item.totalLumpSumFeesAmount}</td>
-                                    <td>{item.paymentMode}</td>
-                                    <td>{item.batchYear}</td>
-                                    <td>
-                                        <button className="btn btn-warning btn-sm">Edit</button>
-                                        <button className="btn btn-danger btn-sm">Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        {/* <tbody>
+{feeStructure.map((item, index) => (
+<tr key={index}>
+<td>{item.totalInstallmentsFeesAmount}</td>
+<td>{item.totalLumpSumFeesAmount}</td>
+<td>{item.paymentMode}</td>
+<td>{item.batchYear}</td>
+<td>
+  <button className="btn btn-warning btn-sm">Edit</button>
+  <button className="btn btn-danger btn-sm">Delete</button>
+</td>
+</tr>
+))}
+</tbody> */}
                     </table>
                 </div>
             </div>
@@ -304,3 +326,4 @@ function FeeStructureManagement() {
 }
 
 export default FeeStructureManagement;
+
