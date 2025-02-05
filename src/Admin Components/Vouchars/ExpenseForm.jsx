@@ -63,7 +63,7 @@ const validationSchema = Yup.object({
         })
     ),
     additionalCharges: Yup.array().of(
-        Yup.object({
+        Yup.object().shape({   
             chargeName: Yup.string().required('Charge name is required'),
             amount: Yup.number().min(0, 'Charge amount must be at least 0').required('Charge amount is required')
         })
