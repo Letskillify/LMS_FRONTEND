@@ -1,156 +1,131 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import Select from "react-select";
-import { CREATE_SALARY } from "../../ApiConstants/Routes";
-import useGlobalToast from "../../GlobalComponents/GlobalToast";
+// import { UPDATE_SALARY } from "../../ApiConstants/Routes";
+import useGlobalToast from "../../../GlobalComponents/GlobalToast";
 
-const AddSalaryModal = ({
-  staffData,
+const EditSalaryModal = ({
   show,
   handleClose,
+  salaryData,
   allowanceData,
   deductionData,
-  staffType,
-  setStaffType,
+  setUpdatedSalary,
   formData,
   setFormData,
+  handleUpdateSalary,
 }) => {
   const showToast = useGlobalToast();
+
+  useEffect(() => {
+    if (salaryData) {
+      setFormData({
+        ...salaryData,
+        allowances:
+          salaryData.allowances?.map((allowance) => ({
+            typeOfAllowance: allowance.typeOfAllowance._id,
+            amount: allowance.amount,
+            allowanceName: allowance.typeOfAllowance.allowanceName,
+          })) || [],
+        deductions:
+          salaryData.deductions?.map((deduction) => ({
+            typeOfDeduction: deduction.typeOfDeduction._id,
+            amount: deduction.amount,
+            deductionName: deduction.typeOfDeduction.deductionName,
+          })) || [],
+      });
+    }
+  }, [salaryData, setFormData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "staffType") {
-      setStaffType(value);
-      setFormData({
-        staff: "",
-        staffType: value,
-        basicSalary: "",
-        allowances: [],
-        deductions: [],
-        netSalary: "",
-        salaryMonth: new Date().toISOString().slice(0, 7),
-        present: "",
-        absent: "",
-        late: "",
-        loanRepayment: "",
-      });
-    } else {
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
-
-  const handleSelectChange = (selectedOption, actionMeta) => {
-    if (actionMeta.name === "staff") {
-      const selectedStaff = staffData.find(
-        (s) => s._id === selectedOption.value
-      );
-
-      setFormData((prev) => ({
-        ...prev,
-        staff: selectedOption.value,
-        basicSalary: selectedStaff.salaryDetails.baseSalary,
-        netSalary: selectedStaff.salaryDetails.baseSalary,
-        present: selectedStaff.attendenceDetails.totalPresent,
-        absent: selectedStaff.attendenceDetails.totalAbsent,
-        // late: selectedStaff.attendenceDetails.totalDays,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [actionMeta.name]: selectedOption ? selectedOption.value : "",
-      }));
-    }
-  };
-
-  const staffOptions = staffData?.map((staff) => ({
-    value: staff._id,
-    label: `${staff?.StaffID} ${staff?.fullName?.firstName} ${staff?.fullName?.lastName}`,
-  }));
 
   const handleAllowancesChange = (selected) => {
-    const selectedAllowance = selected.map((s) => s.value);
     setFormData((prev) => ({
       ...prev,
-      allowances: selectedAllowance,
+      allowances: selected.map((s) => ({
+        typeOfAllowance: s.value.typeOfAllowance,
+        amount: s.value.amount,
+        allowanceName: s.label,
+      })),
     }));
   };
 
   const handleDeductionsChange = (selected) => {
-    const selectedDeduction = selected.map((s) => s.value);
     setFormData((prev) => ({
       ...prev,
-      deductions: selectedDeduction,
+      deductions: selected.map((s) => ({
+        typeOfDeduction: s.value.typeOfDeduction,
+        amount: s.value.amount,
+        deductionName: s.label,
+      })),
     }));
   };
 
   const allowanceOptions = allowanceData?.map((allowance) => ({
     value: { typeOfAllowance: allowance._id, amount: allowance.amount },
     label: allowance.allowanceName,
-    isDisabled: formData.allowances.some(
-      (selectedAllowance) => selectedAllowance.typeOfAllowance === allowance._id
+    isDisabled: formData.allowances?.some(
+      (a) => a.typeOfAllowance === allowance._id
     ),
+  }));
+
+  const defaultAllowanceOptions = formData.allowances?.map((allowance) => ({
+    value: {
+      typeOfAllowance: allowance.typeOfAllowance,
+      amount: allowance.amount,
+    },
+    label: allowance.allowanceName,
   }));
 
   const deductionOptions = deductionData?.map((deduction) => ({
     value: { typeOfDeduction: deduction._id, amount: deduction.amount },
     label: deduction.deductionName,
-    isDisabled: formData.deductions.some(
-      (selectedDeduction) => selectedDeduction.typeOfDeduction === deduction._id
+    isDisabled: formData.deductions?.some(
+      (d) => d.typeOfDeduction === deduction._id
     ),
   }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await axios.post(CREATE_SALARY, formData);
-
-      if (res.status === 201) {
-        showToast("Salary added successfully", "success");
-        handleClose();
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        showToast("Salary already exists for this staff", "error");
-      } else {
-        showToast("Something went wrong. Please try again.", "error");
-      }
-    }
-  };
+  const defaultDeductionOptions = formData.deductions?.map((deduction) => ({
+    value: {
+      typeOfDeduction: deduction.typeOfDeduction,
+      amount: deduction.amount,
+    },
+    label: deduction.deductionName,
+  }));
 
   return (
     <Modal show={show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>Add Salary</Modal.Title>
+        <Modal.Title>Edit Salary</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
+        <Form>
           <Form.Group className="mb-3">
             <Form.Label>Staff Type</Form.Label>
-            <Form.Select name="staffType" onChange={handleChange} required>
-              <option disabled value="">Select Staff Type</option>
-              <option value="TeachingStaff">Teaching Staff</option>
-              <option value="NonTeachingStaff">Non-Teaching Staff</option>
-            </Form.Select>
+            <Form.Control
+              type="text"
+              readOnly
+              name="staffType"
+              value={formData.staffType || ""}
+            />
           </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>Staff</Form.Label>
-            <Select
+            <Form.Control
+              type="text"
+              readOnly
               name="staff"
-              value={staffOptions.find((option) => option.value === formData.staff) || null}
-              key={staffType}
-              options={staffOptions}
-              isSearchable
-              isDisabled={!staffType}
-              placeholder={
-                !staffType ? "Select Staff Type" : "Search Staff / Select Staff"
-              }
-              onChange={handleSelectChange}
+              value={`${formData.staff?.StaffID || ""} ${
+                formData.staff?.fullName?.firstName || ""
+              } ${formData.staff?.fullName?.lastName || ""}`}
             />
           </Form.Group>
 
@@ -159,7 +134,7 @@ const AddSalaryModal = ({
             <Form.Control
               type="number"
               name="basicSalary"
-              value={formData.basicSalary}
+              value={formData.basicSalary || ""}
               readOnly
             />
           </Form.Group>
@@ -169,6 +144,7 @@ const AddSalaryModal = ({
             <Select
               name="allowances"
               options={allowanceOptions}
+              value={defaultAllowanceOptions}
               isMulti
               isSearchable
               placeholder="Search Allowances / Select Allowances"
@@ -181,6 +157,7 @@ const AddSalaryModal = ({
             <Select
               name="deductions"
               options={deductionOptions}
+              value={defaultDeductionOptions}
               isMulti
               isSearchable
               placeholder="Search Deductions / Select Deductions"
@@ -201,9 +178,9 @@ const AddSalaryModal = ({
           <Form.Group className="mb-3">
             <Form.Label>Salary Month</Form.Label>
             <Form.Control
-              type="month"
+              type="text"
               name="salaryMonth"
-              value={formData.salaryMonth}
+              value={formData?.salaryMonth}
               readOnly
             />
           </Form.Group>
@@ -213,7 +190,7 @@ const AddSalaryModal = ({
             <Form.Control
               type="number"
               name="present"
-              value={formData.present}
+              value={formData?.present}
               readOnly
             />
           </Form.Group>
@@ -223,7 +200,7 @@ const AddSalaryModal = ({
             <Form.Control
               type="number"
               name="absent"
-              value={formData.absent}
+              value={formData?.absent}
               readOnly
             />
           </Form.Group>
@@ -233,7 +210,7 @@ const AddSalaryModal = ({
             <Form.Control
               type="number"
               name="late"
-              value={formData.late}
+              value={formData?.late}
               readOnly
             />
           </Form.Group>
@@ -243,12 +220,19 @@ const AddSalaryModal = ({
             <Form.Control
               type="number"
               name="loanRepayment"
+              value={formData?.loanRepayment}
               onChange={handleChange}
             />
           </Form.Group>
 
-          <Button variant="primary" type="submit">
-            Add Salary
+          <Button
+            onClick={() => {
+              handleUpdateSalary(formData._id);
+            }}
+            variant="primary"
+            type="button"
+          >
+            Update Salary
           </Button>
         </Form>
       </Modal.Body>
@@ -256,4 +240,4 @@ const AddSalaryModal = ({
   );
 };
 
-export default AddSalaryModal;
+export default EditSalaryModal;

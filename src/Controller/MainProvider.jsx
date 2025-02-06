@@ -87,6 +87,8 @@ export const MainProvider = ({ children }) => {
       fetchCourse();
       fetchCourseGroup();
       fetchClass();
+      fetchStudentData();
+      fetchTrashData();
     }
   }, [instituteId]);
 
