@@ -13,11 +13,9 @@ import StudentInfo from '../Admin Components/Students/StudentInfo.jsx'
 import AdmitStudents from '../Admin Components/Admission/AdmitStudents.jsx'
 import AdmitBulk from '../Admin Components/Admission/AdmitBulk.jsx'
 import ManageParents from '../Admin Components/Parents/ManageParents.jsx'
-import StudentIdCard from '../Admin Components/idCardPrint/idCard.jsx'
-import StaffIdCard from '../Admin Components/idCardPrint/StaffIdCard.jsx'
-import IdCardStu from '../Admin Components/idCardPrint/IdCardStu.jsx'
-import IdCardStaff from '../Admin Components/idCardPrint/IdCardStaff.jsx'
-import Accountant from '../Admin Components/Accountant/Accountant.jsx'
+import idCard from "../Admin Components/idCardPrint/IdCardPrint.jsx"
+import StudentIdCard from "../Admin Components/idCardPrint/idCard.jsx"
+import StaffIdCard from "../Admin Components/idCardPrint/StaffIdCard.jsx"
 import Fee from '../Admin Components/Fee Payment/Fee.jsx'
 import FeeManage from '../Admin Components/Fee Payment/FeeManage.jsx'
 import ManageAttendance from '../Admin Components/Attandance/manageAttendance.jsx'
@@ -92,9 +90,13 @@ import Sale from '../Admin Components/Vouchars/Sale.jsx'
 import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
 import Classes from '../Admin Components/Academics/Classes.jsx'
 import Course from '../Admin Components/Academics/Course.jsx'
+import IdCard from '../Admin Components/idCardPrint/idCard.jsx'
+import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
+import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
+import Settings from '../Admin Components/Setting/Settings.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -108,6 +110,7 @@ const AdminDashboard = () => {
             <Routes>
               <Route path="/" element={<PrivteRoute />}>
                 <Route path='/testfile' element={<ImageUploadComponent />} />
+                <Route path="reduxtest" element={<Reduxtest />}></Route>
                 <Route path='/videotestfile' element={<VideoUploaderComponent />} />
                 <Route path='/fileuploadertest' element={<FileUploader />} />
                 <Route path='/CsvToJsonConverter' element={<CsvToJsonConverter />} />
@@ -127,11 +130,11 @@ const AdminDashboard = () => {
                 <Route path="/studentInfo" element={<StudentInfo />}></Route>
                 <Route path="/manage-accounts" element={<ManageParents />}></Route>
                 <Route path="/editparents" element={<EditParents />}></Route>
-                <Route path='/student-id-Card' element={<StudentIdCard />}></Route>
+                <Route path='/student-id-card' element={<StudentIdCard />}></Route>
                 <Route path='/staff-id-card' element={<StaffIdCard />}></Route>
-                <Route path='/id-card-stu' element={<IdCardStu />}></Route>
-                <Route path='/id-card-staff' element={<IdCardStaff />}></Route>
-                <Route path='/accountant' element={<Accountant />}></Route>
+                <Route path='/id-card-stu' element={<IdCard />}></Route>
+                <Route path='/id-card-staff' element={<StaffIdCard />}></Route>
+                <Route path='/id-card-print' element={<IdCardPrint />}></Route>
                 <Route path='/feepayment' element={<Fee />}></Route>
                 <Route path='/Check' element={<FeeManage />}></Route>
                 <Route path='/manage-attendance' element={<ManageAttendance />}></Route>
@@ -184,15 +187,17 @@ const AdminDashboard = () => {
                 <Route path="/subjects" element={<Subject />}></Route>
                 <Route path="/board" element={<Board />}></Route>
                 {/* <Route path="/classgroup" element={<ClassGroup />}></Route> */}
-                <Route path="/Voucher-purchase" element={<Purchase/>}></Route>
-                <Route path="/Vourchar-expense" element={<ExpenseForm/>}></Route>
+                <Route path="/Voucher-purchase" element={<Purchase />}></Route>
+                <Route path="/Vourchar-expense" element={<ExpenseForm />}></Route>
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
                 <Route path="/course" element={<Course />}></Route>
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
-              <Route path="/fee-type" element={<FeeType />}></Route>
+
+                <Route path="fee-type" element={<FeeType />}></Route>
+                <Route path="settings" element={<Settings />}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />

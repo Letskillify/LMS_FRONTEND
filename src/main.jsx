@@ -6,13 +6,17 @@ import './App.css'
 import { BrowserRouter } from 'react-router-dom'
 import { MainProvider } from './Controller/MainProvider.jsx'
 import { Bounce, ToastContainer } from 'react-toastify'
+import { Provider } from "react-redux";
+import { store } from '../Redux/Store.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MainProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </MainProvider>
+    <Provider store={store}>
+      <MainProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </MainProvider>
+    </Provider>
     <ToastContainer position="top-left"
       autoClose={5000}
       hideProgressBar={false}
