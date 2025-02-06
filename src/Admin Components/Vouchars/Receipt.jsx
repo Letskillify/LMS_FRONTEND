@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import * as Yup from 'yup';
 
 const initialValues = {
-    receiptId: '',
     payerDetails: {
         name: '',
         email: '',
@@ -28,14 +27,13 @@ const initialValues = {
         },
     ],
     grandTotalAmount: 0,
-    paymentMethod: '',
+    paymentMethod: 'Cash',
     currency: 'INR',
     receiptStatus: 'Pending',
     notes: '',
 };
 
 const validationSchema = Yup.object().shape({
-    receiptId: Yup.string().required('Receipt ID is required'),
     payerDetails: Yup.object().shape({
         name: Yup.string().required('Payer name is required'),
         email: Yup.string().email('Invalid email format').required('Email is required'),
@@ -85,40 +83,40 @@ function Receipt() {
         setTaxDetails(taxDetails.filter((tax, i) => i !== index))
     }
 
-     const handleTotalAmountChange = (event) => {
+    const handleTotalAmountChange = (event) => {
         setTotalAmount(event.target.value)
     }
 
     const handleGrandTotalAmountChange = (event) => {
-        setGrandTotalAmount(event.target.value)
+        setGrandTotalAmount(event.target.value) 
     }
-
-    const handleSubmit = async () => {
+    const handleSubmit = async (values) => {
+        console.log(values);
+        
         try {
-            const response = await axios.post('/api/voucher/reciept/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            if (response.status === 200) {
-                alert("data send succesfully")
+            const response = await axios.post('/api/voucher/reciept/post', values, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.status === 201) {
+                alert("Data sent successfully");
             }
         } catch (error) {
-            console.error('Error submitting form:', error)
+            console.error('Error submitting form:', error);
         }
+    };
 
-    }
 
     return (
         <>
             <div className="container-fluid mt-4 p-4">
                 <div className="card p-4">
                     <h2 className="text-center">Receipt Entry</h2>
-                    <Formik initialValues={initialValues}
-                    // validationSchema={validationSchema}
+                    <Formik
+                        initialValues={initialValues}
+                        // validationSchema={validationSchema}
+                        onSubmit={handleSubmit}
                     >
-                        <Form onSubmit={handleSubmit} className="row g-3">
+                        <Form className="row g-3">
                             <div className="col-md-6 mb-3">
                                 <label className="form-label">Receipt Attachment</label>
                                 <Field type="file" className="form-control" name="receiptAttachment" />
@@ -139,9 +137,9 @@ function Receipt() {
                                 <label className="form-label">Payer Address</label>
                                 <Field type="text" className="form-control" name="payerDetails.address" placeholder="Enter Address" />
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Currency</label>
-                                <Field as="select" class="form-control" name="currency">
+                            <div className="col-md-6 mb-3">
+                                <label className="form-label">Currency</label>
+                                <Field as="select" className="form-control" name="currency">
                                     <option value="" disabled selected>Select Currency</option>
                                     <option value="AED">AED - United Arab Emirates Dirham</option>
                                     <option value="AFN">AFN - Afghan Afghani</option>
@@ -265,13 +263,13 @@ function Receipt() {
                                     <tbody id="itemTableBody">
                                         {receiptItems.map((_, index) => (
                                             <tr key={index}>
-                                                <td><Field type="text" className="form-control" name={`receiptItems.${index}.itemName`} placeholder='Enter Item Name'/></td>
-                                                <td><Field type="number" className="form-control" name={`receiptItems.${index}.quantity`} placeholder='Enter Quantity'/></td>
-                                                <td><Field type="number" className="form-control" name={`receiptItems.${index}.unitPrice`} placeholder='Enter Unit Price'/></td>
+                                                <td><Field type="text" className="form-control" name={`receiptItems.${index}.itemName`} placeholder='Enter Item Name' /></td>
+                                                <td><Field type="number" className="form-control" name={`receiptItems.${index}.quantity`} placeholder='Enter Quantity' /></td>
+                                                <td><Field type="number" className="form-control" name={`receiptItems.${index}.unitPrice`} placeholder='Enter Unit Price' /></td>
                                                 <td><Field type="number" className="form-control" name={`receiptItems.${index}.subTotal`} readOnly /></td>
                                                 <div className="div">
-                                                    <td><button type="button" className="btn btn-primary" onClick={handleAddItem}><i class="fa fa-plus" aria-hidden="true"></i></button></td>
-                                                    <td><button type="button" className="btn btn-danger ms-2" onClick={() => handleRemoveItem(index)}><i class="fa fa-minus-circle" aria-hidden="true"></i></button></td>
+                                                    <td><button type="button" className="btn btn-primary" onClick={handleAddItem}><i className="fa fa-plus" aria-hidden="true"></i></button></td>
+                                                    <td><button type="button" className="btn btn-danger ms-2" onClick={() => handleRemoveItem(index)}><i className="fa fa-minus-circle" aria-hidden="true"></i></button></td>
                                                 </div>
                                             </tr>
                                         ))}
@@ -296,8 +294,8 @@ function Receipt() {
                                                 <td><Field type="number" className="form-control" name={`taxDetails.${index}.percentage`} placeholder='Enter Percentage' /></td>
                                                 <td><Field type="text" className="form-control" name={`taxDetails.${index}.amount`} placeholder='Enter Amount' /></td>
                                                 <div>
-                                                    <td><button type="button" className="btn btn-primary" onClick={handleAddTax}><i class="fa fa-plus" aria-hidden="true"></i></button></td>
-                                                    <td><button type="button" className="btn btn-danger ms-2" onClick={() => handleRemoveTax(index)}><i class="fa fa-minus-circle" aria-hidden="true"></i></button></td>
+                                                    <td><button type="button" className="btn btn-primary" onClick={handleAddTax}><i className="fa fa-plus" aria-hidden="true"></i></button></td>
+                                                    <td><button type="button" className="btn btn-danger ms-2" onClick={() => handleRemoveTax(index)}><i className="fa fa-minus-circle" aria-hidden="true"></i></button></td>
                                                 </div>
                                             </tr>
                                         ))}
@@ -307,20 +305,22 @@ function Receipt() {
                             <div className="col-md-6 mb-3">
                                 <label className="form-label" >Payment Method</label>
                                 <Field as="select" className="form-select" name="paymentMethod">
-                                    <option>Cash</option>
-                                    <option>Bank Transfer</option>
-                                    <option>Credit Card</option>
-                                    <option>Cheque</option>
-                                    <option>Other</option>
+                                    <option value="" disabled>Select Payment Method</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Other">Other</option>
                                 </Field>
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Receipt Status</label>
-                                <Field as="select" className="form-select" name="receiptStatus">
-                                    <option>Pending</option>
-                                    <option>Verified</option>
-                                    <option>Rejected</option>
-                                </Field>
+                                    <label className="form-label">Receipt Status</label>
+                                    <Field as="select" className="form-select" name="receiptStatus">
+                                        <option value="" disabled>Select Receipt Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="verified">Verified</option>
+                                        <option value="rejected">Rejected</option>
+                                    </Field>
                             </div>
                             <div className="col-12">
                                 <div className="mb-3">
@@ -337,14 +337,6 @@ function Receipt() {
                                         <Field type="number" className="form-control" name="grandTotalAmount" value={grandTotalAmount} onChange={handleGrandTotalAmountChange} />
                                     </div>
                                 </div>
-                                <div className="mb-3">
-                                    <div className="form-check">
-                                        <Field className="form-check-input" type="checkbox" id="flexCheckDefault" />
-                                        <label className="form-check-label" htmlFor="flexCheckDefault">
-                                            I confirm that the above information is correct and accurate.
-                                        </label>
-                                    </div>
-                                </div>
 
                                 <button type="submit" className="btn btn-primary text-center">Submit</button>
                             </div>
@@ -358,3 +350,4 @@ function Receipt() {
 }
 
 export default Receipt
+

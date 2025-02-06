@@ -1,9 +1,10 @@
-
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { MainContext } from '../../Controller/MainProvider';
 import axios from 'axios';
+import { Bounce, toast } from 'react-toastify';
+import Select from "react-select";
 
 const validationSchema = Yup.object({
     applicableTo: Yup.array().of(Yup.string()).min(1, "At least one course must be selected"),
@@ -31,9 +32,12 @@ const validationSchema = Yup.object({
 });
 
 function FeeStructureManagement() {
-    const [feeStructure, setFeeStructure] = useState([]);
+    // const [feeStructure, setFeeStructure] = useState([]);
+    const [dataget, setDataget] = useState([]);
     const [classes, setClasses] = useState([]);
     const [feetype, setFeetype] = useState([])
+    const [viewpopup, setViewpopup] = useState(false);
+    const [viewData, setViewData] = useState();
     const [installment, setInstallment] = useState([
         {
             installmentNumber: 1,
@@ -59,17 +63,58 @@ function FeeStructureManagement() {
         paymentMode: "Any of the above"
     };
 
-    const fetchFeeStructure = async () => {
+    const fetchGet = async () => {
         try {
-            const res = await axios.get(`/api/fees-structure/get/institute/${userId}`);
-            setFeeStructure(res.data);
+            const response = await axios.get(`/api/fees-structure/get`);
+            setDataget(response.data);
         } catch (error) {
             console.error("Error fetching fee structure:", error);
         }
+        console.log(dataget);
+
     };
-    console.log(feeStructure, "feeStructure");
+    const handleDelete = async (id) => {
+        try {
+            const response = await axios.delete(`/api/fees-structure/delete/${id}`);
+            if (response.status === 200) {
+                toast.success("Fee Structure Deleted Successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
+                // fetchGet();
+            }
+        } catch (error) {
+            console.error('Error deleting fee structure:', error);
+            toast.error(error.response?.data?.message || "Error deleting fee structure", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
+        }
+    };
 
-
+    const handleEdit = async (id) => {
+        try {
+            const response = await axios.get(`/api/fees-structure/update/${id}`);
+            // setDataget(response.data);
+            setViewpopup(true);
+        } catch (error) {
+            console.error("Error fetching fee structure:", error);
+        }
+    }
     const fetchFeetype = async () => {
         try {
             const response = await axios.get(`/api/fees-type/get/institute/${userId}`, {
@@ -85,55 +130,68 @@ function FeeStructureManagement() {
             console.error("Error fetching fee types:", error);
         }
     };
-
-    console.log(feetype, "feetype");
-
-
     const fetchClasses = async () => {
         try {
             const response = await axios.get(`/api/class/get/institute/${userId}`);
-            console.log("API Response:", response.data);
             if (response.status === 200) {
-                const classData = response.data.map(item => ({ id: item._id, className: item.className }));
-                setClasses(classData);
+                setClasses(response.data);
             } else {
                 console.error("Unexpected response status:", response.status);
             }
-        }catch (error) {
+        } catch (error) {
             console.error("Error adding fee structure:", error.response?.data || error.message);
             alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
         }
 
     };
-    console.log(classes, "sxs");
-
-
     useEffect(() => {
-        fetchFeeStructure()
+        fetchGet()
         fetchClasses()
         fetchFeetype()
     }, []);
 
     const handleAddFeeStructure = async (values, { resetForm }) => {
-        console.log("valuesssss", values);
-        // try {
-        //     const response = await axios.post('/api/fees-structure/post', values);
+        console.log(values, "dw");
 
-        //     if (response.status === 201) {
-        //         // setFeeStructure((prevStructure) => [...prevStructure, response.data]);
-        //         resetForm();
-        //         alert("Fee Structure added successfully!");
-        //         setInstallment(response.data.installmentDetails);
-        //     }
-        // } catch (error) {
-        //     console.error("Error adding fee structure:", error);
-        //     console.error("Error adding fee structure:", error.response?.data || error.message);
-        //     alert(`Error adding fee structure: ${error.response?.data?.error || error.message}`);
-        //     // alert("Error adding fee structure.");
-        // }
+        try {
+            const response = await axios.post('/api/fees-structure/post', values, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+            });
+
+            if (response.status === 201) {
+                resetForm();
+                toast.success("Fee Structure Added Successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
+            }
+        } catch (error) {
+            console.error("Error adding fee structure:", error);
+            console.error("Error adding fee structure:", error.response?.data || error.message);
+            toast.error(error.response?.data?.message || "Error adding fee structure", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
+            // alert("Error adding fee structure.");
+        }
     };
-
-    console.log(installment, "installment");
 
 
     return (
@@ -145,27 +203,43 @@ function FeeStructureManagement() {
                     // validationSchema={validationSchema}
                     onSubmit={handleAddFeeStructure}
                 >
-                    {({ }) => (
+                    {({ values, setFieldValue }) => (
                         <Form className="mb-4">
                             <div className="container mt-4">
                                 <div className="row mb-3">
                                     <div className="col-md-6">
-                                        <label for="applicableTo" className="form-label">Applicable Courses</label>
-                                        <Field as="select" className="form-control" id="applicableTo" name="applicableTo" placeholder="Enter Institute ID" >
-                                            <option value="">-- Select Your Course --</option>
-                                            {classes?.map((Class) => (
-                                                <option key={Class?.id} value={Class?.id}>
-                                                    {Class?.className}
-                                                </option>
-                                            ))}
-
+                                        <label for="applicableTo.className" className="form-label">Applicable Courses</label>
+                                        <Field name="applicableTo.className">
+                                            {({ field }) => (
+                                                <Select
+                                                    isMulti
+                                                    options={classes.map(cl => ({
+                                                        value: cl._id,
+                                                        label: cl.className
+                                                    }))}
+                                                    name="applicableTo.className"
+                                                    value={values.applicableTo.className.map(s => ({
+                                                        value: s,
+                                                        label: classes.find(cl => cl._id === s).className
+                                                    }))}
+                                                    onChange={selected => setFieldValue("applicableTo.className", selected.map(s => s.value))}
+                                                    placeholder="Select Classes"
+                                                    styles={{
+                                                        multiValue: base => ({
+                                                            ...base,
+                                                            backgroundColor: "#e0f7fa",
+                                                            borderRadius: "5px",
+                                                            padding: "1px"
+                                                        })
+                                                    }}
+                                                />
+                                            )}
                                         </Field>
-
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label" htmlFor="globalApplicability">Global Applicability</label>
                                         <Field as="select" className="form-control" id="globalApplicability" name="globalApplicability">
-                                            <option value="">Select Global Applicability</option>
+                                            <option value="" disabled>Select Global Applicability</option>
                                             <option value="true">Yes</option>
                                             <option value="false">No</option>
                                         </Field>
@@ -293,37 +367,175 @@ function FeeStructureManagement() {
 
                 <h3 className="text-center">Fee Structure Records</h3>
                 <div className="table-responsive">
-                    <table className="table table-bordered table-striped mt-3">
+                    <table className="table table-bordered mt-3">
                         <thead>
                             <tr>
-                                <th>Total Installments Fee</th>
-                                <th>Total Lump Sum Fee</th>
-                                <th>Total Installments</th>
+                                <th>Installments Fee</th>
+                                <th>Lump Sum Fee</th>
+                                <th>Installments</th>
                                 <th>Batch Year</th>
                                 <th>Payment Mode</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        {/* <tbody>
-{feeStructure.map((item, index) => (
-<tr key={index}>
-<td>{item.totalInstallmentsFeesAmount}</td>
-<td>{item.totalLumpSumFeesAmount}</td>
-<td>{item.paymentMode}</td>
-<td>{item.batchYear}</td>
-<td>
-  <button className="btn btn-warning btn-sm">Edit</button>
-  <button className="btn btn-danger btn-sm">Delete</button>
-</td>
-</tr>
-))}
-</tbody> */}
+                        <tbody>
+                            {dataget.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item?.totalIntallmentsFeesAmount}</td>
+                                    <td>{item?.totalLumpSumFeesAmount}</td>
+                                    <td>{item?.totalNoOfInstallments}</td>
+                                    <td>{item?.batchYear}</td>
+                                    <td>{item?.paymentMode}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-info btn-sm me-2"
+                                            onClick={() => { setViewData(item); setViewpopup(true); }}>
+                                            <i className="fa fa-eye" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => handleEdit(item?._id)}>
+                                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            className="btn btn-danger btn-sm ms-2"
+                                            onClick={() => handleDelete(item?._id)}>
+                                            <i className="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
                     </table>
                 </div>
+
             </div>
-        </div>
+            {viewpopup && viewData && (
+                <div className="modal fade show d-block">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">View Fee Structure</h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setViewpopup(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="container ">
+                                    <div className="row mb-3">
+                                        <div className="col-md-6">
+                                            <label for="applicableTo" className="form-label">Applicable Courses</label>
+                                            <div className="p-2 border rounded-3">{viewData?.applicableTo.Class}</div>
+
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label" htmlFor="globalApplicability">Global Applicability</label>
+                                            <div className="p-2 border rounded-3">{viewData?.globalApplicability ? "Yes" : "No"}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mb-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label">Total Installment Fees</label>
+                                            <div className="p-2 border rounded-3">{viewData?.totalInstallmentsFeesAmount}</div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label">Total Lump Sum Fees</label>
+                                            <div className="p-2 border rounded-3">{viewData?.totalLumpSumFeesAmount}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mb-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label">Total No. of Installments</label>
+                                            <div className="p-2 border rounded-3">{viewData?.totalNoOfInstallments}</div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label">Overdue Penalty Amount/Day</label>
+                                            <div className="p-2 border rounded-3">{viewData?.OverDuePenaltyAmountPerDay}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mb-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label">Batch Year</label>
+                                            <div className="p-2 border rounded-3">{viewData?.batchYear}</div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label">Payment Mode</label>
+                                            <div className="p-2 border rounded-3">{viewData?.paymentMode}</div>
+                                        </div>
+                                    </div>
+
+                                    <h4 className='mt-4'>Fee Type</h4>
+                                    {viewData?.feeTypes?.map((type, index) => (
+                                        <div className="row mb-3" key={index}>
+                                            <div className="col-md-6">
+                                                <label className="form-label">Fee Type</label>
+                                                <div className="p-2 border rounded-3">{type?.feeType}</div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label">Amount</label>
+                                                <div className="p-2 border rounded-3">{type?.amount}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    <h4 className='mt-4'>Installment Details</h4>
+                                    {viewData?.installmentDetails?.map((_, index) => (
+                                        <div key={index}>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Number</label>
+                                                    <div className="p-2 border rounded-3">{viewData?.installmentDetails[index].installmentNumber}</div>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Name</label>
+                                                    <div className="p-2 border rounded-3">{viewData?.installmentDetails[index].installmentName}</div>
+                                                </div>
+
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Due Date</label>
+                                                    <div className="p-2 border rounded-3">{new Date(viewData?.installmentDetails[index].installmentDueDate).toLocaleDateString()}</div>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Installment Percentage Of Total</label>
+                                                    <div className="p-2 border rounded-3">{viewData?.installmentDetails[index].percentageOfTotal}</div>
+                                                </div>
+                                            </div>
+                                            <div className="row mb-3">
+                                                <div className="col-md-6">
+                                                    <label className="form-label"> Installment Fees Amount</label>
+                                                    <div className="p-2 border rounded-3">{viewData?.installmentDetails[index].installmentFeesAmount}</div>
+                                                </div>
+
+
+                                                <div className="col-6">
+                                                    <label className="form-label">Remarks</label>
+                                                    <div className="p-2 border rounded-3">{viewData?.installmentDetails[index].remarks}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+        </div >
     );
 }
 
 export default FeeStructureManagement;
+
+
+
 
