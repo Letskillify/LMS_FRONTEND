@@ -195,6 +195,7 @@ const AdminDashboard = () => {
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
+
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
               </Route>
