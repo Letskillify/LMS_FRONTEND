@@ -84,11 +84,30 @@ export const PutApi = async (url, successMessage) => {
 export const EditApi = async (url, Data, successMessage) => {
     try {
         const response = await axios.put(url, Data);
-        console.log(response.data);
-        alert(successMessage);
+        toast.success(successMessage, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     } catch (error) {
         console.error('Error hitting API:', error.response ? error.response.data : error.message);
-        alert(error.response ? error.response.data.message : error.message);
+        toast.warn('Error hitting API:', error.response ? error.response.data.message : error.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     }
 };
 

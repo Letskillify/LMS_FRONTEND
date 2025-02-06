@@ -95,6 +95,8 @@ import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
+import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
+import Settings from '../Admin Components/Setting/Settings.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -108,6 +110,7 @@ const AdminDashboard = () => {
             <Routes>
               <Route path="/" element={<PrivteRoute />}>
                 <Route path='/testfile' element={<ImageUploadComponent />} />
+                <Route path="reduxtest" element={<Reduxtest />}></Route>
                 <Route path='/videotestfile' element={<VideoUploaderComponent />} />
                 <Route path='/fileuploadertest' element={<FileUploader />} />
                 <Route path='/CsvToJsonConverter' element={<CsvToJsonConverter />} />
@@ -184,15 +187,16 @@ const AdminDashboard = () => {
                 <Route path="/subjects" element={<Subject />}></Route>
                 <Route path="/board" element={<Board />}></Route>
                 {/* <Route path="/classgroup" element={<ClassGroup />}></Route> */}
-                <Route path="/Voucher-purchase" element={<Purchase/>}></Route>
-                <Route path="/Vourchar-expense" element={<ExpenseForm/>}></Route>
+                <Route path="/Voucher-purchase" element={<Purchase />}></Route>
+                <Route path="/Vourchar-expense" element={<ExpenseForm />}></Route>
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
                 <Route path="/course" element={<Course />}></Route>
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
-              <Route path="fee-type" element={<FeeType />}></Route>
+                <Route path="fee-type" element={<FeeType />}></Route>
+                <Route path="settings" element={<Settings />}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />

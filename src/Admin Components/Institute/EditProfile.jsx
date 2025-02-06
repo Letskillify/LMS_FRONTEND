@@ -5,124 +5,6 @@ import * as Yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EditApi, useImageUploader } from '../../Custom Hooks/CustomeHook';
 
-
-
-const validationSchema = Yup.object({
-    name: Yup.string().required("Institute name is required"),
-    contact: Yup.object({
-        email: Yup.string().email("Invalid email format").nullable(),
-        mobile: Yup.string()
-            .matches(/^\d{10}$/, "Mobile number must be 10 digits")
-            .nullable(),
-        whatsapp: Yup.string()
-            .matches(/^\d{10}$/, "WhatsApp number must be 10 digits")
-            .nullable(),
-        landline: Yup.string().nullable(),
-        website: Yup.string().url("Invalid URL").nullable(),
-    }),
-    address: Yup.object({
-        line1: Yup.string().nullable(),
-        line2: Yup.string().nullable(),
-        city: Yup.string().nullable(),
-        state: Yup.string().nullable(),
-        country: Yup.string().nullable(),
-        postalCode: Yup.string()
-            .matches(/^\d{5,6}$/, "Postal code must be 5 or 6 digits")
-            .nullable(),
-        MapLocationUrl: Yup.string().url("Invalid URL").nullable(),
-    }),
-    establishedYear: Yup.number()
-        .min(1900, "Year must be after 1900")
-        .max(new Date().getFullYear(), "Year cannot be in the future")
-        .required("Established year is required"),
-    NoOfCoursesOffered: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of courses offered is required"),
-    NoOfStaffsEnrolled: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of staffs enrolled is required"),
-    NoOfStudentsEnrolled: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of students enrolled is required"),
-    disableStudentAdmission: Yup.boolean(),
-    acceptScholarshipAdmission: Yup.boolean(),
-    libraryFacilities: Yup.boolean(),
-    cafeteriaFacilities: Yup.boolean(),
-    hostelFacilities: Yup.boolean(),
-    accreditation: Yup.string().nullable(),
-    instituteType: Yup.string()
-        .oneOf(
-            ["School", "College", "University", "Coaching Center"],
-            "Invalid institute type"
-        )
-        .required("Institute type is required"),
-    logo: Yup.mixed().nullable(),
-    aboutInstitute: Yup.string().nullable(),
-    affiliationNo: Yup.string().nullable(),
-    affiliationYear: Yup.number()
-        .min(1900, "Year must be after 1900")
-        .max(new Date().getFullYear(), "Year cannot be in the future")
-        .nullable(),
-    affiliationName: Yup.string().nullable(),
-    AuthorizedPerson: Yup.object({
-        name: Yup.string().nullable(),
-        designation: Yup.string().nullable(),
-        IDproof: Yup.string().nullable(),
-        contactInfo: Yup.object({
-            email: Yup.string().email("Invalid email format").nullable(),
-            mobile: Yup.string()
-                .matches(/^\d{10}$/, "Mobile number must be 10 digits")
-                .nullable(),
-            whatsapp: Yup.string()
-                .matches(/^\d{10}$/, "WhatsApp number must be 10 digits")
-                .nullable(),
-            alternateContact: Yup.string().nullable(),
-            address: Yup.object({
-                houseNo: Yup.string().nullable(),
-                streetName: Yup.string().nullable(),
-                city: Yup.string().nullable(),
-                pincode: Yup.string()
-                    .matches(/^\d{5,6}$/, "Pincode must be 5 or 6 digits")
-                    .nullable(),
-                state: Yup.string().nullable(),
-                country: Yup.string().nullable(),
-            }),
-            signature: Yup.mixed().nullable(),
-        }),
-    }),
-    bankDetails: Yup.object({
-        accountHolderName: Yup.string().nullable(),
-        bankName: Yup.string().nullable(),
-        branchName: Yup.string().nullable(),
-        accountNumber: Yup.string()
-            .matches(/^\d+$/, "Account number must be numeric")
-            .nullable(),
-        ifscCode: Yup.string()
-            .matches(/^[A-Z|a-z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code format")
-            .nullable(),
-        upiID: Yup.string().nullable(),
-        panNo: Yup.string()
-            .matches(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "Invalid PAN format")
-            .nullable(),
-    }),
-    document: Yup.array().of(
-        Yup.object({
-            ISOcertificate: Yup.mixed().nullable(),
-            GSTcertificate: Yup.mixed().nullable(),
-            AffiliationCertificate: Yup.mixed().nullable(),
-            PANcard: Yup.mixed().nullable(),
-            MSME: Yup.mixed().nullable(),
-            TIN: Yup.mixed().nullable(),
-            NAAC: Yup.mixed().nullable(),
-            UGCapprovedLetter: Yup.mixed().nullable(),
-        })
-    ),
-    loginPassword: Yup.string()
-        .min(8, "Password must be at least 8 characters")
-        .required("Password is required"),
-});
-
-
 function EditProfile() {
 
     const [initialValues, setinitialValues] = useState()
@@ -130,86 +12,96 @@ function EditProfile() {
     const { userId } = useContext(MainContext)
     const Navigate = useNavigate()
     const location = useLocation();
-    const { institute } = location.state || {};
+    const { institute} = location.state || {};
     const { uploadedData, handleImageUpload } = useImageUploader();
+    const { fetchInstitute } = useContext(MainContext);
+
 
     useEffect(() => {
         if (institute) {
             setinitialValues({
-                name: institute?.name || '',
-                contact: {
-                    email: institute?.contact?.email || '',
-                    mobile: institute?.contact?.mobile || '',
-                    whatsapp: institute?.contact?.whatsapp || '',
-                    landline: institute?.contact?.landline || '',
-                    website: institute?.contact?.website || '',
+                instituteId: institute?.instituteId || "",
+                name: institute?.name || "",
+                contactInfo: {
+                    email: institute?.contactInfo?.email || "",
+                    mobile: institute?.contactInfo?.mobile || "",
+                    whatsapp: institute?.contactInfo?.whatsapp || "",
+                    landline: institute?.contactInfo?.landline || "",
+                    website: institute?.contactInfo?.website || "",
                 },
                 address: {
-                    line1: institute?.address?.line1 || '',
-                    line2: institute?.address?.line2 || '',
-                    city: institute?.address?.city || '',
-                    state: institute?.address?.state || '',
-                    country: institute?.address?.country || '',
-                    postalCode: institute?.address?.postalCode || '',
-                    MapLocationUrl: institute?.address?.MapLocationUrl || '',
+                    line1: institute?.address?.line1 || "",
+                    line2: institute?.address?.line2 || "",
+                    city: institute?.address?.city || "",
+                    state: institute?.address?.state || "",
+                    country: institute?.address?.country || "",
+                    postalCode: institute?.address?.postalCode || "",
+                    MapLocationUrl: institute?.address?.MapLocationUrl || "",
                 },
                 establishedYear: institute?.establishedYear || 0,
                 NoOfCoursesOffered: institute?.NoOfCoursesOffered || 0,
                 NoOfStaffsEnrolled: institute?.NoOfStaffsEnrolled || 0,
                 NoOfStudentsEnrolled: institute?.NoOfStudentsEnrolled || 0,
-                accreditation: institute?.accreditation || 0,
-                instituteType: institute?.instituteType || 0,
-                aboutInstitute: institute?.aboutInstitute || 0,
-                affiliationNO: institute?.affiliationNO || 0,
-                affiliationYear: institute?.affiliationYear || 0,
-                affiliationName: institute?.affiliationName || 0,
                 disableStudentAdmission: institute?.disableStudentAdmission || false,
                 acceptScholarshipAdmission: institute?.acceptScholarshipAdmission || false,
                 libraryFacilities: institute?.libraryFacilities || false,
                 cafeteriaFacilities: institute?.cafeteriaFacilities || false,
                 hostelFacilities: institute?.hostelFacilities || false,
-
+                accreditation: institute?.accreditation || "",
+                instituteType: institute?.instituteType || "",
+                logo: null,
+                aboutInstitute: institute?.aboutInstitute || "",
+                affiliationNo: institute?.affiliationNo || "",
+                affiliationYear: institute?.affiliationYear || "",
+                affiliationName: institute?.affiliationName || "",
                 AuthorizedPerson: {
-                    name: institute?.name || null,
-                    designation: institute?.designation || null,
-                    IDproof: institute?.IDproof || null,
+                    name: institute?.AuthorizedPerson?.name || "",
+                    designation: institute?.AuthorizedPerson?.designation || "",
+                    IDproof: institute?.AuthorizedPerson?.IDproof || "",
                     contactInfo: {
-                        email: institute?.email || null,
-                        mobile: institute?.mobile || null,
-                        whatsapp: institute?.whatsapp || null,
-                        alternateContact: institute?.alternateContact || null,
+                        email: institute?.AuthorizedPerson?.contactInfo?.email || "",
+                        mobile: institute?.AuthorizedPerson?.contactInfo?.mobile || "",
+                        whatsapp: institute?.AuthorizedPerson?.contactInfo?.whatsapp || "",
+                        alternateContact: institute?.AuthorizedPerson?.contactInfo?.alternateContact || "",
                         address: {
-                            houseNo: institute?.houseNo || null,
-                            streetName: institute?.streetName || null,
-                            city: institute?.city || null,
-                            pincode: institute?.pincode || null,
-                            state: institute?.state || null,
-                            country: institute?.country || null,
+                            houseNo: institute?.AuthorizedPerson?.contactInfo?.address?.houseNo || "",
+                            streetName: institute?.AuthorizedPerson?.contactInfo?.address?.streetName || "",
+                            city: institute?.AuthorizedPerson?.contactInfo?.address?.city || "",
+                            pincode: institute?.AuthorizedPerson?.contactInfo?.address?.pincode || "",
+                            state: institute?.AuthorizedPerson?.contactInfo?.address?.state || "",
+                            country: institute?.AuthorizedPerson?.contactInfo?.address?.country || "",
                         },
-                        signature: institute?.signature || null,
+                        signature: institute?.AuthorizedPerson?.contactInfo?.signature || "",
                     },
                 },
                 bankDetails: {
-                    accountHolderName: institute?.accountHolderName || null,
-                    bankName: institute?.bankName || null,
-                    branchName: institute?.branchName || null,
-                    accountNumber: institute?.accountNumber || null,
-                    ifscCode: institute?.ifscCode || null,
-                    upiID: institute?.upiID || null,
-                    panNo: institute?.panNo || null,
+                    accountHolderName: institute?.bankDetails?.accountHolderName || "",
+                    bankName: institute?.bankDetails?.bankName || "",
+                    branchName: institute?.bankDetails?.branchName || "",
+                    accountNumber: institute?.bankDetails?.accountNumber || "",
+                    ifscCode: institute?.bankDetails?.ifscCode || "",
+                    upiID: institute?.bankDetails?.upiID || "",
+                    panNo: institute?.bankDetails?.panNo || "",
                 },
                 document: {
-                    ISOcertificate: institute?.ISOcertificate || null,
-                    GSTcertificate: institute?.GSTcertificate || null,
-                    AffiliationCertificate: institute?.AffiliationCertificate || null,
-                    PANcard: institute?.PANcard || null,
-                    MSME: institute?.MSME || null,
-                    TIN: institute?.TIN || null,
-                    NAAC: institute?.NAAC || null,
-                    UGCapprovedLetter: institute?.UGCapprovedLetter || null,
+                    ISOcertificate: null,
+                    GSTcertificate: null,
+                    AffiliationCertificate: null,
+                    PANcard: null,
+                    MSME: null,
+                    TIN: null,
+                    NAAC: null,
+                    UGCapprovedLetter: null,
+                },
+                coursesOffered: institute?.coursesOffered || [],
+                status: institute?.status || "Pending Verification",
+                feedback: {
+                    review: institute?.feedback?.review || "",
+                    rating: institute?.feedback?.rating || "",
                 },
                 loginPassword: institute?.loginPassword || "",
-
+                passwordResetToken: institute?.passwordResetToken || "",
+                passwordResetExpires: institute?.passwordResetExpires || "",
             });
         }
     }, [institute]);
@@ -221,32 +113,35 @@ function EditProfile() {
     const HandleSubmit = (values) => {
         const data = {
             ...values,
-            logo: uploadedData?.logo,
+            logo: uploadedData?.logo || institute?.logo,
             AuthorizedPerson: {
                 ...values.AuthorizedPerson,
                 contactInfo: {
                     ...values.AuthorizedPerson.contactInfo,
-                    signature: uploadedData?.signature,
+                    signature: uploadedData?.signature || institute?.AuthorizedPerson?.contactInfo?.signature,
                 },
             },
             document: {
-                ISOcertificate: uploadedData?.ISOcertificate || values.document.ISOcertificate,
-                GSTcertificate: uploadedData?.GSTcertificate || values.document.GSTcertificate,
-                AffiliationCertificate: uploadedData?.AffiliationCertificate || values.document.AffiliationCertificate,
-                PANcard: uploadedData?.PANcard || values.document.PANcard,
-                MSME: uploadedData?.MSME || values.document.MSME,
-                TIN: uploadedData?.TIN || values.document.TIN,
-                NAAC: uploadedData?.NAAC || values.document.NAAC,
-                UGCapprovedLetter: uploadedData?.UGCapprovedLetter || values.document.UGCapprovedLetter,
+                ISOcertificate: uploadedData?.ISOcertificate || institute?.document?.ISOcertificate,
+                GSTcertificate: uploadedData?.GSTcertificate || institute?.document?.GSTcertificate,
+                AffiliationCertificate: uploadedData?.AffiliationCertificate || institute?.document?.AffiliationCertificate,
+                PANcard: uploadedData?.PANcard || institute?.document?.PANcard,
+                MSME: uploadedData?.MSME || institute?.document?.MSME,
+                TIN: uploadedData?.TIN || institute?.document?.TIN,
+                NAAC: uploadedData?.NAAC || institute?.document?.NAAC,
+                UGCapprovedLetter: uploadedData?.UGCapprovedLetter || institute?.document?.UGCapprovedLetter,
             },
         };
         console.log(data);
         EditApi(`/api/institute/update/${userId}`, data, "User updated Successfully")
         Navigate("/instituteprofile")
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     }
 
     console.log(institute);
-    
+
     return (
         <>
             <div className="modal-body">
@@ -255,8 +150,10 @@ function EditProfile() {
                     <Formik initialValues={initialValues} onSubmit={HandleSubmit}>
                         {({ values, errors, touched, resetForm }) => (
                             <Form className="border p-4 shadow rounded bg-white">
-                                <h2>Institute registration  </h2>
-                                <div>
+                                <h3 className='text-center'>Institute Profile Edit</h3>
+                                <h6 className='text-center text-muted'>ID:- {institute?._id}</h6>
+                                <hr />
+                                <div className='mt-2'>
                                     <h4 className="mb-4">Contact :-</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -268,35 +165,35 @@ function EditProfile() {
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Contact No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.mobile" type="number" className="form-control" placeholder="Enter Your Mobile Number">
+                                            <Field name="contactInfo.mobile" type="number" className="form-control" placeholder="Enter Your Mobile Number">
 
                                             </Field>
                                             < div className="text-danger">{errors?.contact?.mobile}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Contact Email <span className='text-danger'>*</span></label>
-                                            <Field name="contact.email" type="email" className="form-control" placeholder="Enter Your Mobile email">
+                                            <Field name="contactInfo.email" type="email" className="form-control" placeholder="Enter Your Mobile email" readOnly>
 
                                             </Field>
                                             < div className="text-danger">{errors?.contact?.email}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>WhatsApp No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.whatsapp" type="number" className="form-control" placeholder="Enter Your WhatsApp No.">
+                                            <Field name="contactInfo.whatsapp" type="number" className="form-control" placeholder="Enter Your WhatsApp No.">
 
                                             </Field>
                                             < div className="text-danger">{errors?.contact?.whatsapp}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Landline No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.landline" type="number" className="form-control" placeholder="Enter Your Landline No.">
+                                            <Field name="contactInfo.landline" type="number" className="form-control" placeholder="Enter Your Landline No.">
 
                                             </Field>
                                             < div className="text-danger">{errors?.contact?.landline}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Website <span className='text-danger'>*</span></label>
-                                            <Field name="contact.website" type="text" className="form-control" placeholder="Enter Your Website">
+                                            <Field name="contactInfo.website" type="text" className="form-control" placeholder="Enter Your Website">
 
                                             </Field>
                                             < div className="text-danger">{errors?.contact?.website}</div>
@@ -482,11 +379,16 @@ function EditProfile() {
                                         </div>
                                         <div className="col-md-4 mb-3 ">
                                             <label>Logo <span className='text-danger'>*</span></label>
-                                            {values.logo ? (
+                                            {institute?.logo ? (
                                                 <div>
                                                     {isInput === "logo" ? (
-                                                        <Field name="logo" type="file" onChange={(e) => handleImageUpload(e, "logo")} className="form-control">
-                                                        </Field>
+                                                        <Field
+                                                            name="logo"
+                                                            type="file"
+                                                            className="form-control"
+                                                            placeholder="Enter Your Logo"
+                                                            onChange={(e) => handleImageUpload(e, "logo")}
+                                                        />
                                                     ) : (
                                                         <div>
                                                             <a href={values.logo} target="_blank" rel="noopener noreferrer" className="btn btn-primary me-2 w-50 text-white">Download</a>
@@ -1062,7 +964,7 @@ function EditProfile() {
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>UGC Approved Letter <span className="text-danger">*</span></label>
-                                            {institute?.document?.NAAC ? (
+                                            {institute?.document?.UGCapprovedLetter ? (
                                                 <div>
                                                     {isInput === "UGCapprovedLetter" ? (
                                                         <Field
@@ -1092,20 +994,7 @@ function EditProfile() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <h4 className="mb-4">Login ID :-</h4>
-                                    <div className="row">
-                                        <div className="col-md-4 mb-3">
-                                            <label>Login Password <span className='text-danger'>*</span></label>
-                                            <Field name="loginPassword" type="text" className="form-control" placeholder="Enter Password">
-
-                                            </Field>
-                                            <div className="text-danger">{errors?.loginPassword}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="d-flex justify-content-end mt-2">
+                                <div className="d-flex justify-content-end mt-3">
                                     <button type="button" className="w-25 btn btn-danger me-2" onClick={() => resetForm()}>Cancel</button>
                                     <button type="submit" className="w-25 btn btn-primary ms-2">Submit</button>
                                 </div>

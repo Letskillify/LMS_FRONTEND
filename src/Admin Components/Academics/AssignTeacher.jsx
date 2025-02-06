@@ -8,11 +8,13 @@ import axios from 'axios';
 const AssignTeacher = () => {
     const [selectClass, setSelectClass] = useState(null);
     const [teachers, setTeachers] = useState([]);
-    const { Class } = useContext(MainContext);
+    const [staffs, setStaffs] = useState([]);
+    const { Class, fetchClass } = useContext(MainContext);
 
     // Fetch Teachers from API
     const fetchTeachers = async () => {
         getApi("/api/teacher/get-all").then((data) => setTeachers(data));
+        getApi("/api/staff/get-all").then((data) => setStaffs(data));
     };
 
     useEffect(() => {
@@ -37,25 +39,29 @@ const AssignTeacher = () => {
     };
 
     // Form Submission
-    const handleSubmit = async (values, { resetForm }) => {
+    const handleSubmit = async (values) => {
         try {
             const response = await axios.put(`/api/class/update/${selectClass._id}`, values, {
                 headers: { 'Content-Type': 'application/json' },
             });
             if (response.status === 200) {
                 toast.success("Teacher assigned successfully", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });
-                resetForm();
+                selectField();
+                fetchClass();
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Error Assigning Teacher", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });
         }
     };
 
+    const allTeachers = [...staffs, ...teachers];
+
 
     return (
         <Formik
             enableReinitialize
             initialValues={{
+                HOD: selectClass?.HOD?._id || '',
                 classTeacher: selectClass?.classTeacher._id || '',
                 subject: selectClass?.subject?.map((sub) => ({
                     name: sub.name._id || '',
@@ -91,17 +97,30 @@ const AssignTeacher = () => {
                                     <div className="p-4 card">
                                         {selectClass ? (
                                             <>
-                                                {/* Class Teacher Selection */}
-                                                <div className="col-md-6 mb-3">
-                                                    <label className="form-label">Class Teacher</label>
-                                                    <Field as="select" className="form-select" name="classTeacher">
-                                                        <option value="">Select Teacher</option>
-                                                        {teachers?.map((teacher) => (
-                                                            <option key={teacher._id} value={teacher._id}>
-                                                                {teacher.fullName.firstName} {teacher.fullName.lastName}
-                                                            </option>
-                                                        ))}
-                                                    </Field>
+                                                <div className="row">
+                                                    {/* Class Teacher Selection */}
+                                                    <div className="col-md-6 mb-3">
+                                                        <label className="form-label">Class Teacher</label>
+                                                        <Field as="select" className="form-select" name="classTeacher">
+                                                            <option value="">Select Teacher</option>
+                                                            {teachers?.map((teacher) => (
+                                                                <option key={teacher._id} value={teacher._id}>
+                                                                    {teacher.fullName.firstName} {teacher.fullName.lastName}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                    </div>
+                                                    <div className="col-md-6 mb-3">
+                                                        <label className="form-label">Class HOD</label>
+                                                        <Field as="select" className="form-select" name="HOD">
+                                                            <option value="">Select Teacher</option>
+                                                            {allTeachers?.map((teacher) => (
+                                                                <option key={teacher._id} value={teacher._id}>
+                                                                    {teacher.fullName.firstName} {teacher.fullName.lastName}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                    </div>
                                                 </div>
                                                 <hr />
 
@@ -133,7 +152,7 @@ const AssignTeacher = () => {
                                                 <button type="submit" className="btn btn-primary mt-4">Submit</button>
                                             </>
                                         ) : (
-                                            <p className="text-center text-warning pb-5 mb-3">Select the class to assign teachers <h6>..........</h6></p>
+                                            <p className="text-center text-info mb-2">Select the class to assign teachers <h6>..........</h6></p>
                                         )}
                                     </div>
                                 </div>
