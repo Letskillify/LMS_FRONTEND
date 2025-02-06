@@ -32,10 +32,11 @@ const InstituteProfile = () => {
                                 <div className="card">
                                     <div className="card-body text-center">
                                         <img
-                                            src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                            src={institute?.logo}
                                             alt="Institute Logo"
                                             className="rounded-circle mb-3"
                                             width={150}
+                                            onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
                                         />
                                         <h4>{institute?.name}</h4>
                                         <p className="text-secondary mb-1">{institute?.instituteType}</p>
@@ -48,7 +49,7 @@ const InstituteProfile = () => {
 
                             {/* Institute Information */}
                             <div className="col-12 col-md-8 mb-3">
-                                <div className="card" style={{ height: "356px" }}>
+                                <div className="card" style={{ height: "370px" }}>
                                     <div className="card-body">
                                         <h5>Institute Information</h5>
                                         <div className="row">
