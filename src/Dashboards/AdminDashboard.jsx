@@ -97,6 +97,8 @@ import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
 import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
 import Settings from '../Admin Components/Setting/Settings.jsx'
+import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
+import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -195,7 +197,8 @@ const AdminDashboard = () => {
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
-
+                <Route path="/Holiday" element={<InstituteHoliday />}></Route>
+                <Route path="/Holiday-Form" element={<HolidayForm/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
               </Route>
