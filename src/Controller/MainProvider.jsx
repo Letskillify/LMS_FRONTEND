@@ -31,6 +31,7 @@ export const MainProvider = ({ children }) => {
   const [Course, setCourse] = useState(null)
   const [CourseGroup, setCourseGroup] = useState(null)
   const [Class, setClass] = useState(null)
+  const [Settings, setSettings] = useState(null)
 
   // for stop open inspect
 
@@ -89,6 +90,7 @@ export const MainProvider = ({ children }) => {
       fetchClass();
       fetchStudentData();
       fetchTrashData();
+      fetchSettings();
     }
   }, [instituteId]);
 
@@ -444,9 +446,13 @@ export const MainProvider = ({ children }) => {
     const data = await getApi(`/api/class/get/institute/${instituteId}`);
     setClass(Array.isArray(data) ? data : []);
   };
+  const fetchSettings = async () => {
+    const data = await getApi(`/api/settings/get/institute/${instituteId}`);
+    setSettings(data ? data : null);
+  };
 
   return (
-    <MainContext.Provider value={{ fetchClass, Class, fetchCourseGroup, CourseGroup, fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+    <MainContext.Provider value={{ fetchSettings, Settings, fetchClass, Class, fetchCourseGroup, CourseGroup, fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
       {children}
     </MainContext.Provider>
   );

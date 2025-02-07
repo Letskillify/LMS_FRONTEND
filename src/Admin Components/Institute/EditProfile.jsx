@@ -105,6 +105,7 @@ function EditProfile() {
             });
         }
     }, [institute]);
+    
     if (!initialValues) {
         return <div>Loading...</div>; // Or any placeholder if data isn't loaded yet
     }

@@ -1,6 +1,6 @@
 :root {
-    --themeprimary: #003467;
-    --themesecondary: #f89e15;
+    --themeprimary: #003467 !important;
+    --themesecondary: #f89e15 !important;
 }
 
 .themprimary {
