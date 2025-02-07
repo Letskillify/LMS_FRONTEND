@@ -108,7 +108,6 @@ function LiveClasses() {
 
     const handleLiveClassClick = (liveClass) => {
         const classLink = liveClass.link;
-
         // Redirecting the user to the class link in a new tab
         window.open(classLink, "_blank");
     };
@@ -255,53 +254,57 @@ function LiveClasses() {
                         </div>
                     )}
 
-                    <table className="table table-striped">
-                        <thead>
-                            <tr className="text-center">
-                                <th>Title</th>
-                                <th>Course</th>
-                                <th>Subject</th>
-                                <th>Class Date</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {liveClasses.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
-                                <tr>
-                                    <td colSpan="8" className="text-center">No data available</td>
+                    <div className="table-responsive">
+                        <table className="table table-striped">
+                            <thead>
+                                <tr className="text-center">
+                                    <th>Title</th>
+                                    <th>Course</th>
+                                    <th>Subject</th>
+                                    <th>Class Date</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            ) : (
-                                liveClasses
-                                    .filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
-                                    .map((item) => (
-                                        <tr key={item._id} className="text-center">
-                                            <td>{item.title}</td>
-                                            <td>{item.courseId?.courseName || "N/A"}</td>
-                                            <td>{item.subjectId?.subjectName || "N/A"}</td>
-                                            <td>{new Date(item.classDate).toLocaleDateString()}</td>
-                                            <td>{item.startTime}</td>
-                                            <td>{item.endTime}</td>
-                                            <td>{item.status}</td>
-                                            <td>
-                                                <button
-                                                    className="btn btn-info me-2"
-                                                    onClick={() => handleLiveClassClick(item)}
-                                                >
-                                                    Join
-                                                </button>
-                                                <button className="btn btn-danger" onClick={() => handleDeleteOne(item._id)}>
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                            )}
-                        </tbody>
-
-                    </table>
+                            </thead>
+                            <tbody>
+                                {liveClasses.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                                    <tr>
+                                        <td colSpan="8" className="text-center">No data available</td>
+                                    </tr>
+                                ) : (
+                                    liveClasses
+                                        .filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                                        .map((item) => (
+                                            <tr key={item._id} className="text-center">
+                                                <td>{item.title}</td>
+                                                <td>{item.courseId?.courseName || "N/A"}</td>
+                                                <td>{item.subjectId?.subjectName || "N/A"}</td>
+                                                <td>{new Date(item.classDate).toLocaleDateString()}</td>
+                                                <td>{item.startTime}</td>
+                                                <td>{item.endTime}</td>
+                                                <td>{item.status}</td>
+                                                <td className="d-flex justify-content-center">
+                                                    <button
+                                                        className="btn btn-info me-2 d-block d-md-inline-block"
+                                                        onClick={() => handleLiveClassClick(item)}
+                                                    >
+                                                        Join
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger d-block d-md-inline-block"
+                                                        onClick={() => handleDeleteOne(item._id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
