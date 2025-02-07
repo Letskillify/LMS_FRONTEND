@@ -2,15 +2,21 @@ import { Field, Form, Formik } from 'formik'
 import React, { useEffect } from 'react'
 import * as Yup from 'yup'
 import axios from 'axios'
+import { useImageUploader } from '../../Custom Hooks/CustomeHook';
 
 function HolidayList() {
     const [holidays, setHolidays] = React.useState([]);
     const [popup, setPopup] = React.useState(false);
     const [edit, setEdit] = React.useState(null);
+    const { uploadedData, handleImageUpload } = useImageUploader();
 
     const handleHoliday = async (values) => {
+        const data = {
+            ...values,
+            thumbnail: uploadedData?.thumbnail
+        }
         try {
-            const response = await axios.post("/api/holiday-list/post", values, {
+            const response = await axios.post("/api/holiday-list/post", data, {
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -50,8 +56,12 @@ function HolidayList() {
     }
 
     const handleEdit = async (values) => {
+        const data = {
+            ...values,
+            thumbnail: uploadedData?.thumbnail
+        }
         try {
-            const response = await axios.put(`/api/holiday-list/update/${edit._id}`, values, {
+            const response = await axios.put(`/api/holiday-list/update/${edit._id}`, data, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -106,7 +116,7 @@ function HolidayList() {
                                 </div>
                                 <div className="col-md-6">
                                     <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
-                                    <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" />
+                                    <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*"  onChange={(e) => handleImageUpload(e, "thumbnail")}/>
                                 </div>
                                 <div className="col-md-6">
                                     <label for="title" className="form-label">Holiday Title</label>
@@ -163,10 +173,9 @@ function HolidayList() {
                                     <button className='btn-close btn-close-primary' onClick={() => setPopup(false)}></button>
                                 </div>
                                 <Formik
-                                    initialValues={{
-                                        startingDate: edit?.startingDate || '',
-                                        endingDate: edit?.endingDate || '',
-                                        thumbnail: edit?.thumbnail || '',
+                                    initialValues={{    
+                                        startingDate: edit?.startingDate ? new Date(edit?.startingDate).toLocaleDateString() : '' || '',
+                                        endingDate: edit?.endingDate ? new Date(edit?.endingDate).toLocaleDateString() : '' || '',
                                         title: edit?.title || '',
                                         description: edit?.description || '',
                                     }}
@@ -193,7 +202,7 @@ function HolidayList() {
                                             </div>
                                             <div className="col-md-6">
                                                 <label for="thumbnail" className="form-label">Thumbnail (URL)</label>
-                                                <Field  className="form-control" id="thumbnail" name="thumbnail" placeholder="Enter thumbnail URL" values={edit?.thumbnail} />
+                                                <Field type="file"  className="form-control" id="thumbnail" name="thumbnail" placeholder="Enter thumbnail URL" values={edit?.thumbnail}  onChange={(e) => handleImageUpload(e, "thumbnail")}/>
                                             </div>
                                             <div className="col-md-6">
                                                 <label for="title" className="form-label">Holiday Title</label>

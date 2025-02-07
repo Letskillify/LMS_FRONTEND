@@ -1,199 +1,196 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { format, parse, startOfWeek, getDay } from "date-fns";
+import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
-import './Holiday.css';
-import enUS from "date-fns/locale/en-US";
+import { Link } from "react-router-dom";
 
-// Localization for calendar (using date-fns)
-const locales = {
-  "en-US": enUS,
-};
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
+function InstituteHoliday() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [holidays, setHolidays] = useState([]);
+  const [instituteId, setInstituteId] = useState("");
 
-const InstituteHoliday = () => {
-  const [events, setEvents] = useState([]); // Calendar events
-  const [selectedDate, setSelectedDate] = useState(null); // Selected date for popup
-  const [holidayDetails, setHolidayDetails] = useState({
-    title: "",
-    description: "",
-    startingDate: "",
-    endingDate: "",
-    status: "Holiday",
-  });
-  const [showPopup, setShowPopup] = useState(false);
-
-  // Fetch holidays on mount
   useEffect(() => {
-    fetchHolidays();
+    const id = localStorage.getItem("instituteId");
+    setInstituteId(id);
+    axios
+      .get(`/api/institute/holidays/${id}`)
+      .then((res) => {
+        setHolidays(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
-  // Fetch holidays from API
-  const fetchHolidays = async () => {
-    try {
-      const { data } = await axios.get("/api/holidays"); // Replace with your backend API endpoint
-      const formattedHolidays = data.map((holiday) => ({
-        title: `${holiday.title} (${holiday.status})`,
-        start: new Date(holiday.startingDate),
-        end: new Date(holiday.endingDate),
-        allDay: true,
-        status: holiday.status,
-      }));
-      setEvents(formattedHolidays);
-    } catch (error) {
-      console.error("Error fetching holidays:", error);
-    }
-  };
-
-  // Handle date click
-  const handleSelectDate = (slotInfo) => {
-    setSelectedDate(slotInfo.start);
-    setShowPopup(true);
-  };
-
-  // Handle popup input change
-  const handleChange = (e) => {
-    setHolidayDetails({
-      ...holidayDetails,
-      [e.target.name]: e.target.value,
+  const changeMonth = (direction) => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + direction);
+      return newDate;
     });
   };
 
-  // Submit holiday details
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const newHoliday = {
-        ...holidayDetails,
-        startingDate: selectedDate,
-        endingDate: holidayDetails.endingDate || selectedDate, // Handling both single and range date selection
-      };
-      await axios.post("/api/holidays", newHoliday); // Replace with your backend API endpoint
-      setShowPopup(false);
-      fetchHolidays(); // Refresh events
-    } catch (error) {
-      console.error("Error adding holiday:", error);
-      alert("There was an error adding the holiday. Please try again.");
-    }
+  const changeYear = (direction) => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setFullYear(prev.getFullYear() + direction);
+      return newDate;
+    });
   };
 
-  // Function to assign color based on the event type (status)
-  const getEventStyle = (event) => {
-    let backgroundColor = '';
-    switch (event.status) {
-      case "Holiday":
-        backgroundColor = "#4CAF50"; // Green for Holiday
-        break;
-      case "Event":
-        backgroundColor = "#2196F3"; // Blue for Event
-        break;
-      case "Day-Out":
-        backgroundColor = "#FF9800"; // Orange for Day-Out
-        break;
-      case "Half-Day":
-        backgroundColor = "#FFEB3B"; // Yellow for Half-Day
-        break;
-      case "Celebration":
-        backgroundColor = "#9C27B0"; // Purple for Celebration
-        break;
-      default:
-        backgroundColor = "#9E9E9E"; // Grey if no type is matched
+  const handleDateClick = (dateString) => {
+    setSelectedDate(dateString);
+    setShowModal(true);
+  };
+
+  const renderCalendarDays = () => {
+    const today = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const calendarDays = [];
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      calendarDays.push(
+        <div key={`empty-${i}`} className="calendar-day empty"></div>
+      );
     }
-    return {
-      style: {
-        backgroundColor,
-        color: "white", // Text color for better contrast
-        borderRadius: "4px",
-      }
-    };
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateString = `${year}-${(month + 1)
+        .toString()
+        .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+      const isFutureDate = new Date(dateString) > today;
+      const holidayTitle = holidays.find((h) => h.startingDate === dateString);
+
+      calendarDays.push(
+        <div
+          key={day}
+          className={`calendar-day border p-4 text-center position-relative ${isFutureDate ? "disabled" : ""}`}
+          onClick={() => !isFutureDate && handleDateClick(dateString)}
+          style={{
+            cursor: isFutureDate ? "not-allowed" : "pointer",
+            backgroundColor: isFutureDate ? "#f8d7da" : "inherit",
+            zIndex: isFutureDate ? 0 : 1,
+          }}
+        >
+          {day}
+          {holidayTitle && (
+            <div
+              className="holiday-title"
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: "bold",
+                color: "#d9534f",
+                position: "absolute",
+                top: "2px",
+                width: "100%",
+                textAlign: "center",
+              }}
+            >
+              {holidayTitle.title}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return calendarDays;
   };
 
   return (
-    <div className="holiday-calendar">
-      <h1 className="text-2xl font-bold mb-4 text-center">Holiday Calendar</h1>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500, margin: "50px" }}
-        selectable
-        onSelectSlot={handleSelectDate}
-        eventPropGetter={getEventStyle} // Use eventPropGetter to apply styles
-        popup
-      />
-
-      {/* Popup for adding holiday details */}
-      {showPopup && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <h2 className="text-xl font-bold">Add Holiday Details</h2>
-            <form onSubmit={handleSubmit} className="holiday-form">
-              <div className="form-group">
-                <label>Title:</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={holidayDetails.title}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Description:</label>
-                <textarea
-                  name="description"
-                  value={holidayDetails.description}
-                  onChange={handleChange}
-                  required
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label>Status:</label>
-                <select
-                  name="status"
-                  value={holidayDetails.status}
-                  onChange={handleChange}
-                >
-                  <option value="Holiday">Holiday</option>
-                  <option value="Event">Event</option>
-                  <option value="Day-Out">Day-Out</option>
-                  <option value="Half-Day">Half-Day</option>
-                  <option value="Celebration">Celebration</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>End Date:</label>
-                <input
-                  type="date"
-                  name="endingDate"
-                  value={holidayDetails.endingDate}
-                  onChange={handleChange}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Save
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setShowPopup(false)}
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
+    <div className="bg-light mx-2 p-4 rounded">
+      <Button variant="outline-secondary" onClick={() => setShow(true)}>
+        +
+      </Button>
+      <div className="calendar-header d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <Button variant="outline-secondary" onClick={() => changeYear(-1)}>
+            &lt;&lt; Year
+          </Button>
+          <Button variant="outline-secondary mx-2" onClick={() => changeMonth(-1)}>
+            &lt; Month
+          </Button>
         </div>
-      )}
+        <h4>
+          {currentDate.toLocaleString("default", { month: "long" })} {currentDate.getFullYear()}
+        </h4>
+        <div>
+          <Button variant="outline-secondary mx-2" onClick={() => changeMonth(1)}>
+            Month &gt;
+          </Button>
+          <Button variant="outline-secondary" onClick={() => changeYear(1)}>
+            Year &gt;&gt;
+          </Button>
+        </div>
+      </div>
+      
+      <div className="calendar-grid row row-cols-7 g-3">{renderCalendarDays()}</div>
+
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <Link to="/admin/holidays">
+          <Button variant="outline-secondary">View All Holidays</Button>
+        </Link>
+      </div>
+
+      {/* Modal for Holiday Details */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Holiday Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            <strong>Date:</strong> {selectedDate}
+          </p>
+          <p>
+            <strong>Holiday:</strong>{" "}
+            {holidays.find((h) => h.startingDate === selectedDate)
+              ? holidays.find((h) => h.startingDate === selectedDate).title
+              : "No holiday on this day"}
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+      <Modal show={show} onHide={() => setShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Holiday List</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ul>
+            {holidays.map((holiday) => (
+              <li key={holiday._id}>
+                <strong>Date:</strong> {holiday.startingDate}
+                <br />
+                <strong>Title:</strong> {holiday.title}
+                <br />
+                <strong>Description:</strong> {holiday.description}
+                <br />
+                <strong>Updated By:</strong> {holiday.updatedBy}
+                </li>
+            ))}
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShow(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+
     </div>
   );
-};
+}
 
 export default InstituteHoliday;
+
