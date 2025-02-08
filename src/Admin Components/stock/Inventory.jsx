@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { Bounce, toast } from "react-toastify";
 
-const Inventory = () => {
+const StockInventory = () => {
     const [Account, setAccount] = useState("Create")
     const initialValues = {
         itemDetails: {
@@ -2106,5 +2106,5 @@ const Inventory = () => {
 
 };
 
-export default Inventory;
+export default StockInventory;
 
