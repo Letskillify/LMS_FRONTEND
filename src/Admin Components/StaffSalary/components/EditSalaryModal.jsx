@@ -16,6 +16,7 @@ const EditSalaryModal = ({
   setFormData,
   handleUpdateSalary,
 }) => {
+  const [netSalary, setNetSalary] = useState(0);
   const showToast = useGlobalToast();
 
   useEffect(() => {
@@ -27,12 +28,16 @@ const EditSalaryModal = ({
             typeOfAllowance: allowance.typeOfAllowance._id,
             amount: allowance.amount,
             allowanceName: allowance.typeOfAllowance.allowanceName,
+            type: allowance.amountType,
+            value: allowance.value,
           })) || [],
         deductions:
           salaryData.deductions?.map((deduction) => ({
             typeOfDeduction: deduction.typeOfDeduction._id,
             amount: deduction.amount,
             deductionName: deduction.typeOfDeduction.deductionName,
+            type: deduction.amountType,
+            value: deduction.value,
           })) || [],
       });
     }
@@ -49,27 +54,70 @@ const EditSalaryModal = ({
   const handleAllowancesChange = (selected) => {
     setFormData((prev) => ({
       ...prev,
-      allowances: selected.map((s) => ({
-        typeOfAllowance: s.value.typeOfAllowance,
-        amount: s.value.amount,
-        allowanceName: s.label,
-      })),
+      allowances: selected.map((s) => {
+        const existing = prev.allowances.find(
+          (a) => a.typeOfAllowance === s.value.typeOfAllowance
+        );
+        return {
+          typeOfAllowance: s.value.typeOfAllowance,
+          amount: existing ? existing.amount : s.value.amount,
+          allowanceName: s.label,
+          type: existing ? existing.type : "Fixed",
+          value: existing ? existing.value : s.value.amount,
+        };
+      }),
     }));
   };
 
   const handleDeductionsChange = (selected) => {
     setFormData((prev) => ({
       ...prev,
-      deductions: selected.map((s) => ({
-        typeOfDeduction: s.value.typeOfDeduction,
-        amount: s.value.amount,
-        deductionName: s.label,
-      })),
+      deductions: selected.map((s) => {
+        const existing = prev.deductions.find(
+          (d) => d.typeOfDeduction === s.value.typeOfDeduction
+        );
+        return {
+          typeOfDeduction: s.value.typeOfDeduction,
+          amount: existing ? existing.amount : s.value.amount,
+          deductionName: s.label,
+          type: existing ? existing.type : "Fixed",
+          value: existing ? existing.value : s.value.amount,
+        };
+      }),
     }));
   };
 
+  const handleAllowanceInputChange = (index, field, value) => {
+    const updatedAllowances = [...formData.allowances];
+    updatedAllowances[index][field] = value;
+    setFormData((prev) => ({
+      ...prev,
+      allowances: updatedAllowances,
+    }));
+  };
+
+  const handleDeductionInputChange = (index, field, newValue) => {
+    setFormData((prev) => {
+      const updatedDeductions = [...prev.deductions];
+
+      let maxAllowed =
+        updatedDeductions[index].type === "Percentage"
+          ? 100
+          : Number(prev.basicSalary) || 0;
+
+      let validatedValue = Math.min(Number(newValue), maxAllowed);
+
+      updatedDeductions[index][field] = validatedValue;
+      updatedDeductions[index].amount = validatedValue;
+
+      return { ...prev, deductions: updatedDeductions };
+    });
+  };
   const allowanceOptions = allowanceData?.map((allowance) => ({
-    value: { typeOfAllowance: allowance._id, amount: allowance.amount },
+    value: {
+      typeOfAllowance: allowance._id,
+      amount: allowance.amount,
+    },
     label: allowance.allowanceName,
     isDisabled: formData.allowances?.some(
       (a) => a.typeOfAllowance === allowance._id
@@ -85,7 +133,10 @@ const EditSalaryModal = ({
   }));
 
   const deductionOptions = deductionData?.map((deduction) => ({
-    value: { typeOfDeduction: deduction._id, amount: deduction.amount },
+    value: {
+      typeOfDeduction: deduction._id,
+      amount: deduction.amount,
+    },
     label: deduction.deductionName,
     isDisabled: formData.deductions?.some(
       (d) => d.typeOfDeduction === deduction._id
@@ -99,6 +150,27 @@ const EditSalaryModal = ({
     },
     label: deduction.deductionName,
   }));
+
+  useEffect(() => {
+    if (!formData) return;
+
+    const basicSalary = Number(formData.basicSalary) || 0;
+
+    const totalAllowances =
+      formData.allowances?.reduce(
+        (acc, curr) => acc + Number(curr.amount || 0),
+        0
+      ) || 0;
+
+    const totalDeductions =
+      formData.deductions?.reduce(
+        (acc, curr) => acc + Number(curr.amount || 0),
+        0
+      ) || 0;
+
+    const calculatedNetSalary = basicSalary + totalAllowances - totalDeductions;
+    setNetSalary(calculatedNetSalary);
+  }, [formData.basicSalary, formData.allowances, formData.deductions]);
 
   return (
     <Modal show={show} onHide={handleClose} size="lg">
@@ -149,8 +221,57 @@ const EditSalaryModal = ({
               isSearchable
               placeholder="Search Allowances / Select Allowances"
               onChange={handleAllowancesChange}
+              isDisabled={!formData.staff}
             />
           </Form.Group>
+
+          {formData?.allowances?.length > 0 &&
+            formData.allowances.map((allowance, index) => (
+              <div key={index} className="mb-3 row align-items-center">
+                <div className="col-md-2">
+                  <Form.Label>{allowance.allowanceName}</Form.Label>
+                </div>
+                <div className="col-md-5">
+                  <Form.Select
+                    value={allowance.type}
+                    onChange={(e) =>
+                      handleAllowanceInputChange(index, "type", e.target.value)
+                    }
+                  >
+                    <option
+                      selected={allowance.amountType === "Fixed"}
+                      value="Fixed"
+                    >
+                      Fixed
+                    </option>
+                    <option
+                      selected={allowance.amountType === "Percentage"}
+                      value="Percentage"
+                    >
+                      Percentage
+                    </option>
+                  </Form.Select>
+                </div>
+                <div className="col-md-5">
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    max={
+                      allowance.type !== "Fixed" ? 100 : formData.basicSalary
+                    }
+                    value={allowance.amount}
+                    onChange={(e) =>
+                      handleAllowanceInputChange(
+                        index,
+                        "amount",
+                        e.target.value
+                      )
+                    }
+                    placeholder={`Enter ${allowance.type} value`}
+                  />
+                </div>
+              </div>
+            ))}
 
           <Form.Group className="mb-3">
             <Form.Label>Deductions</Form.Label>
@@ -162,15 +283,61 @@ const EditSalaryModal = ({
               isSearchable
               placeholder="Search Deductions / Select Deductions"
               onChange={handleDeductionsChange}
+              isDisabled={!formData.staff}
             />
           </Form.Group>
+
+          {formData?.deductions?.length > 0 &&
+            formData.deductions.map((deduction, index) => (
+              <div key={index} className="mb-3 row align-items-center">
+                <div className="col-md-2">
+                  <Form.Label>{deduction.deductionName}</Form.Label>
+                </div>
+                <div className="col-md-5">
+                  <Form.Select
+                    value={deduction.type}
+                    onChange={(e) =>
+                      handleDeductionInputChange(index, "type", e.target.value)
+                    }
+                  >
+                    <option selected={deduction.type === "Fixed"} value="Fixed">
+                      Fixed
+                    </option>
+                    <option
+                      selected={deduction.type === "Percentage"}
+                      value="Percentage"
+                    >
+                      Percentage
+                    </option>
+                  </Form.Select>
+                </div>
+                <div className="col-md-5">
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    max={
+                      deduction.type !== "Fixed" ? 100 : formData.basicSalary
+                    }
+                    value={deduction.amount}
+                    onChange={(e) =>
+                      handleDeductionInputChange(
+                        index,
+                        "amount",
+                        e.target.value
+                      )
+                    }
+                    placeholder={`Enter ${deduction.type} value`}
+                  />
+                </div>
+              </div>
+            ))}
 
           <Form.Group className="mb-3">
             <Form.Label>Net Salary</Form.Label>
             <Form.Control
               type="number"
               name="netSalary"
-              value={formData.netSalary}
+              value={netSalary}
               readOnly
             />
           </Form.Group>
