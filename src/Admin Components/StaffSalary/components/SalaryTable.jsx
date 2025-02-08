@@ -9,7 +9,9 @@ const SalaryTable = ({
   setEditMode,
   setStaffToEdit,
   toggleAddSalaryModal,
-  setEditShowModal
+  setEditShowModal,
+  dataForPrintScript,
+  setDataForPrintScript,
 }) => {
   return (
     <table className=" mx-auto table table-stripedd table-striped text-center px-3">
@@ -66,6 +68,9 @@ const SalaryTable = ({
                   data-bs-toggle="modal"
                   data-bs-target="#modalCenter02"
                   style={{ fontSize: "13px" }}
+                  onClick={() => {
+                    setDataForPrintScript(salary);
+                  }}
                 >
                   Print Slip
                 </button>
@@ -125,7 +130,7 @@ const SalaryTable = ({
         {/* Make Payment */}
         <MakePayment currentSalaryStaff={currentSalaryStaff} />
         {/* Print slip */}
-        <PrintSlip />
+        {dataForPrintScript && <PrintSlip data={dataForPrintScript} />}
       </tbody>
     </table>
   );
