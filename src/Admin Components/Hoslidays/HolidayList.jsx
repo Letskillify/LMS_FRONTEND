@@ -16,7 +16,7 @@ function HolidayList() {
             thumbnail: uploadedData?.thumbnail
         }
         try {
-            const response = await axios.post("/api/holiday-list/post", data, {
+            const response = await axios.post("/api/holiday/post", data, {
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -34,7 +34,7 @@ function HolidayList() {
     const fetchData = async () => {
         console.log(holidays);
         try {
-            const response = await axios.get(`/api/holiday-list/get`);
+            const response = await axios.get(`/api/holiday/get`);
             console.log(response);
             setHolidays(response.data);
         } catch (error) {

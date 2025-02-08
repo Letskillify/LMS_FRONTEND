@@ -63,10 +63,30 @@ export const DeleteApi = async (url, successMessage) => {
     try {
         const response = await axios.delete(url);
         console.log(response.data);
-        alert(successMessage);
+        toast.success(successMessage, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     } catch (error) {
         console.error('Error hitting API:', error.response ? error.response.data : error.message);
-        alert(error.response ? error.response.data.message : error.message);
+        toast.error(error.response ? error.response.data.message : error.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     }
 }
 
