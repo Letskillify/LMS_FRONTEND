@@ -72,19 +72,68 @@ const AddSalaryModal = ({
   }));
 
   const handleAllowancesChange = (selected) => {
-    const selectedAllowance = selected.map((s) => s.value);
+    const updatedAllowances = selected.map((s) => ({
+      typeOfAllowance: s.value.typeOfAllowance,
+      amount: s.value.amount,
+      type: "Fixed", // Default selection
+      value: "", // Empty value initially
+    }));
+
     setFormData((prev) => ({
       ...prev,
-      allowances: selectedAllowance,
+      allowances: updatedAllowances,
     }));
   };
 
   const handleDeductionsChange = (selected) => {
-    const selectedDeduction = selected.map((s) => s.value);
+    const updatedDeductions = selected.map((s) => ({
+      typeOfDeduction: s.value.typeOfDeduction,
+      amount: s.value.amount,
+      type: "Fixed", // Default selection
+      value: "", // Empty value initially
+    }));
+
     setFormData((prev) => ({
       ...prev,
-      deductions: selectedDeduction,
+      deductions: updatedDeductions,
     }));
+  };
+
+  const handleAllowanceInputChange = (index, field, newValue) => {
+    setFormData((prev) => {
+      const updatedAllowances = [...prev.allowances];
+      updatedAllowances[index][field] = newValue;
+      return { ...prev, allowances: updatedAllowances };
+    });
+  };
+
+  const [deductionError, setDeductionError] = useState("");
+
+  const handleDeductionInputChange = (index, field, newValue) => {
+    setFormData((prev) => {
+      const updatedDeductions = [...prev.deductions];
+      let maxAllowed =
+        updatedDeductions[index].type === "Percentage"
+          ? 100
+          : Number(prev.basicSalary) || 0;
+
+      let validatedValue = Math.min(Number(newValue), maxAllowed);
+
+      if (Number(newValue) > maxAllowed) {
+        setDeductionError(
+          `Deduction cannot be more than ${
+            updatedDeductions[index].type === "Percentage"
+              ? "100%"
+              : `₹${maxAllowed}`
+          }`
+        );
+      } else {
+        setDeductionError("");
+      }
+
+      updatedDeductions[index][field] = validatedValue;
+      return { ...prev, deductions: updatedDeductions };
+    });
   };
 
   const allowanceOptions = allowanceData?.map((allowance) => ({
@@ -122,6 +171,16 @@ const AddSalaryModal = ({
     }
   };
 
+  const allowanceName = (id) => {
+    const allowance = allowanceData.find((allowance) => allowance._id === id);
+    return allowance ? allowance.allowanceName : "";
+  };
+
+  const deductionName = (id) => {
+    const deduction = deductionData.find((deduction) => deduction._id === id);
+    return deduction ? deduction.deductionName : "";
+  };
+
   return (
     <Modal show={show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
@@ -131,7 +190,12 @@ const AddSalaryModal = ({
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Staff Type</Form.Label>
-            <Form.Select name="staffType" onChange={handleChange} required>
+            <Form.Select
+              className="rounded-0"
+              name="staffType"
+              onChange={handleChange}
+              required
+            >
               <option disabled selected value="">
                 Select Staff Type
               </option>
@@ -175,7 +239,7 @@ const AddSalaryModal = ({
             <Select
               name="allowances"
               options={allowanceOptions}
-              value={formData.allowances}
+              isDisabled={!formData.staff}
               isMulti
               isSearchable
               placeholder="Search Allowances / Select Allowances"
@@ -183,11 +247,53 @@ const AddSalaryModal = ({
             />
           </Form.Group>
 
+          {formData.allowances.length > 0 &&
+            formData.allowances.map((allowance, index) => (
+              <div key={index} className="mb-3 row align-items-center">
+                <div className="col-md-2">
+                  <Form.Label>
+                    {allowanceName(allowance.typeOfAllowance)}
+                  </Form.Label>
+                </div>
+                <div className="col-md-5">
+                  <Form.Select
+                    value={allowance.type}
+                    className="rounded-0"
+                    onChange={(e) =>
+                      handleAllowanceInputChange(index, "type", e.target.value)
+                    }
+                  >
+                    <option value="Fixed">Fixed</option>
+                    <option value="Percentage">Percentage</option>
+                  </Form.Select>
+                </div>
+                <div className="col-md-5">
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    onScroll={(e) => e.target.blur()}
+                    max={
+                      allowance.type === "Percentage"
+                        ? 100
+                        : Number(formData.basicSalary) || 0
+                    }
+                    value={allowance.value}
+                    onChange={(e) =>
+                      handleAllowanceInputChange(index, "value", e.target.value)
+                    }
+                    placeholder={`Enter ${allowance.type} value`}
+                  />
+                </div>
+              </div>
+            ))}
+
+          {/* Deduction Section */}
           <Form.Group className="mb-3">
             <Form.Label>Deductions</Form.Label>
             <Select
               name="deductions"
               options={deductionOptions}
+              isDisabled={!formData.staff}
               isMulti
               isSearchable
               placeholder="Search Deductions / Select Deductions"
@@ -195,12 +301,67 @@ const AddSalaryModal = ({
             />
           </Form.Group>
 
+          {formData.deductions.length > 0 &&
+            formData.deductions.map((deduction, index) => (
+              <div key={index} className="mb-3 row align-items-center">
+                <div className="col-md-2">
+                  <Form.Label>
+                    {deductionName(deduction.typeOfDeduction)}
+                  </Form.Label>
+                </div>
+                <div className="col-md-5">
+                  <Form.Select
+                    className="rounded-0"
+                    value={deduction.type}
+                    onChange={(e) =>
+                      handleDeductionInputChange(index, "type", e.target.value)
+                    }
+                  >
+                    <option value="Fixed">Fixed</option>
+                    <option value="Percentage">Percentage</option>
+                  </Form.Select>
+                </div>
+                <div className="col-md-5">
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    onScroll={(e) => e.target.blur()}
+                    max={
+                      deduction.type === "Percentage"
+                        ? 100
+                        : Number(formData.basicSalary) || 0
+                    }
+                    value={deduction.value}
+                    onChange={(e) =>
+                      handleDeductionInputChange(index, "value", e.target.value)
+                    }
+                    placeholder={`Enter ${deduction.type} value`}
+                  />
+                  {deductionError && (
+                    <p style={{ color: "red", fontSize: "12px" }}>
+                      {deductionError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+
           <Form.Group className="mb-3">
             <Form.Label>Net Salary</Form.Label>
             <Form.Control
               type="number"
               name="netSalary"
-              value={formData.netSalary}
+              value={
+                Number(formData.basicSalary || 0) +
+                formData.allowances.reduce(
+                  (acc, curr) => acc + Number(curr.value || 0),
+                  0
+                ) -
+                formData.deductions.reduce(
+                  (acc, curr) => acc + Number(curr.value || 0),
+                  0
+                )
+              }
               readOnly
             />
           </Form.Group>
@@ -251,6 +412,7 @@ const AddSalaryModal = ({
               type="number"
               name="loanRepayment"
               onChange={handleChange}
+              disabled={!formData.staff}
             />
           </Form.Group>
 
