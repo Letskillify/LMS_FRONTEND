@@ -29,6 +29,14 @@ function SideDrawer() {
     const manageAttendance = () => {
         setOpenToggle(OpenToggle === "manageAtt" ? '' : 'manageAtt')
     }
+
+    const StockInventory = () => {
+        setOpenToggle(OpenToggle === "stockInventory" ? '' : 'stockInventory')
+    }
+
+    const Voucher = () => {
+        setOpenToggle(OpenToggle === "voucher" ? '' : 'voucher')
+    }
     const staffSalaryGenerate = () => {
         setOpenToggle(OpenToggle === "staffsalary" ? '' : 'staffsalary')
     }
@@ -91,6 +99,17 @@ function SideDrawer() {
     const Manage_Attendance = [
         '/manage-attendance'
     ]
+    const Stock_Inventory = [
+        '/stock-inventory',
+        '/Stock-Access'
+    ]
+
+    const Voucher_Stock = [
+        '/Voucher-purchase',
+        '/Voucher-expense',
+        '/Voucher-sales',
+        '/Voucher-receipt'
+    ]
     const attendance_report = [
         '/student-report',
         '/staff-report'
@@ -146,6 +165,8 @@ function SideDrawer() {
     const parent_Active = parents_info.includes(location.pathname);
     const Id_card = Id_cardStudent.includes(location.pathname);
     const Attendance = Manage_Attendance.includes(location.pathname);
+    const Stockinventory = Stock_Inventory.includes(location.pathname) || location.pathname === '/stockinventory';
+    const Vouchers = Voucher_Stock.includes(location.pathname);
     const studentReport = attendance_report.includes(location.pathname);
     const timetable = time_Table.includes(location.pathname);
     const feemanagement = fee_management.includes(location.pathname);
@@ -683,11 +704,51 @@ function SideDrawer() {
                                 <div>Reporting Area</div>
                             </Link>
                         </li>
-                        <li className="menu-item">
-                            <Link className="menu-link">
+                        <li className={`menu-item ${Stockinventory ? 'active' : ''} ${OpenToggle == 'stockInventory' ? 'open' : ''}`} id='stockInventory'>
+                            <Link to="/stock-account" className="menu-link menu-link menu-toggle" onClick={() => { StockInventory(); }}>
                                 <i className='menu-icon tf-icons bx bx-layer'></i>
                                 <div>Stock & Inventory</div>
                             </Link>
+                            <ul className="menu-sub">
+                                <NavLink activeclassname="active" className="menu-item" to="/stock-account">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Stock Account</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/stock-inventory">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Stock Inventory</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
+                        </li>
+                        <li className={`menu-item ${Vouchers ? 'active' : ''} ${OpenToggle === 'voucher' ? 'open' : ''}`} id='Vouchers'>
+                            <Link to="/Voucher-purchase" className="menu-link menu-toggle" onClick={Voucher}>
+                                <i className='menu-icon tf-icons bx bx-layer'></i>
+                                <div>Voucher</div>
+                            </Link>
+                            <ul className="menu-sub">
+                                <NavLink activeclassname="active" className="menu-item" to="/Voucher-purchase">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Purchase</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/Vourchar-expense">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Expense</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="Vourchar-Sale">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Sales</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="Vourchar-Receipt">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Receipt</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
                         </li>
                         {/* <li className="menu-item">
                         <Link className="menu-link">

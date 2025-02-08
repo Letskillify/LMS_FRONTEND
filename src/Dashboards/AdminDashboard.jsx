@@ -99,6 +99,8 @@ import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
 import Settings from '../Admin Components/Setting/Settings.jsx'
 import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
 import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
+import StockInventory from '../Admin Components/stock/Inventory.jsx'
+import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -170,6 +172,7 @@ const AdminDashboard = () => {
                 <Route path='/addclasses' element={<AddClass />} />
                 <Route path='/allclasses&subjects' element={<Subjects />} />
                 <Route path='/stock-Account' element={<Stock />} />
+                <Route path='/stock-inventory' element={<StockInventory/>} />
                 <Route path="/staff-management" element={<StaffManagement />}></Route>
                 <Route path="/non-teaching-staff" element={<NonTeachingStaff />}></Route>
                 <Route path="/teaching-staff" element={<TeachingStaff />}></Route>
@@ -201,6 +204,7 @@ const AdminDashboard = () => {
                 <Route path="/Holiday-Form" element={<HolidayForm/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
+                <Route path="employe-role" element={<EmployeRole/>}></Route>
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
