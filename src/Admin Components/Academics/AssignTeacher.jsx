@@ -1,15 +1,18 @@
 import { Field, Formik, Form, ErrorMessage } from 'formik';
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MainContext } from '../../Controller/MainProvider';
 import { getApi } from '../../Custom Hooks/CustomeHook';
 import { Bounce, toast } from 'react-toastify';
 import axios from 'axios';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const AssignTeacher = () => {
     const [selectClass, setSelectClass] = useState(null);
     const [teachers, setTeachers] = useState([]);
     const [staffs, setStaffs] = useState([]);
-    const { Class, fetchClass } = useContext(MainContext);
+    // const {  fetchClass } = useContext(MainContext); --->> real time karna hai 
+
+    const {Class} = getCommonCredentials()
 
     // Fetch Teachers from API
     const fetchTeachers = async () => {
@@ -47,7 +50,7 @@ const AssignTeacher = () => {
             if (response.status === 200) {
                 toast.success("Teacher assigned successfully", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });
                 selectField();
-                fetchClass();
+                // fetchClass();
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Error Assigning Teacher", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });

@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Field, Formik, Form } from "formik";
-import { MainContext } from "../../Controller/MainProvider";
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 function Board() {
     const [Board, setBoard] = useState([]);
-    const { userId } = useContext(MainContext);
+    const {userId} = getCommonCredentials();
     const [popup, setPopup] = useState(false);
     const [selectedBoard, setSelectedBoard] = useState(null);
 
