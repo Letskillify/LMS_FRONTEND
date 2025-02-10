@@ -336,8 +336,6 @@ const Settings = () => {
     }
 
 
-    console.log(initialValues);
-
     return (
         Settings ? (
             <div className="container mt-5" >

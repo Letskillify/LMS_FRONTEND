@@ -127,9 +127,9 @@ function SideDrawer() {
               <Link to={"/"} className="">
                 <span className="">
                   {/* <img src={black} alt="" style={{ maxHeight: "50px" }} /> */}
-                  <h3 className="fw-bold border border-2 rounded p-3 text-white">
+                  <h3 className="fw-bold border rounded p-3 text-white">
                     School Logo{" "}
-                    <h6 className="mb-0  fw-bold border border-2 rounded-sm mt-2 p-1 text-white">
+                    <h6 className="mb-0  fw-bold border rounded-sm mt-2 p-1 text-white">
                       Student Dashboard
                     </h6>
                   </h3>

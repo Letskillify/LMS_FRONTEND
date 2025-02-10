@@ -170,6 +170,7 @@ export const useImageUploader = () => {
 
     return {
         uploadedData,
+        setUploadedData,
         handleImageUpload,
     };
 };
