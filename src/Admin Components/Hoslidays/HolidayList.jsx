@@ -39,12 +39,12 @@ function HolidayList() {
 
 
     const handleHoliday = async (values, { resetForm }) => {
-        console.log("Form Data:", values);
-
+        
         const data = {
             ...values,
             thumbnail: uploadedData?.thumbnail
         }
+        console.log("Form Data:", data);
         try {
             const response = await axios.post("/api/institute-holiday/post", data, {
                 headers: {
