@@ -14,7 +14,7 @@ function Navbar() {
     return (
         <>
             <div className=' bg-themprimary'>
-                <nav class="navbar navbar-expand-lg navbar-dark px-3 align-items-center">
+                <nav class="navbar navbar-expand-lg navbar-dark px-3 align-items-center mt-2">
                     <div className='mx-3 d-xl-none d-block' onClick={() => setsidebaropen(true)}>
                         <Link><i class="fa fa-bars fs-4 text-white" aria-hidden="true"></i></Link>
                     </div>
@@ -31,30 +31,7 @@ function Navbar() {
 
 
                     <div class="navbar-nav d-lg-flex align-items-center d-none">
-                        <div class="dropdown p-0">
-                            <button
-                                class="btn bg-themprimary dropdown-toggle text-white  p-1 px-2 "
-                                data-bs-toggle="dropdown"
-                            >
-                                Language
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">English</a></li>
-                                <li><a class="dropdown-item" href="#">Hindi</a></li>
-                            </ul>
-                        </div>
-                        <div class="dropdown p-0 me-2">
-                            <button
-                                class="btn bg-themprimary dropdown-toggle text-white p-1 px-2"
-                                data-bs-toggle="dropdown"
-                            >
-                                Main Campus
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Campus A</a></li>
-                                <li><a class="dropdown-item" href="#">Campus B</a></li>
-                            </ul>
-                        </div>
+
                         <div class="d-flex ">
                             <Link to="/transportation">
                                 <i class="fa menu-icon tf-icons fa-bus text-white fs-6 border p-1 rounded " aria-hidden="true"></i>
@@ -69,7 +46,7 @@ function Navbar() {
                     </div>
 
 
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center me-4">
                         <a className="nav-link dropdown-toggle hide-arrow p-1 pt-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                             <div className="avatar avatar-online">
                                 <img src={institute?.logo} style={{ width: "40px", height: "40px" }} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt className=" rounded-circle" />
@@ -169,7 +146,7 @@ function Navbar() {
                 </nav>
                 <div className='row' style={{ "--bs-gutter-x": 0 }}>
                     <div className='col-12' >
-                        <ul className="navbar-nav flex-row align-items-center ms-auto justify-content-start overflow-auto w-100 mb-2 " style={{ whiteSpace: 'nowrap' }}>
+                        <ul className="navbar-nav flex-row align-items-center ms-auto justify-content-between overflow-auto w-100 mb-2 " style={{ whiteSpace: 'nowrap' }}>
                             <div className="d-flex flex-row mt-2 pb-2 ms-3">
                                 <Link to={'/'}>
                                     <i className='menu-icon fs-4 tf-icons bx bx-home-circle p-1 mx-1 text-white border rounded '></i>
@@ -228,6 +205,47 @@ function Navbar() {
                                 <Link to={'/library'}>
                                     <i className='menu-icon fs-4 tf-icons bx bx-book-reader p-1 mx-1 text-white border rounded '></i>
                                 </Link>
+                                <Link to={'/account'}>
+                                    <i className='menu-icon fs-4 tf-icons bx bx-wallet p-1 mx-1 text-white border rounded '></i>
+                                </Link>
+                                <Link to={'/document'}>
+                                    <i className='menu-icon fs-4 tf-icons bx bx-file p-1 mx-1 text-white border rounded '></i>
+                                </Link>
+                                <Link to={'/layer'}>
+                                    <i className='menu-icon fs-4 tf-icons bx bx-layer p-1 mx-1 text-white border rounded '></i>
+                                </Link>
+                                <Link to={'/certification'}>
+                                    <i className='menu-icon fs-4 tf-icons bx bx-certification p-1 mx-1 text-white border rounded '></i>
+                                </Link>
+                                <Link to={'/library'}>
+                                    <i className='menu-icon fs-4 tf-icons bx bx-book-reader p-1 mx-1 text-white border rounded '></i>
+                                </Link>
+                            </div>
+                            <div className='d-flex align-items-center me-4'>
+                                <div class="dropdown p-0 ">
+                                    <button
+                                        class="btn bg-themprimary dropdown-toggle text-white  p-1 px-2 "
+                                        data-bs-toggle="dropdown"
+                                    >
+                                        Language
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">English</a></li>
+                                        <li><a class="dropdown-item" href="#">Hindi</a></li>
+                                    </ul>
+                                </div>
+                                <div class="dropdown p-0 me-2">
+                                    <button
+                                        class="btn bg-themprimary dropdown-toggle text-white p-1 px-2"
+                                        data-bs-toggle="dropdown"
+                                    >
+                                        Main Campus
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Campus A</a></li>
+                                        <li><a class="dropdown-item" href="#">Campus B</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </ul>
                     </div>

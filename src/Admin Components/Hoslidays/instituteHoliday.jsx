@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { MainContext } from "../../Controller/MainProvider";
 
 function InstituteHoliday() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -9,20 +10,21 @@ function InstituteHoliday() {
   const [show, setShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [holidays, setHolidays] = useState([]);
-  const [instituteId, setInstituteId] = useState("");
-
+  const { userId } = useContext(MainContext)
   useEffect(() => {
-    const id = localStorage.getItem("instituteId");
-    setInstituteId(id);
-    axios
-      .get(`/api/institute/holidays/${id}`)
-      .then((res) => {
-        setHolidays(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    if (userId) {
+      axios
+        .get(`/api/institute-holiday/get/institute/${userId}`)
+        .then((res) => {
+          setHolidays(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [userId]);
+
+  console.log("Holidays", holidays);
 
   const changeMonth = (direction) => {
     setCurrentDate((prev) => {
@@ -127,7 +129,6 @@ function InstituteHoliday() {
           </Button>
         </div>
       </div>
-      
       <div className="calendar-grid row row-cols-7 g-3">{renderCalendarDays()}</div>
 
       <div className="d-flex justify-content-between align-items-center mt-3">
@@ -175,7 +176,7 @@ function InstituteHoliday() {
                 <strong>Description:</strong> {holiday.description}
                 <br />
                 <strong>Updated By:</strong> {holiday.updatedBy}
-                </li>
+              </li>
             ))}
           </ul>
         </Modal.Body>
