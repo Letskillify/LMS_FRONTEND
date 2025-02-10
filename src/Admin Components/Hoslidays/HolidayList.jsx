@@ -97,7 +97,6 @@ function HolidayList() {
     }
 
     const handleEdit = async (values) => {
-
         const data = {
             ...values,
             thumbnail: uploadedData?.thumbnail

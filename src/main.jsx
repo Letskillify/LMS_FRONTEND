@@ -7,15 +7,18 @@ import { BrowserRouter } from 'react-router-dom'
 import { MainProvider } from './Controller/MainProvider.jsx'
 import { Bounce, ToastContainer } from 'react-toastify'
 import { Provider } from "react-redux";
-import { store } from '../Redux/Store.jsx'
+import { store } from './Redux/Store.jsx'
+import ReduxMainProvider from './Controller/MainProviderRedux.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <MainProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </MainProvider>
+      <ReduxMainProvider>
+        <MainProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </MainProvider>
+      </ReduxMainProvider>
     </Provider>
     <ToastContainer position="top-left"
       autoClose={5000}
