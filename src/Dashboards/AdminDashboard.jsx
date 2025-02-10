@@ -100,6 +100,7 @@ import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx
 import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
 import StockInventory from '../Admin Components/stock/Inventory.jsx'
 import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
+import Leave from '../Admin Components/Leave.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -203,6 +204,7 @@ const AdminDashboard = () => {
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
+                <Route path='/leave' element={<Leave/>} />
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
