@@ -12,13 +12,13 @@ import ReduxMainProvider from './Controller/MainProviderRedux.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <ReduxMainProvider>
+      {/* <ReduxMainProvider> */}
         <MainProvider>
           <BrowserRouter>
             <App />
           </BrowserRouter>
         </MainProvider>
-      </ReduxMainProvider>
+      {/* </ReduxMainProvider> */}
     </Provider>
     <ToastContainer position="top-left"
       autoClose={5000}
