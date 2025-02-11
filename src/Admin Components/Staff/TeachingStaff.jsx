@@ -8,6 +8,13 @@ import EmploymentAndSalaryDetailsForm from "./Forms/EmploymentAndSalaryDetailsFo
 import DocumentationAndPasswordForm from "./Forms/DocumentationAndPasswordForm";
 import axios from "axios";
 import { MainContext } from "../../Controller/MainProvider";
+import {
+  useAddTeacherMutation,
+  useGetTeachersByInstituteIdQuery,
+  useUpdateTeacherByIdMutation,
+} from "../../Redux/Api/teacherSlice";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { Spinner } from "react-bootstrap";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 function TeachingStaff() {
@@ -107,8 +114,8 @@ function TeachingStaff() {
   const [staffIdToDelete, setStaffIdToDelete] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { userId } =useContext(MainContext)
-  console.log("userId", userId)
+  const { InstituteId, userId } = getCommonCredentials();
+
   const handleModalClose = () => {
     setStep(1);
     resetFormData();

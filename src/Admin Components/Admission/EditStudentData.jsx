@@ -21,6 +21,7 @@ const EditStudentData = () => {
     // const { fetchStudentData } = useContext(MainContext)  -->> real time karna hai 
     const { Class, Institute } = getCommonCredentials();
 
+
     const initialValues = {
         personalDetails: {
             profilePhoto: null,
@@ -299,7 +300,8 @@ const EditStudentData = () => {
                                             <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
                                             {touched?.enrollmentDetails?.admissionDate && errors?.enrollmentDetails?.admissionDate && <div className="text-danger">{errors?.enrollmentDetails?.admissionDate}</div>}
                                         </div>
-                                        {Institute?.instituteType === "College" || institute?.instituteType === "University" ? (
+                                        {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                             <>
                                                 <div className="col-md-4 mb-3">
                                                     <label>Enrollment No.</label>

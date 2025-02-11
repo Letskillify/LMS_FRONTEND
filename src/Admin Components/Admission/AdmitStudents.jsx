@@ -9,7 +9,6 @@ import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
 import { Bounce, toast } from 'react-toastify';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
-
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -681,6 +680,7 @@ const AdmitStudents = () => {
                                                             {touched?.enrollmentDetails?.instituteType && errors?.enrollmentDetails?.instituteType && <div className="text-danger">{errors?.enrollmentDetails?.instituteType}</div>}
                                                         </div> */}
                                                         {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                                             <>
                                                                 <div className="col-md-4 mb-3">
                                                                     <label>Enrollment No.</label>
