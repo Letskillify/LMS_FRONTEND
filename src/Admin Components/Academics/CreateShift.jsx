@@ -4,9 +4,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Bounce, toast } from "react-toastify";
 import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const CreateShift = () => {
-    const { userId, Shift, fetchShift } = useContext(MainContext); // Get userId from context
+    // const { fetchShift } = useContext(MainContext); -->> real time karna hai 
+    const { userId, Shift } = getCommonCredentials();
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState(null);
     const [editingShift, setEditingShift] = useState(null);

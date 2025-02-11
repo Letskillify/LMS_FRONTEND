@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 
 function IdCard() {
-  const { studentData } = useContext(MainContext);
-  console.log(studentData)
-  const [filtered, setFiltered] = useState(studentData);
+  const { StudentData } = getCommonCredentials();
+  console.log(StudentData)
+  const [filtered, setFiltered] = useState(StudentData);
   const [filters, setFilters] = useState({
     class: "",
     section: "",
@@ -30,7 +30,7 @@ function IdCard() {
 
   // Apply Filters
   const HandleFilter = () => {
-    const filteredData = studentData.filter((stu) => {
+    const filteredData = StudentData.filter((stu) => {
       const isIDGenerated = stu?.isIDgenerated ? "Generated" : "Non-Generated";
 
       return (

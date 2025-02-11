@@ -3,8 +3,8 @@ import { Modal, Button, Form, Row, Col, Table } from "react-bootstrap";
 import AttendanceModal from "./attendanceModal";
 import axios from "axios";
 import "./attendance.css";
-import { MainContext } from "../../Controller/MainProvider";
 import { GET_STUDENTS, GET_STUDENTS_BY_COURSE_AND_SECTION, GET_TEACHERS, MARK_ATTENDANCE } from "../../ApiConstants/Routes";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Calendar = () => {
@@ -23,14 +23,14 @@ const Calendar = () => {
   const [selectedSection, setSelectedSection] = useState("");
   const [sectionsOptions, setSectionsOptions] = useState([]);
 
-  const { instituteId, userId } = useContext(MainContext);
+  const { InstituteId } = getCommonCredentials();
 
   useEffect(() => {
-    if (!instituteId) return;
+    if (!InstituteId) return;
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `/api/courses/get/institute/${instituteId}`
+          `/api/courses/get/institute/${InstituteId}`
         );
         // setFilters((prev) => ({ ...prev, course: response.data }));
         setCoursesOptions(response?.data);
@@ -43,7 +43,7 @@ const Calendar = () => {
     const fetchSections = async () => {
       try {
         const response = await axios.get(
-          `/api/section/get/institute/${instituteId}`
+          `/api/section/get/institute/${InstituteId}`
         );
         // setSectionsOptions(response?.data);
       } catch (error) {
@@ -57,7 +57,7 @@ const Calendar = () => {
     return () => {
       setStudents([]);
     };
-  }, [instituteId]);
+  }, [InstituteId]);
 
   const handleFilterChange = (key, value) => {
     console.log("key", key, "value", value);
@@ -83,7 +83,7 @@ const Calendar = () => {
           params: {
             courseId: selectedCourse?._id,
             sectionId: selectedSection?._id,
-            instituteId: instituteId,
+            instituteId: InstituteId,
           },
         }
       );
@@ -149,9 +149,8 @@ const Calendar = () => {
       calendarDays.push(
         <div
           key={day}
-          className={`calendar-day border p-4 text-center ${
-            isFutureDate ? "disabled" : ""
-          }`}
+          className={`calendar-day border p-4 text-center ${isFutureDate ? "disabled" : ""
+            }`}
           onClick={() => !isFutureDate && handleDateClick(dateString)}
           style={{
             cursor: isFutureDate ? "not-allowed" : "pointer",

@@ -4,9 +4,11 @@ import * as Yup from "yup";
 import { MainContext } from "../../Controller/MainProvider";
 import axios from "axios";
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 function Courses() {
-    const { userId } = useContext(MainContext);
+    // const { userId } = getCommonCredentials(); -->> real time karna hai 
+    const { userId } = getCommonCredentials();
     const [courses, setCourses] = useState([]);
     const [editingCourse, setEditingCourse] = useState(null);
 

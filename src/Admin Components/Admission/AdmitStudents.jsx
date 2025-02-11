@@ -8,7 +8,7 @@ import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
 import { Bounce, toast } from 'react-toastify';
-
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -185,7 +185,9 @@ const AdmitStudents = () => {
     const Navigate = useNavigate();
 
     // ALL DATA PROVIDER
-    const { userId, institute, fetchTrashData, Class, fetchStudentData, studentData, setStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext)
+    const { fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext) // -->> real time karna hai 
+
+    const { userId, Institute, Class, StudentData } = getCommonCredentials(); // -->> StudentData Gives Bad Request 
 
     //set image functionality 
     const [dataImg, setDataImg] = useState({
@@ -548,7 +550,7 @@ const AdmitStudents = () => {
                                 </tr>
                             </thead>
                             <tbody className="table-border-bottom-0">
-                                {studentData?.slice(0, StudentDataShow)?.map((student) => (
+                                {StudentData?.slice(0, StudentDataShow)?.map((student) => (
                                     <tr key={student._id}>
                                         <td><Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link></td>
                                         <td>
@@ -677,7 +679,8 @@ const AdmitStudents = () => {
                                                             </Field>
                                                             {touched?.enrollmentDetails?.instituteType && errors?.enrollmentDetails?.instituteType && <div className="text-danger">{errors?.enrollmentDetails?.instituteType}</div>}
                                                         </div> */}
-                                                        {institute?.instituteType === "College" || institute?.instituteType === "University" ? (
+                                                        {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                                             <>
                                                                 <div className="col-md-4 mb-3">
                                                                     <label>Enrollment No.</label>

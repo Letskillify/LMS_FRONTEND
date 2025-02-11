@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
 import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const InstituteProfile = () => {
-    const {institute } = useContext(MainContext);
+    const { Institute } = getCommonCredentials();
     const [loading, setLoading] = useState(true);
     const Navigate = useNavigate(); // Hook for navigation
 
 
     useEffect(() => {
-        if (institute) {
+        if (Institute) {
             setLoading(false);
         }
-    }, [institute]);
+    }, [Institute]);
 
-    
+
     const handleEdit = () => {
-        Navigate("/editinstituteprofile", { state: { institute } });
+        Navigate("/editinstituteprofile", { state: { Institute } });
     };
 
     return (
@@ -32,15 +32,15 @@ const InstituteProfile = () => {
                                 <div className="card">
                                     <div className="card-body text-center">
                                         <img
-                                            src={institute?.logo}
+                                            src={Institute?.logo}
                                             alt="Institute Logo"
                                             className="rounded-circle mb-3"
                                             width={150}
                                             onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
                                         />
-                                        <h4>{institute?.name}</h4>
-                                        <p className="text-secondary mb-1">{institute?.instituteType}</p>
-                                        <p className="text-muted font-size-sm">{institute?.address?.city}, {institute?.address?.state}</p>
+                                        <h4>{Institute?.name}</h4>
+                                        <p className="text-secondary mb-1">{Institute?.instituteType}</p>
+                                        <p className="text-muted font-size-sm">{Institute?.address?.city}, {Institute?.address?.state}</p>
                                         <button className="btn btn-primary me-2">Follow</button>
                                         <button className="btn btn-outline-primary ms-2">Message</button>
                                     </div>
@@ -56,21 +56,21 @@ const InstituteProfile = () => {
                                             <div className="col-sm-3">
                                                 <h6 className="mb-0">Status</h6>
                                             </div>
-                                            <div className="col-sm-9 text-secondary">{institute?.status}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.status}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3">
                                                 <h6 className="mb-0">Established Year</h6>
                                             </div>
-                                            <div className="col-sm-9 text-secondary">{institute?.establishedYear}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.establishedYear}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3">
                                                 <h6 className="mb-0">Number of Courses</h6>
                                             </div>
-                                            <div className="col-sm-9 text-secondary">{institute?.NoOfCoursesOffered}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.NoOfCoursesOffered}</div>
                                         </div>
 
                                         {/* Address Information */}
@@ -80,7 +80,7 @@ const InstituteProfile = () => {
                                                 <h6 className="mb-0">Address</h6>
                                             </div>
                                             <div className="col-sm-9 text-secondary">
-                                                {institute?.address?.line1}, {institute?.address?.line2}, {institute?.address?.city}, {institute?.address?.state}, {institute?.address?.country} - {institute?.address?.postalCode}
+                                                {Institute?.address?.line1}, {Institute?.address?.line2}, {Institute?.address?.city}, {Institute?.address?.state}, {Institute?.address?.country} - {Institute?.address?.postalCode}
                                             </div>
                                         </div>
                                         <hr />
@@ -89,7 +89,7 @@ const InstituteProfile = () => {
                                                 <h6 className="mb-0">Map Location</h6>
                                             </div>
                                             <div className="col-sm-9 text-secondary">
-                                                <a href={institute?.address?.MapLocationUrl} target="_blank" rel="noopener noreferrer">
+                                                <a href={Institute?.address?.MapLocationUrl} target="_blank" rel="noopener noreferrer">
                                                     View on Map
                                                 </a>
                                             </div>
@@ -107,17 +107,17 @@ const InstituteProfile = () => {
                                         <h5>Contact Information</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Email</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.contact?.email || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.contact?.email || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Phone</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.contact?.mobile || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.contact?.mobile || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Whatsapp</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.contact?.whatsapp || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.contact?.whatsapp || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -130,12 +130,12 @@ const InstituteProfile = () => {
                                         <h5>Authorized Person</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Name</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.AuthorizedPerson?.name || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.AuthorizedPerson?.name || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Designation</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.AuthorizedPerson?.designation || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.AuthorizedPerson?.designation || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -147,17 +147,17 @@ const InstituteProfile = () => {
                                         <h5>Facilities</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Library</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.libraryFacilities ? 'Available' : 'Not Available'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.libraryFacilities ? 'Available' : 'Not Available'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Cafeteria</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.cafeteriaFacilities ? 'Available' : 'Not Available'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.cafeteriaFacilities ? 'Available' : 'Not Available'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Hostel</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.hostelFacilities ? 'Available' : 'Not Available'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.hostelFacilities ? 'Available' : 'Not Available'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@ const InstituteProfile = () => {
                                         <h5>Accreditation</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Accreditation</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.accreditation || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.accreditation || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -182,7 +182,7 @@ const InstituteProfile = () => {
                                         <h5>Institute Type</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Type</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.instituteType || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.instituteType || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -194,17 +194,17 @@ const InstituteProfile = () => {
                                         <h5>Affiliation</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Affiliation No.</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.affiliationNO || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.affiliationNO || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Affiliation Year</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.affiliationYear || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.affiliationYear || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Affiliation Name</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.affiliationName || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.affiliationName || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -216,12 +216,12 @@ const InstituteProfile = () => {
                                         <h5>Bank Details</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Account Holder Name</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.bankDetails?.accountHolderName || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.bankDetails?.accountHolderName || 'N/A'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">Bank Name</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.bankDetails?.bankName || 'N/A'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.bankDetails?.bankName || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -234,12 +234,12 @@ const InstituteProfile = () => {
                                         <h5>Documents</h5>
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">ISO Certificate</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.document?.ISOcertificate ? 'Uploaded' : 'Not Uploaded'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.document?.ISOcertificate ? 'Uploaded' : 'Not Uploaded'}</div>
                                         </div>
                                         <hr />
                                         <div className="row">
                                             <div className="col-sm-3"><h6 className="mb-0">GST Certificate</h6></div>
-                                            <div className="col-sm-9 text-secondary">{institute?.document?.GSTcertificate ? 'Uploaded' : 'Not Uploaded'}</div>
+                                            <div className="col-sm-9 text-secondary">{Institute?.document?.GSTcertificate ? 'Uploaded' : 'Not Uploaded'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -250,9 +250,9 @@ const InstituteProfile = () => {
 
                         {/* Edit Button at the Start */}
                         <div className="d-flex justify-content-end mt-3 mb-5 ms-3">
-                            {institute && (
+                            {Institute && (
                                 <button
-                                    onClick={() => handleEdit(institute)}
+                                    onClick={() => handleEdit(Institute)}
                                     className="btn btn-success py-2 w-50  shadow-lg mb-4"
                                 >
                                     Edit Profile

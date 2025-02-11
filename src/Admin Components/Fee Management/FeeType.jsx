@@ -1,12 +1,11 @@
 import axios from "axios";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
-import { MainContext } from "../../Controller/MainProvider";
 import * as Yup from "yup";
 import { toast, Bounce } from "react-toastify";
 
 const FeeType = () => {
-    const { userId } = useContext(MainContext);
+    const { userId } = getCommonCredentials();
     const [feeTypes, setFeeTypes] = useState([]);
     const [popup, setPopup] = useState(false);
     const [selectedFeeType, setSelectedFeeType] = useState(null);

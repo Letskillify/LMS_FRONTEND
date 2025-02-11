@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from 'react'
-import Avatar from "../../assets/img/avatars/1.png"
-import avatar2 from "../../assets/img/avatars/1.png"
 import { MainContext } from '../../Controller/MainProvider'
 import { Link, useLocation } from 'react-router-dom'
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 function Navbar() {
-    const { userId, HandleLogOut, institute, setsidebaropen } = useContext(MainContext)
+    const { HandleLogOut, setsidebaropen } = useContext(MainContext) // -->> real time karna hai 
+    const { userId, Institute } = getCommonCredentials();
 
     // for sidebar toggle 
     const location = useLocation();
@@ -49,7 +49,7 @@ function Navbar() {
                     <div class="d-flex align-items-center me-4">
                         <a className="nav-link dropdown-toggle hide-arrow p-1 pt-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                             <div className="avatar avatar-online">
-                                <img src={institute?.logo} style={{ width: "40px", height: "40px" }} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt className=" rounded-circle" />
+                                <img src={Institute?.logo} style={{ width: "40px", height: "40px" }} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt className=" rounded-circle" />
                             </div>
                         </a>
                         <ul className="dropdown-menu dropdown-menu-end">
@@ -58,11 +58,11 @@ function Navbar() {
                                     <div className="d-flex">
                                         <div className="flex-shrink-0 me-3">
                                             <div className="avatar avatar-online">
-                                                <img src={institute?.logo} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} style={{ width: "40px", height: "40px" }} alt className="w-px-40 rounded-circle" />
+                                                <img src={Institute?.logo} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} style={{ width: "40px", height: "40px" }} alt className="w-px-40 rounded-circle" />
                                             </div>
                                         </div>
                                         <Link className="flex-grow-1" to={'/instituteprofile'}>
-                                            <span className="fw-semibold d-block">{institute?.name}</span>
+                                            <span className="fw-semibold d-block">{Institute?.name}</span>
                                             <small className="text-muted">Id : {userId}</small>
                                         </Link>
                                     </div>

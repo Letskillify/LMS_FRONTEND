@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const StudentDetail = () => {
   const [data, setData] = useState(null)
   const [tables, setTables] = useState("viewDeatils");
-  const { Student } = useContext(MainContext)
+  const { Student } = getCommonCredentials();
 
   useEffect(() => {
     if (Student) {

@@ -3,8 +3,10 @@ import Avatar from "../../assets/img/avatars/1.png"
 import avatar2 from "../../assets/img/avatars/1.png"
 import { MainContext } from '../../Controller/MainProvider'
 import { Link, useLocation } from 'react-router-dom'
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 function Navbar() {
-    const { userId, HandleLogOut, institute, setsidebaropen } = useContext(MainContext)
+    const { HandleLogOut,setsidebaropen } = useContext(MainContext) // -->> real time karna hai 
+    const { Institute: institute, userId } = getCommonCredentials();
 
 
     // for sidebar toggle 
