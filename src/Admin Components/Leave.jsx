@@ -144,7 +144,7 @@ function Leave() {
           <Formik
             initialValues={initialValues}
             enableReinitialize
-            // validationSchema={validationSchema}
+            validationSchema={validationSchema}
             onSubmit={handleFormSubmit}
           >
             {({ values, setFieldValue }) => (
@@ -299,16 +299,6 @@ function Leave() {
                       className="text-danger"
                     />
                   </div>
-
-                  {/* <div className="col-md-6 mb-3">
-                  <label className="form-label">Is Holiday</label>
-                  <Field
-                    type="text"
-                    name="userRole"
-                    id="userRole"
-                    className="form-control"
-                  />
-                </div> */}
                 </div>
                 <button type="submit" className="btn btn-primary w-100">
                   Submit Application
@@ -323,7 +313,7 @@ function Leave() {
           Apply Leave Status
         </h3>
         <div className="table-responsive">
-          <table className="table table-striped align-middle">
+          <table className="table align-middle">
             <thead className="table">
               <tr>
                 <th className="text-center">Attachments</th>
@@ -368,13 +358,13 @@ function Leave() {
                           ? "bg-success"
                           : leave.status === "Pending"
                           ? "bg-warning text-dark"
-                          : "bg-danger" 
+                          : "bg-danger"
                       }`}
                     >
                       {leave.status}
                     </span>
                   </td>
-                  <td className="text-center">
+                  <td className="mt-2 d-flex align-items-center">
                     <button
                       className="btn btn-light btn-sm me-2 shadow-sm"
                       title="View"
@@ -392,6 +382,10 @@ function Leave() {
                         setEditPopup(true);
                         setSelectEditLeave(leave);
                       }}
+                      disabled={
+                        leave.status === "Approved" ||
+                        leave.status === "Rejected"
+                      }
                     >
                       <i className="fa fa-pencil-square-o text-info"></i>
                     </button>
@@ -399,6 +393,10 @@ function Leave() {
                       className="btn btn-light btn-sm shadow-sm"
                       title="Delete"
                       onClick={() => handleDeleteLeave(leave._id)}
+                      disabled={
+                        leave.status === "Approved" ||
+                        leave.status === "Rejected"
+                      }
                     >
                       <i className="fa fa-trash text-danger"></i>
                     </button>
@@ -496,7 +494,9 @@ function Leave() {
                   <div className="col-md-6 mb-3">
                     <label className="form-label">Date</label>
                     <div className="border p-2 rounded bg-light">
-                      {selectLeaveDay?.date  ? new Date(selectLeaveDay.date ).toLocaleDateString() : "-"}
+                      {selectLeaveDay?.date
+                        ? new Date(selectLeaveDay.date).toLocaleDateString()
+                        : "-"}
                     </div>
                   </div>
                 </div>
@@ -550,7 +550,6 @@ function Leave() {
                 >
                   Close
                 </button>
-               
               </div>
             </div>
           </div>
@@ -576,7 +575,7 @@ function Leave() {
                     typeOfLeave: selectEditLeave.typeOfLeave || "-",
                     reason: selectEditLeave.reason || "-",
                     halfDay: selectEditLeave.halfDay || false,
-                    multipleDays: selectEditLeave.multipleDays|| false,
+                    multipleDays: selectEditLeave.multipleDays || false,
                     startDate: selectEditLeave.startDate || "-",
                     endDate: selectEditLeave.endDate || "-",
                     date: selectEditLeave.date || "-",
