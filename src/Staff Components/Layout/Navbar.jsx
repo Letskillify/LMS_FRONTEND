@@ -22,7 +22,7 @@ function Navbar() {
                     <div class="d-flex align-items-center me-auto w-50 shadow-none">
                         <input
                             type="text"
-                            class="form-control me-2 shadow-none p-2 ps-3"
+                            className="form-control me-2 shadow-none p-2 ps-3"
                             placeholder="Search Student"
                         />
                         <button class="btn btn-light shadow-none">

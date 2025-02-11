@@ -31,7 +31,7 @@ function Navbar() {
                             <h6 className="text-white">B.Tech (CSE) IV SEM, SEC-A</h6>
                         </div> */}
                         <div style={{ width: '300px' }} class="input-group shadow-none border-none rounded-3">
-                            <input type="text" class="form-control py-2 border-secondary bg-transparent text-white " placeholder="Search Student" />
+                            <input type="text" className="form-control py-2 border-secondary bg-transparent text-white " placeholder="Search Student" />
                             <span class="input-group-text bg-light border-secondary  px-4">
                                 <i className="bx bx-search fs-6"></i>
                             </span>

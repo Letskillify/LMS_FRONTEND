@@ -100,6 +100,9 @@ import Settings from '../Admin Components/Setting/Settings.jsx'
 import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
 import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
 
+import StudentApply from '../Admin Components/idCardPrint/StudentApply.jsx'
+import Applications from '../Admin Components/idCardPrint/Applications.jsx'
+import IdCardSetting from '../Admin Components/idCardPrint/IdCardSetting.jsx'
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
   return (
@@ -135,8 +138,11 @@ const AdminDashboard = () => {
                 <Route path='/student-id-card' element={<StudentIdCard />}></Route>
                 <Route path='/staff-id-card' element={<StaffIdCard />}></Route>
                 <Route path='/id-card-stu' element={<IdCard />}></Route>
+                <Route path='/stu-apply' element={<StudentApply />}></Route>
+                <Route path='/applications' element={<Applications />}></Route>
                 <Route path='/id-card-staff' element={<StaffIdCard />}></Route>
                 <Route path='/id-card-print' element={<IdCardPrint />}></Route>
+                <Route path='/id-card-setting' element={<IdCardSetting />}></Route>
                 <Route path='/feepayment' element={<Fee />}></Route>
                 <Route path='/Check' element={<FeeManage />}></Route>
                 <Route path='/manage-attendance' element={<ManageAttendance />}></Route>

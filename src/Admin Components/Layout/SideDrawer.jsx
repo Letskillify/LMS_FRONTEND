@@ -86,7 +86,10 @@ function SideDrawer() {
     const Id_cardStudent = [
         '/student-id-Card',
         '/staff-id-card',
-        '/id-card-stu'
+        '/id-card-stu',
+        '/stu-apply',
+        '/applications',
+        '/id-card-setting'
     ]
     const Manage_Attendance = [
         '/manage-attendance'
@@ -521,6 +524,11 @@ function SideDrawer() {
                                 <div>Id Card Printing </div>
                             </a>
                             <ul className="menu-sub">
+                                <NavLink activeclassname="active" className="menu-item" to="/stu-apply">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div> Student Apply</div>
+                                    </a>
+                                </NavLink>
                                 <NavLink activeclassname="active" className="menu-item" to="/student-id-card">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Print Student Cards</div>
@@ -529,6 +537,16 @@ function SideDrawer() {
                                 <NavLink activeclassname="active" className="menu-item" to="/staff-id-card">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Print Staff Cards</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/applications">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div> Applications</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/id-card-setting">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div> Id Card Setting</div>
                                     </a>
                                 </NavLink>
                                 {/* <NavLink activeclassname="active" className="menu-item" to="/">

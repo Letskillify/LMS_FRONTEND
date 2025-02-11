@@ -14,7 +14,6 @@ function IdCard() {
   });
 
   const navigate = useNavigate();
-
   // Handle Filter Change
   const handleFilterChange = (e) => {
     setFilters({
