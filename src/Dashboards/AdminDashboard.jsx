@@ -98,7 +98,6 @@ import StockInventory from '../Admin Components/stock/Inventory.jsx'
 import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
 import Leave from '../Admin Components/Leave.jsx'
 import Leaveinstitute from '../Admin Components/Leaveinstitute.jsx'
-import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
 import NotificationBoard from '../Admin Components/Notification-Board/NotificationBoard.jsx'
 import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 
