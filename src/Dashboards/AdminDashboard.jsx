@@ -62,9 +62,9 @@ import BooksList from '../Admin Components/librarys/BooksList.jsx'
 import Hostel from '../Admin Components/Hostel Management/Hostel.jsx'
 import AdminHomeWork from '../Admin Components/HomeWork Management/AdminHomeWork.jsx'
 import TeacherHomeWork from '../Admin Components/HomeWork Management/TeacherHomeWork.jsx'
-import AdminExam from '../Admin Components/Exam Management/AdminExam.jsx'
-import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
-import TeacherExam from '../Admin Components/Exam Management/TeacherExam.jsx'
+import ExamForm from '../Admin Components/Exam Management/ExamForm.jsx'
+// import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
+// import TeacherExam from '../Admin Components/Exam Management/TeacherExam.jsx'
 import StudyMaterial from '../Admin Components/Study Materials/StudyMaterial.jsx'
 import VideoUploaderComponent from '../Admin Components/Test files/VideoUploaderComponent .jsx'
 import FileUploader from '../Admin Components/Test files/FileUploader.jsx'
@@ -75,7 +75,7 @@ import PasswordForget from '../Auth User/PasswordForget.jsx'
 // import AddSections from '../Admin Components/Sections/AddSections.jsx'
 import MultiSelectFormik from '../Admin Components/Test files/MultiSelectFormik.jsx'
 import CreateSemester from '../Admin Components/Academics/CreateSemester.jsx'
-import CreateShift from '../Admin Components/Academics/CreateShift.jsx'
+import CreateShift  from '../Admin Components/Academics/CreateShift.jsx'
 import Medium from '../Admin Components/Academics/Medium.jsx'
 import Section from '../Admin Components/Academics/Section.jsx'
 import Stream from '../Admin Components/Academics/Stream.jsx'
@@ -99,6 +99,8 @@ import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
 import Leave from '../Admin Components/Leave.jsx'
 import Leaveinstitute from '../Admin Components/Leaveinstitute.jsx'
 import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
+import NotificationBoard from '../Admin Components/Notification-Board/NotificationBoard.jsx'
+import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -174,9 +176,9 @@ const AdminDashboard = () => {
                 <Route path="/hostelmanage" element={<Hostel />}></Route>
                 <Route path="/adminhomework" element={<AdminHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
-                <Route path="/adminexam" element={<AdminExam />}></Route>
-                <Route path="/teacherexam" element={<TeacherExam />}></Route>
-                <Route path="/studentexam" element={<StudentExam />}></Route>
+                <Route path="/adminexam" element={<ExamForm />}></Route>
+                <Route path="/teacherexam" element={<ExamType />}></Route>
+                {/* <Route path="/studentexam" element={<StudentExam />}></Route> */}
                 <Route path="/studymaterial" element={<StudyMaterial />}></Route>
                 {/* <Route path="/addsections" element={<AddSections />}></Route> */}
                 <Route path="/semesters" element={<CreateSemester />}></Route>
@@ -201,6 +203,7 @@ const AdminDashboard = () => {
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
                 <Route path='/leave' element={<Leave/>} />
                 <Route path='/admin-leave' element={<Leaveinstitute/>} />
+                <Route path='/Notification-Board' element={<NotificationBoard/>} />
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
