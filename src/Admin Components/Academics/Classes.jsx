@@ -1,11 +1,9 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MainContext } from '../../Controller/MainProvider';
-import Select from "react-select";
-import { PostApi } from '../../Custom Hooks/CustomeHook';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const Classes = () => {
     const [showModal, setshowModal] = useState(false)
@@ -14,7 +12,8 @@ const Classes = () => {
     const [selectEdit, setSelectEdit] = useState({})
     const [search, setSearch] = useState('')
     const [addSubject, setAddSubject] = useState([{}]);
-    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, CourseGroup, Class, fetchClass } = useContext(MainContext)
+    // const {  Section, Medium, Stream, Semester, Shift, Board, Course, CourseGroup, Class, fetchClass } = useContext(MainContext)
+    const { userId, Course, CourseGroup, Class } = getCommonCredentials()
     const initialValues = {
         courses: null,
         board: null,
@@ -55,7 +54,7 @@ const Classes = () => {
                     transition: Bounce,
                 });
                 setshowModal(false);
-                fetchClass();
+                // fetchClass();
             } else {
                 toast.warn(response.statusText, {
                     position: "top-right",
@@ -105,7 +104,7 @@ const Classes = () => {
                     transition: Bounce,
                 });
                 setEditShow(false)
-                fetchClass();
+                // fetchClass();
             }
         } catch (error) {
             console.error('Error updating class:', error);
@@ -145,7 +144,7 @@ const Classes = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                fetchClass();
+                // fetchClass();
             }
         } catch (error) {
             console.error('Error deleting class:', error);

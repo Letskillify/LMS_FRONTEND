@@ -1,11 +1,11 @@
 import axios from 'axios'
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider'
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 
 const BookRequest = () => {
     const [libraryDetail, setLibraryDetail] = useState([])
 
-    const { userId } = useContext(MainContext)
+    const { userId } = getCommonCredentials();
 
     function HandlelibraryDetail() {
         axios.get(`/api/student/${userId}/books-issued`).then(res => setLibraryDetail(res?.data?.booksIssued)

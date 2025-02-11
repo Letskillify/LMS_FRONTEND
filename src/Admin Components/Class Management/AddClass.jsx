@@ -1,8 +1,8 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import React, { useContext } from 'react'
 import * as Yup from "yup";
-import { MainContext } from '../../Controller/MainProvider';
 import axios from 'axios';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function AddClass() {
 
@@ -23,7 +23,7 @@ function AddClass() {
             .required("Course Year is required"),
     });
 
-    const { userId } = useContext(MainContext);
+    const { userId } = getCommonCredentials();
 
     // Initial form values
     const initialValues = {

@@ -9,7 +9,7 @@ function Accountant() {
         value: `Value ${i + 1}`,
     }));
 
-    const {HandleLogOut} = useContext(MainContext)
+    // const { HandleLogOut } = useContext(MainContext)  -->> real time karna hai 
     return (
         <>
             <div className="container-fluid container-p-y">
@@ -59,7 +59,7 @@ function Accountant() {
                             </div>
                             <div className="modal-body">
                                 <div className="nav-align-top mb-4">
-                                    <h2 className='py-3 ps-3 mb-0' style={{ color: '#fff', fontSize: '15px', backgroundColor: '#8e8d8dba'}}><i className="fa fa-plus-circle" aria-hidden="true"></i> Add Accountant </h2>                                    <div className="table-responsive text-nowrap">
+                                    <h2 className='py-3 ps-3 mb-0' style={{ color: '#fff', fontSize: '15px', backgroundColor: '#8e8d8dba' }}><i className="fa fa-plus-circle" aria-hidden="true"></i> Add Accountant </h2>                                    <div className="table-responsive text-nowrap">
                                         <table className="table-reports table table-striped ">
 
                                             <tbody className="table-border-bottom-0">

@@ -9,8 +9,8 @@ import {
   GET_SALARY_SETTINGS,
   UPDATE_SALARY_SETTINGS_BY_ID,
 } from "../../ApiConstants/Routes";
-import { MainContext } from "../../Controller/MainProvider";
 import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const years = Array.from(
   { length: 10 },
@@ -32,7 +32,7 @@ const months = [
 ];
 
 const SalaryGeneration = () => {
-  const { instituteId } = useContext(MainContext);
+  const { InstituteId: instituteId } = getCommonCredentials();
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
   const [deductions, setDeductions] = useState([]);
@@ -99,50 +99,49 @@ const SalaryGeneration = () => {
     },
   ];
 
+  const fetchSalarySettings = async () => {
+    try {
+      const response = await axios.get(
+        `${GET_SALARY_SETTINGS}?instituteId=${instituteId}&month=${currentMonth}&year=${currentYear}`
+      );
+      if (response.data && response.status === 200) {
+        setIsSalarySettingsAvailable(true);
+        setFormData((prevData) => ({
+          ...prevData,
+          ...response.data,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching salary settings:", error);
+    }
+  };
+
+  const fetchAllowances = async () => {
+    try {
+      const response = await axios.get(`${GET_ALL_ALLOWANCES}`);
+      console.log(response);
+      if (response.data && response.status === 200) {
+        setAllowances(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching allowances:", error);
+    }
+  };
+
+  const fetchDeductions = async () => {
+    try {
+      const response = await axios.get(`${GET_ALL_DEDUCTIONS}`);
+      console.log(response);
+      if (response.data && response.status === 200) {
+        setDeductions(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching allowances:", error);
+    }
+  };
+
   useEffect(() => {
     if (!instituteId) return;
-
-    const fetchSalarySettings = async () => {
-      try {
-        const response = await axios.get(
-          `${GET_SALARY_SETTINGS}?instituteId=${instituteId}&month=${currentMonth}&year=${currentYear}`
-        );
-        if (response.data && response.status === 200) {
-          setIsSalarySettingsAvailable(true);
-          setFormData((prevData) => ({
-            ...prevData,
-            ...response.data,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching salary settings:", error);
-      }
-    };
-
-    const fetchAllowances = async () => {
-      try {
-        const response = await axios.get(`${GET_ALL_ALLOWANCES}`);
-        console.log(response);
-        if (response.data && response.status === 200) {
-          setAllowances(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching allowances:", error);
-      }
-    };
-
-    const fetchDeductions = async () => {
-      try {
-        const response = await axios.get(`${GET_ALL_DEDUCTIONS}`);
-        console.log(response);
-        if (response.data && response.status === 200) {
-          setDeductions(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching allowances:", error);
-      }
-    };
-
     fetchDeductions();
     fetchAllowances();
     fetchSalarySettings();
@@ -186,17 +185,19 @@ const SalaryGeneration = () => {
     const URL = isSalarySettingsAvailable
       ? `${UPDATE_SALARY_SETTINGS_BY_ID}?instituteId=${instituteId}&month=${currentMonth}&year=${currentYear}`
       : GENERATE_SALARY_SETTINGS;
+
     try {
-      const response = await axios.post(URL, salaryData);
-      console.log(response);
+      await axios.post(URL, salaryData);
       showToast("Salary settings updated successfully!", "success");
+
+      // Refetch salary settings after successful submission
+      fetchSalarySettings();
     } catch (error) {
       console.error("Error updating salary settings:", error);
       showToast("Error updating salary settings.", "error");
     }
   };
 
-  // Handle Allowance/Deduction Submission
   const handleAllowanceDeductionSubmit = async () => {
     if (formData.type === "" || !formData.name || !formData.value) {
       showToast("Please fill all required fields.", "error");
@@ -205,20 +206,40 @@ const SalaryGeneration = () => {
 
     try {
       const URL = `/api/salary/${formData.type}/post`;
-      const response = await axios.post(URL, {
-        allowanceName: formData.name,
+      await axios.post(URL, {
+        [`${formData.type}Name`]: formData.name,
         instituteId: instituteId,
       });
-      console.log(response);
+
       showToast(
         `${
           formData.type.charAt(0).toUpperCase() + formData.type.slice(1)
         } added successfully!`,
         "success"
       );
+      
+      fetchAllowances();
+      fetchDeductions();
     } catch (error) {
       console.error("Error adding allowance/deduction:", error);
       showToast("Error adding allowance/deduction.", "error");
+    }
+  };
+
+  const handleDeleteAllowanceDeduction = async (id, type) => {
+    try {
+      await axios.delete(`/api/salary/${type}/delete/${id}`);
+      showToast(
+        `${
+          type.charAt(0).toUpperCase() + type.slice(1)
+        } deleted successfully!`,
+        "success"
+      );
+      fetchAllowances();
+      fetchDeductions();
+    } catch (error) {
+      console.error("Error deleting allowance/deduction:", error);
+      showToast("Error deleting allowance/deduction.", "error");
     }
   };
 
@@ -351,9 +372,9 @@ const SalaryGeneration = () => {
                   <td>
                     <button
                       className="btn btn-danger"
-                      // onClick={() =>
-                      //   handleDeleteAllowanceDeduction(allowanceDeduction._id)
-                      // }
+                      onClick={() =>
+                        handleDeleteAllowanceDeduction(allowanceDeduction._id, allowanceDeduction.type)
+                      }
                     >
                       Delete
                     </button>

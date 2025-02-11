@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import black from "../../assets/img/logo_black.svg";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 function SideDrawer() {
   const location = useLocation();
   const [OpenToggle, setOpenToggle] = useState();
   const [SubopenToggle, setSubopenToggle] = useState();
 
-  const { sidebaropen } = useContext(MainContext);
+  const { SidebarOpen } = getCommonCredentials();
   const stutoggle = () => {
     setOpenToggle(OpenToggle === "stuinfo" ? "" : "stuinfo");
   };
@@ -117,7 +117,7 @@ function SideDrawer() {
           height: "100vh",
           width: "auto",
           scrollbarWidth: "thin",
-          transform: sidebaropen ? "none" : "",
+          transform: SidebarOpen ? "none" : "",
         }}
       >
         <div className="bg-themprimary">
@@ -127,9 +127,9 @@ function SideDrawer() {
               <Link to={"/"} className="">
                 <span className="">
                   {/* <img src={black} alt="" style={{ maxHeight: "50px" }} /> */}
-                  <h3 className="fw-bold border border-2 rounded p-3 text-white">
+                  <h3 className="fw-bold border rounded p-3 text-white">
                     School Logo{" "}
-                    <h6 className="mb-0  fw-bold border border-2 rounded-sm mt-2 p-1 text-white">
+                    <h6 className="mb-0  fw-bold border rounded-sm mt-2 p-1 text-white">
                       Student Dashboard
                     </h6>
                   </h3>

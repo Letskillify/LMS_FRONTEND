@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react'
 import black from "../../assets/img/logo_black.svg"
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 function SideDrawer() {
     const location = useLocation();
     const [OpenToggle, setOpenToggle] = useState()
     const [SubopenToggle, setSubopenToggle] = useState()
 
-    const { sidebaropen } = useContext(MainContext)
+    const { SidebarOpen } = getCommonCredentials();
     const stutoggle = () => {
         setOpenToggle(OpenToggle === "stuinfo" ? '' : 'stuinfo')
     }
@@ -179,7 +179,7 @@ function SideDrawer() {
 
     return (
         <>
-            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: sidebaropen ? 'none' : '' }}>
+            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: SidebarOpen ? 'none' : '' }}>
 
 
                 <div className='bg-themprimary'>
@@ -189,7 +189,7 @@ function SideDrawer() {
                             <Link to={'/'} className="">
                                 <span className="">
                                     {/* <img src={black} alt="" style={{ maxHeight: "50px" }} /> */}
-                                    <h3 className='fw-bold border border-2 rounded p-3 text-white'>School Logo  <h6 className='mb-0  fw-bold border border-2 rounded-sm mt-2 p-1 text-white'>Admin Dashboard</h6></h3>
+                                    <h3 className='fw-bold border text-center rounded p-3 text-white'>School Logo  <h6 className='mb-0  fw-bold border text-center rounded-sm mt-2 p-1 text-white'>Admin Dashboard</h6></h3>
                                 </span>
                             </Link>
                         </div>
@@ -592,7 +592,7 @@ function SideDrawer() {
 
                         </li>
                         <li className={`menu-item ${Attendance ? 'active' : ''} ${OpenToggle == 'manageAtt' ? 'open' : ''}`} id='manageAtt' >
-                            <Link to="/manage-attendance" className="menu-link menu-link menu-toggle" onClick={manageAttendance}>
+                            <Link className="menu-link menu-link menu-toggle" onClick={manageAttendance}>
                                 <i className='menu-icon tf-icons bx bx-id-card'></i>
                                 <div>Manage Attendance</div>
                             </Link>
@@ -608,11 +608,11 @@ function SideDrawer() {
                                         <div>Staff Attendance</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/">
-                                    <a href="javascript:void(0);" className="menu-link">
-                                        <div>Attendance Accounts</div>
-                                    </a>
-                                </NavLink>
+                                {/* <NavLink activeclassname="active" className="menu-item" to="/">
+                                        <a href="javascript:void(0);" className="menu-link">
+                                            <div>Attendance Accounts</div>
+                                        </a>
+                                    </NavLink> */}
                                 {/* <li className={`menu-item ${studentReport ? 'active' : ''} ${SubopenToggle == 'report' ? 'open' : ''}`} id='report' >
                                 <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={attendanceReport}>
                                     <div> Attendance Report </div>

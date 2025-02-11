@@ -95,7 +95,6 @@ import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
-import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
 import Settings from '../Admin Components/Setting/Settings.jsx'
 import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
 import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
@@ -116,7 +115,6 @@ const AdminDashboard = () => {
             <Routes>
               <Route path="/" element={<PrivteRoute />}>
                 <Route path='/testfile' element={<ImageUploadComponent />} />
-                <Route path="reduxtest" element={<Reduxtest />}></Route>
                 <Route path='/videotestfile' element={<VideoUploaderComponent />} />
                 <Route path='/fileuploadertest' element={<FileUploader />} />
                 <Route path='/CsvToJsonConverter' element={<CsvToJsonConverter />} />

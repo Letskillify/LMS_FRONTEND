@@ -1,10 +1,10 @@
 import { Field, Formik, Form } from "formik";
 import React, { useContext, useEffect, useState } from "react";
 import Select from "react-select";
-import { MainContext } from "../../Controller/MainProvider";
 import { Bounce, toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
 import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const months = [
     { value: "January", label: "January" },
@@ -28,7 +28,7 @@ const paymentMethods = [
 ]
 const Settings = () => {
     const [activeTab, setActiveTab] = useState("School");
-    const { Settings, userId } = useContext(MainContext)
+    const { Settings, userId } = getCommonCredentials();
     const handleTabChange = (tab) => {
         setActiveTab(tab);
     };
@@ -36,7 +36,7 @@ const Settings = () => {
     const defaultValues = {
         instituteId: userId,
         general: {
-            academicYear: "2024-20",
+            academicYear: Settings?.general?.academicYear || "2024-20",
             timezone: "UTC"
         },
         uploads: {
@@ -58,7 +58,18 @@ const Settings = () => {
             fieldsToShowOnReceipt: []
         },
         payment: {
-            paymentMethods: [],
+            availablePaymentModes: [
+                {
+                    mode: '',
+                    details: {
+                        accountName: "",
+                        accountNumber: "",
+                        ifscCode: "",
+                        upiId: "",
+                        qrCode: ""
+                    }
+                }
+            ],
             invoicePrefix: ""
         },
         notification: {
@@ -115,6 +126,116 @@ const Settings = () => {
                 marksheet: false,
                 transferCertificate: false,
                 expense: false
+            },
+            affiliationCode: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                expense: false
+            },
+            affiliatedTo: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                expense: false
+            },
+            organisationCode: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                expense: false
+            },
+            watermark: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                demandBill: false,
+                expense: false
+            },
+            phone: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                expense: false
+            },
+            email: {
+                feesReceipt: false,
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false,
+                expense: false
+            },
+            classTeacherSignature: {
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false
+            },
+            principalSignature: {
+                idCards: false,
+                admitCards: false,
+                marksheet: false,
+                transferCertificate: false
+            },
+            feesReceipt: {
+                generateNewReceiptNoOnDelete: false,
+                resetReceiptNoOnSessionChange: false,
+                hideTotalFees: false,
+                hidePreviousPaidFees: false,
+                hideDiscount: false,
+                hideBalanceFees: false,
+                hideReceivingAmountWords: false
+            },
+            feesReceiptPrint: {
+                printSinglePage: false,
+                printQuarterA4: false,
+                printHalfPage: false,
+                openReceiptInNewTab: false,
+                hideFeesReceivedBy: false,
+                onlyAdminPastDateSelection: false
+            },
+            gstNumber: {
+                showOnFeesReceipt: false
+            },
+            udiseCode: {
+                marksheet: false,
+                transferCertificate: false,
+                idCard: false,
+                admitCard: false,
+                forms: false,
+                expense: false
+            },
+            tagline: {
+                marksheet: false,
+                transferCertificate: false,
+                idCard: false,
+                admitCard: false,
+                forms: false,
+                feesReceipt: false,
+                expense: false
+            },
+            qrCode: {
+                marksheet: false
+            },
+            accountantSignature: {
+                feesReceipt: false
+            },
+            studentSetting: {
+                canChangePassword: false,
+                canChangeEmail: false,
+                canChangePhoneNo: false,
+                canParentsChangeNo: false
             }
         }
     };
@@ -423,7 +544,7 @@ const Settings = () => {
                                                     <Field
                                                         className="form-control"
                                                         type="text"
-                                                        name="fees.invoicePrefix"
+                                                        name="payment.invoicePrefix"
                                                         placeholder="Invoice prefix (e.g., 'INV-2024')"
                                                     />
                                                 </div>
@@ -1100,9 +1221,9 @@ const Settings = () => {
                                                     <Field
                                                         className="form-check-input"
                                                         type="checkbox"
-                                                        name="option.phone.markSheet"
+                                                        name="option.phone.marksheet"
                                                     />
-                                                    <label className="form-check-label" htmlFor="option.phone.markSheet">Show phone in marksheet</label>
+                                                    <label className="form-check-label" htmlFor="option.phone.marksheet">Show phone in marksheet</label>
                                                 </div>
                                             </div>
                                             <div className="col-md-4">
@@ -1253,9 +1374,9 @@ const Settings = () => {
                                                     <Field
                                                         className="form-check-input"
                                                         type="checkbox"
-                                                        name="option.tagline.markSheet"
+                                                        name="option.tagline.marksheet"
                                                     />
-                                                    <label className="form-check-label" htmlFor="option.tagline.markSheet">Show tagline in marksheet</label>
+                                                    <label className="form-check-label" htmlFor="option.tagline.marksheet">Show tagline in marksheet</label>
                                                 </div>
                                             </div>
                                             <div className="col-md-4">
@@ -1314,9 +1435,9 @@ const Settings = () => {
                                                     <Field
                                                         className="form-check-input"
                                                         type="checkbox"
-                                                        name="option.udiseCode.markSheet"
+                                                        name="option.udiseCode.marksheet"
                                                     />
-                                                    <label className="form-check-label" htmlFor="option.udiseCode.markSheet">Show UDISE code in marksheet</label>
+                                                    <label className="form-check-label" htmlFor="option.udiseCode.marksheet">Show UDISE code in marksheet</label>
                                                 </div>
                                             </div>
                                             <div className="col-md-4">
@@ -1430,43 +1551,76 @@ const Settings = () => {
                                             <h5>Payment Methods Available</h5>
                                             <div className="col-md-6">
                                                 <div className="mb-3">
-                                                    {/* <Field
-                                            component="select"
-                                            className="form-select"
-                                            name="paymentMethods"
-                                            multiple
-                                        >
-                                            <option>UPI</option>
-                                            <option>Bank Transfer</option>
-                                            <option>Cash</option>
-                                            <option>Credit/Debit Card</option>
-                                        </Field> */}
-                                                    <Field name="payment.paymentMethods">
-                                                        {({ field }) => (
-                                                            <Select
-                                                                isMulti
-                                                                options={paymentMethods}
-                                                                name="payment.paymentMethods"
-                                                                value={values?.paymentMethods?.map(method => ({ value: method, label: method }))
-                                                                }
-                                                                onChange={selected => setFieldValue("payment.paymentMethods", selected?.map(item => item.value))}
-                                                                placeholder="Select payment methods"
-                                                                styles={{
-                                                                    multiValue: base => ({
-                                                                        ...base,
-                                                                        backgroundColor: "#e0f7fa",
-                                                                        borderRadius: "5px",
-                                                                        padding: "1px"
-                                                                    })
-                                                                }}
-                                                            />
-                                                        )}
+                                                    <label className="form-label">Mode</label>
+                                                    <Field
+                                                        component="select"
+                                                        className="form-select"
+                                                        name="payment.availablePaymentModes.mode"
+                                                    >
+                                                        <option>Select Mode</option>
+                                                        <option value="UPI">UPI</option>
+                                                        <option value="Bank Transfer">Bank Transfer</option>
+                                                        <option value="Cash">Cash</option>
+                                                        <option value="Credit/Debit Card">Credit/Debit Card</option>
                                                     </Field>
                                                 </div>
                                             </div>
+                                            {values.payment.availablePaymentModes.mode === "UPI" && (
+                                                <>
+                                                    <div className="col-md-6">
+                                                        <div className="mb-3">
+                                                            <label className="form-label">UPI Id</label>
+                                                            <Field
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="payment.availablePaymentModes.details.upiId"
+                                                                placeholder="Enter UPI ID"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <div className="mb-3">
+                                                            <label className="form-label">Qr Code</label>
+                                                            <Field
+                                                                type="file"
+                                                                className="form-control"
+                                                                name="payment.availablePaymentModes.details.qrCode"
+                                                                placeholder="Enter Qr Code"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {values.payment.availablePaymentModes.mode === "UPI" && (
+                                                <>
+                                                    <div className="col-md-6">
+                                                        <div className="mb-3">
+                                                            <label className="form-label">UPI Id</label>
+                                                            <Field
+                                                                type="text"
+                                                                className="form-control"
+                                                                name="payment.availablePaymentModes.details.upiId"
+                                                                placeholder="Enter UPI ID"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <div className="mb-3">
+                                                            <label className="form-label">Qr Code</label>
+                                                            <Field
+                                                                type="file"
+                                                                className="form-control"
+                                                                name="payment.availablePaymentModes.details.qrCode"
+                                                                placeholder="Enter Qr Code"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                             {/* Invoice Prefix Section */}
                                             <h5 className="mt-4">Invoice Prefix</h5>
                                             <div className="col-md-6">
+                                                <label className="form-label">Prefix</label>
                                                 <div className="mb-3">
                                                     <Field
                                                         type="text"

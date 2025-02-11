@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function EmployeRole() {
-    const { userId } = useContext(MainContext);
+    const { userId } = getCommonCredentials();
     const [roles, setRoles] = useState([]);
     const [selectedRole, setSelectedRole] = useState({});
     const [popup, setPopup] = useState(false);

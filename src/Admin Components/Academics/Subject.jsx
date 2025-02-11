@@ -4,6 +4,7 @@ import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const validationSchema = Yup.object({
   subjectName: Yup.string().required('Subject name is required'),
@@ -11,9 +12,10 @@ const validationSchema = Yup.object({
 });
 
 function Subject() {
-  const { userId, fetchSubject, Subject } = useContext(MainContext);
+  // const { fetchSubject } = useContext(MainContext); -->> real time karna hai 
+  const { userId, Subject } = getCommonCredentials();
   const [popup, setPopup] = useState(false);
-   const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('')
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   const handleSubject = async (values, { resetForm }) => {
@@ -128,10 +130,10 @@ function Subject() {
   }, []);
   const filteredSubjects = Subject?.filter(subject => {
     return (
-        subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
-        subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
+      subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
+      subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
     );
-});
+  });
 
   return (
     <div className="px-4 my-5">

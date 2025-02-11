@@ -7,7 +7,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
-
+import { Bounce, toast } from 'react-toastify';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -124,19 +125,10 @@ const validationSchema = Yup.object({
         admissionCategory: Yup.string().required("Admission category is required"),
         admissionDate: Yup.date().required("Admission date is required"),
         enrollmentNO: Yup.string().nullable(),
-        rollNo: Yup.string().nullable(),
-        course: Yup.string().required("Course/Class/Degree is required"),
-        courseStream: Yup.string().required("Course stream is required"),
-        section: Yup.string().nullable(),
-        instituteType: Yup.string().required("Institute type is required"),
-        instituteName: Yup.string().required("Institute name is required"),
-        instituteLocation: Yup.string().required("Institute location is required"),
-        instituteMedium: Yup.string().required("Institute medium is required"),
-        instituteSession: Yup.string().nullable(),
-        boardName: Yup.string().required("Board name is required"),
-        location: Yup.string().nullable(),
         enrollmentStatus: Yup.string().required("Enrollment status is required"),
         admissionNO: Yup.string().required("Admission number is required"),
+        class: Yup.string().required("Class is required"),
+        rollNo: Yup.string().nullable(),
     }),
     scholarDetails: Yup.object({
         scholarID: Yup.string().nullable(),
@@ -187,16 +179,15 @@ const validationSchema = Yup.object({
 
 
 const AdmitStudents = () => {
-
-
     const [step, setStep] = useState(1); // Step tracker
     const [message, setmessage] = useState('');
     const [StudentDataShow, setStudentDataShow] = useState(10)
     const Navigate = useNavigate();
 
     // ALL DATA PROVIDER
-    const { userId, fetchTrashData, fetchStudentData, studentData, setStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext)
+    const { fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext) // -->> real time karna hai 
 
+    const { userId, Institute, Class, StudentData } = getCommonCredentials(); // -->> StudentData Gives Bad Request 
 
     //set image functionality 
     const [dataImg, setDataImg] = useState({
@@ -360,16 +351,7 @@ const AdmitStudents = () => {
             admissionDate: "",
             enrollmentNO: null,
             rollNo: null,
-            course: null,
-            courseStream: null,
-            section: null,
-            instituteType: null,
-            instituteName: null,
-            instituteLocation: null,
-            instituteMedium: null,
-            instituteSession: null,
-            boardName: null,
-            location: null,
+            class: null,
             enrollmentStatus: null,
             admissionNO: null,
         },
@@ -429,7 +411,6 @@ const AdmitStudents = () => {
         };
         console.log(data);
 
-        // PostApi("/api/student/post", "Student added successfully", data);
         try {
             const response = await axios.post('/api/student/post', data, {
                 headers: {
@@ -438,20 +419,38 @@ const AdmitStudents = () => {
             });
             if (response.status === 200 && response.status < 300) {
                 console.log('Form data submitted:', response.data);
-                setmessage(<span className="text-success">Form submitted successfully!</span>);
-                alert('Form submitted successfully!');
+                toast.success('Form submitted successfully!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    theme: "colored",
+                    transition: Bounce
+                });
+                const modal = document.getElementById("modalCenter1");
+                if (modal) {
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                }
+
             }
         } catch (error) {
             if (error.response) {
                 console.error('Error response:', error.response.data);
-                setmessage(
-                    <div className="text-danger">
-                        Error: {error.response.data.message || 'Submission failed'}
-                    </div>
-                );
+                toast.error(`Error: ${error.response.data.message || 'Submission failed'}`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    theme: "colored",
+                    transition: Bounce
+                });
             } else {
                 console.error('Error:', error.message);
-                alert('An unexpected error occurred');
+                toast.error('An unexpected error occurred', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    theme: "colored",
+                    transition: Bounce
+                });
             }
         }
     };
@@ -551,7 +550,7 @@ const AdmitStudents = () => {
                                 </tr>
                             </thead>
                             <tbody className="table-border-bottom-0">
-                                {studentData?.slice(0, StudentDataShow)?.map((student) => (
+                                {StudentData?.slice(0, StudentDataShow)?.map((student) => (
                                     <tr key={student._id}>
                                         <td><Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link></td>
                                         <td>
@@ -670,7 +669,7 @@ const AdmitStudents = () => {
                                                             <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
                                                             {touched?.enrollmentDetails?.admissionDate && errors?.enrollmentDetails?.admissionDate && <div className="text-danger">{errors?.enrollmentDetails?.admissionDate}</div>}
                                                         </div>
-                                                        <div className="col-md-4 mb-3">
+                                                        {/* <div className="col-md-4 mb-3">
                                                             <label>Institute type<span className='text-danger'>*</span></label>
                                                             <Field as="select" name="enrollmentDetails.instituteType" className="form-control">
                                                                 <option value="" label="Select institute type" />
@@ -679,8 +678,9 @@ const AdmitStudents = () => {
                                                                 <option value="School" label="School" />
                                                             </Field>
                                                             {touched?.enrollmentDetails?.instituteType && errors?.enrollmentDetails?.instituteType && <div className="text-danger">{errors?.enrollmentDetails?.instituteType}</div>}
-                                                        </div>
-                                                        {values.enrollmentDetails.instituteType === "College" ? (
+                                                        </div> */}
+                                                        {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                                             <>
                                                                 <div className="col-md-4 mb-3">
                                                                     <label>Enrollment No.</label>
@@ -695,58 +695,21 @@ const AdmitStudents = () => {
                                                                     <Field name="enrollmentDetails.rollNo" type="text" placeholder="Enter roll no." className="form-control" />
                                                                     {touched?.enrollmentDetails?.rollNo && errors?.enrollmentDetails?.rollNo && <div className="text-danger">{errors?.enrollmentDetails?.rollNo}</div>}
                                                                 </div>
-                                                                <div className="col-md-4 mb-3">
-                                                                    <label>Section</label>
-                                                                    <Field name="enrollmentDetails.section" type="text" placeholder="Enter Your Section." className="form-control" />
-                                                                    {touched?.enrollmentDetails?.section && errors?.enrollmentDetails?.section && <div className="text-danger">{errors?.enrollmentDetails?.section}</div>}
-                                                                </div>
                                                             </>
 
                                                         )}
                                                         <div className="col-md-4 mb-3">
-                                                            <label>Course/Class/Degree <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.course" type="text" placeholder="Enter Course/Class/Degree " className="form-control" />
-                                                            {touched?.enrollmentDetails?.course && errors?.enrollmentDetails?.course && <div className="text-danger">{errors?.enrollmentDetails?.course}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Institute Name <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteName" type="text" placeholder="Enter instituteName" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteName && errors?.enrollmentDetails?.instituteName && <div className="text-danger">{errors?.enrollmentDetails?.instituteName}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Intituite Location <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteLocation" type="text" placeholder="Enter institute Location" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteLocation && errors?.enrollmentDetails?.instituteLocation && <div className="text-danger">{errors?.enrollmentDetails?.instituteLocation}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Institute Medium <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteMedium" as="select" className="form-select">
-                                                                <option value="">Select</option>
-                                                                <option value="English">English</option>
-                                                                <option value="Hindi">Hindi</option>
-                                                                <option value="Other">Other</option>
+                                                            <label>Class<span className='text-danger'>*</span></label>
+                                                            <Field name="enrollmentDetails.class" as="select" className="form-select">
+                                                                <option value="">Select Class</option>
+                                                                {Class?.map((cls, index) => <option key={index} value={cls._id}>{cls.className}</option>)}
                                                             </Field>
-                                                            {touched?.enrollmentDetails?.instituteMedium && errors?.enrollmentDetails?.instituteMedium && <div className="text-danger">{errors?.enrollmentDetails?.instituteMedium}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Intituite Session</label>
-                                                            <Field name="enrollmentDetails.instituteSession" type="text" placeholder="Enter institute Session" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteSession && errors?.enrollmentDetails?.instituteSession && <div className="text-danger">{errors?.enrollmentDetails?.instituteSession}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>Board/University Name <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.boardName" type="text" placeholder="Enter institute board Name" className="form-control" />
-                                                            {touched?.enrollmentDetails?.boardName && errors?.enrollmentDetails?.boardName && <div className="text-danger">{errors?.enrollmentDetails?.boardName}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>Course Stream <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.courseStream" type="text" placeholder="Enter institute course Stream" className="form-control" />
-                                                            {touched?.enrollmentDetails?.courseStream && errors?.enrollmentDetails?.courseStream && <div className="text-danger">{errors?.enrollmentDetails?.courseStream}</div>}
+                                                            {touched?.enrollmentDetails?.class && errors?.enrollmentDetails?.class && <div className="text-danger">{errors?.enrollmentDetails?.class}</div>}
                                                         </div>
                                                         <div className="col-md-4 mb-3">
                                                             <label>Enrollment Status <span className='text-danger'>*</span></label>
                                                             <Field name="enrollmentDetails.enrollmentStatus" as="select" className="form-select">
-                                                                <option value="">Select</option>
+                                                                <option value="">Select Status</option>
                                                                 <option value="Active">Active</option>
                                                                 <option value="Deactive">Deactive</option>
                                                             </Field>

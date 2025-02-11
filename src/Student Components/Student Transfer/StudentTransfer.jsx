@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const StudentTransfer = () => {
   const validationSchema = Yup.object({
     // firstName: Yup.string().required("First Name is required"),
@@ -24,7 +24,7 @@ const StudentTransfer = () => {
   const [Data, setData] = useState({});
   const [tcData, setTcData] = useState({});
   console.log("Transfer Certificate Data reason:", tcData.reason);
-  const { Student } = useContext(MainContext);
+  const { Student } = getCommonCredentials();
 
   async function handleMaterial(e) {
     const payload = {

@@ -1,23 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const ParentDetails = () => {
     const [selectedParentDetails, setSelectedParentDetails] = useState()
-     const [activeTab, setActiveTab] = useState("father");
-    const { Student } = useContext(MainContext)
+    const [activeTab, setActiveTab] = useState("father");
+    const { Student } = getCommonCredentials();
     console.log(Student);
 
     const handleTabClick = (tab) => {
-      setActiveTab(tab);
+        setActiveTab(tab);
     };
 
     useEffect(() => {
-      if (Student) {
-        setSelectedParentDetails(Student);
-      }
+        if (Student) {
+            setSelectedParentDetails(Student);
+        }
     }, [Student]);
-    
-    
+
+
     return (
         <>
             <div className="" id="modalCenter" tabIndex="-1" aria-hidden="true">

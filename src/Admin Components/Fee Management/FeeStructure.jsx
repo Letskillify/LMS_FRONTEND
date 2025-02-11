@@ -1,10 +1,10 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { MainContext } from '../../Controller/MainProvider';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
 import Select from "react-select";
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const validationSchema = Yup.object({
     applicableTo: Yup.array().of(Yup.string()).min(1, "At least one course must be selected"),
@@ -47,7 +47,7 @@ function FeeStructureManagement() {
             percentageOfTotal: 0
         }
     ])
-    const { userId } = useContext(MainContext);
+    const { userId } = getCommonCredentials();
     const initialValues = {
         instituteId: userId,
         applicableTo: [],

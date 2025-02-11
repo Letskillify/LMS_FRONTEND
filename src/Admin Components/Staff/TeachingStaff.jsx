@@ -8,6 +8,13 @@ import EmploymentAndSalaryDetailsForm from "./Forms/EmploymentAndSalaryDetailsFo
 import DocumentationAndPasswordForm from "./Forms/DocumentationAndPasswordForm";
 import axios from "axios";
 import { MainContext } from "../../Controller/MainProvider";
+import {
+  useAddTeacherMutation,
+  useGetTeachersByInstituteIdQuery,
+  useUpdateTeacherByIdMutation,
+} from "../../Redux/Api/teacherSlice";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { Spinner } from "react-bootstrap";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 function TeachingStaff() {
@@ -105,26 +112,27 @@ function TeachingStaff() {
   const [staffs, setStaffs] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [staffIdToDelete, setStaffIdToDelete] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { userId } =useContext(MainContext)
-  console.log("userId", userId)
+  const { InstituteId, userId } = getCommonCredentials();
+
   const handleModalClose = () => {
     setStep(1);
     resetFormData();
   };
 
+  const { data, isLoading } = useGetTeachersByInstituteIdQuery({
+    instituteId: InstituteId ? InstituteId : userId,
+    refetchOnMountOrArgChange: true,
+  });
+  const [addTeacher] = useAddTeacherMutation();
+  const [
+    updateTeacher,
+    { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate },
+  ] = useUpdateTeacherByIdMutation();
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/api/teacher/get-all`);
-        console.log(response);
-        setStaffs(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, []);
+    setStaffs(data);
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -182,7 +190,7 @@ function TeachingStaff() {
 
     try {
       // Upload images
-      const imageResponse = await fetch(`${base_url}/upload`, {
+      const imageResponse = await fetch(`/upload`, {
         method: "POST",
         body: imageFormData,
       });
@@ -202,14 +210,7 @@ function TeachingStaff() {
           formData.documents
         );
 
-        // Prepare the updated formData for submission to teachers endpoint
-        const finalResponse = await fetch(`${base_url}/teacher/post`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
+        const finalResponse = await addTeacher(JSON.stringify(formData));
 
         const finalData = await finalResponse.json();
 
@@ -236,25 +237,20 @@ function TeachingStaff() {
   };
 
   const handleUpdate = async (formData, staff_id) => {
+    // console.log("Form Data:", formData);
     try {
-      const finalResponse = await fetch(
-        `${base_url}/teacher/update/${staff_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-      const finalData = await finalResponse.json();
-      if (finalResponse.ok) {
-        console.log("Successfully updated formData:", finalData);
+      await updateTeacher({
+        teacherData: formData,
+        teacherId: staff_id,
+      });
+      console.log("isSuccessUpdate", isSuccessUpdate);
+      if (!isSuccessUpdate) {
+        console.log("Successfully updated formData:");
         resetFormData();
         setStep(1);
-        // setIsModalOpen(false);
+        setIsModalOpen(false);
       } else {
-        console.error("Error posting to teachers API:", finalData);
+        console.error("Error posting to teachers API:");
         alert("Error posting to teachers API");
         // setIsModalOpen(false);
       }
@@ -377,6 +373,14 @@ function TeachingStaff() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="primary" color="primary" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="layout-wrapper layout-content-navbar">
@@ -443,145 +447,137 @@ function TeachingStaff() {
                       </div>
                       {/* Add new Acountant */}
                       {/* {isModalOpen && ( */}
-                      <div
-                        className="modal fade"
-                        tabIndex="-1"
-                        id="modalCenter"
-                      >
+                      {isModalOpen ? (
                         <div
-                          className="modal-dialog modal-dialog-centered manage-xl"
-                          role="document"
+                          className="modal fade"
+                          tabIndex="-1"
+                          id="modalCenter"
                         >
-                          <div className="modal-content">
-                            <div className="modal-header">
-                              <h5 className="modal-title" id="modalCenterTitle">
-                                Demo School
-                              </h5>
-                              <button
-                                type="button"
-                                className="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                                onClick={() => {
-                                  setStep(1);
-                                  resetFormData();
-                                  // setIsModalOpen(false);
-                                }}
-                              ></button>
-                            </div>
-                            <div className="modal-body">
-                              <div className="nav-align-top mb-4">
-                                <h1
-                                  className="px-2 py-3"
-                                  style={{
-                                    color: "#fff",
-                                    fontSize: "25px",
-                                    backgroundColor: "#8e8d8dfe",
-                                  }}
+                          <div
+                            className="modal-dialog modal-dialog-centered manage-xl"
+                            role="document"
+                          >
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h5
+                                  className="modal-title"
+                                  id="modalCenterTitle"
                                 >
-                                  <i
-                                    className="fa fa-plus-circle"
-                                    aria-hidden="true"
-                                  ></i>{" "}
-                                  Add Staff
-                                </h1>
-                                <div
-                                  className="table-responsive text-nowrap"
-                                  style={{ border: "none" }}
-                                >
-                                  <form>
-                                    {step === 1 && (
-                                      <PersonalDetailsForm
-                                        formData={formData}
-                                        handleChange={handleChange}
-                                      />
-                                    )}
-                                    {step === 2 && (
-                                      <EmploymentAndSalaryDetailsForm
-                                        formData={formData}
-                                        handleChange={handleChange}
-                                      />
-                                    )}
-                                    {step === 3 && (
-                                      <DocumentationAndPasswordForm
-                                        formData={formData}
-                                        handleChange={handleChange}
-                                        handleFileChange={handleFileChange}
-                                      />
-                                    )}
-                                  </form>
-                                  {step !== 3 ? (
-                                    <>
-                                      <button
-                                        type="button"
-                                        className="btn btn-secondary me-2"
-                                        disabled={step === 1}
-                                        onClick={handlePrevious}
-                                      >
-                                        Previous
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="btn btn-primary"
-                                        disabled={step === 3}
-                                        onClick={handleNext}
-                                        style={{
-                                          float: "right",
-                                          cursor:
-                                            step === 3
-                                              ? "not-allowed"
-                                              : "pointer",
-                                        }}
-                                      >
-                                        Next
-                                      </button>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <button
-                                        type="button"
-                                        className="btn btn-secondary me-2"
-                                        disabled={step === 1}
-                                        onClick={handlePrevious}
-                                      >
-                                        Previous
-                                      </button>
-                                      <button
-                                        type="button"
-                                        style={{ float: "right" }}
-                                        onClick={() => {
-                                          editMode
-                                            ? handleUpdate(
-                                                formData,
-                                                formData?._id
-                                              )
-                                            : handleSubmit(formData);
-                                        }}
-                                        className="btn btn-primary"
-                                      >
-                                        {editMode ? "Update" : "Submit"}
-                                      </button>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="text-end">
+                                  Demo School
+                                </h5>
                                 <button
-                                  className="btn btn-secondary "
+                                  type="button"
+                                  className="btn-close"
                                   data-bs-dismiss="modal"
                                   aria-label="Close"
                                   onClick={() => {
                                     setStep(1);
                                     resetFormData();
+                                    // setIsModalOpen(false);
                                   }}
-                                >
-                                  Close
-                                </button>
+                                ></button>
+                              </div>
+                              <div className="modal-body">
+                                <div className="nav-align-top mb-4">
+                                  <h1
+                                    className="px-2 py-3"
+                                    style={{
+                                      color: "#fff",
+                                      fontSize: "25px",
+                                      backgroundColor: "#8e8d8dfe",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa fa-plus-circle"
+                                      aria-hidden="true"
+                                    ></i>{" "}
+                                    Add Staff
+                                  </h1>
+                                  <div
+                                    className="table-responsive text-nowrap"
+                                    style={{ border: "none" }}
+                                  >
+                                    <form>
+                                      {step === 1 && (
+                                        <PersonalDetailsForm
+                                          formData={formData}
+                                          handleChange={handleChange}
+                                        />
+                                      )}
+                                      {step === 2 && (
+                                        <EmploymentAndSalaryDetailsForm
+                                          formData={formData}
+                                          handleChange={handleChange}
+                                        />
+                                      )}
+                                      {step === 3 && (
+                                        <DocumentationAndPasswordForm
+                                          formData={formData}
+                                          handleChange={handleChange}
+                                          handleFileChange={handleFileChange}
+                                        />
+                                      )}
+                                    </form>
+                                    {step !== 3 ? (
+                                      <>
+                                        <button
+                                          type="button"
+                                          className="btn btn-secondary me-2"
+                                          disabled={step === 1}
+                                          onClick={handlePrevious}
+                                        >
+                                          Previous
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="btn btn-primary"
+                                          disabled={step === 3}
+                                          onClick={handleNext}
+                                          style={{
+                                            float: "right",
+                                            cursor:
+                                              step === 3
+                                                ? "not-allowed"
+                                                : "pointer",
+                                          }}
+                                        >
+                                          Next
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <button
+                                          type="button"
+                                          className="btn btn-secondary me-2"
+                                          disabled={step === 1}
+                                          onClick={handlePrevious}
+                                        >
+                                          Previous
+                                        </button>
+                                        <button
+                                          type="button"
+                                          style={{ float: "right" }}
+                                          onClick={() => {
+                                            editMode
+                                              ? handleUpdate(
+                                                  formData,
+                                                  formData?._id
+                                                )
+                                              : handleSubmit(formData);
+                                          }}
+                                          className="btn btn-primary"
+                                        >
+                                          {editMode ? "Update" : "Submit"}
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      ) : null}
                       {/* )} */}
                       {/* Modal for confirm delete */}
                       <div
@@ -821,6 +817,7 @@ function TeachingStaff() {
                                     setFormData(staff);
                                     setStep(1);
                                     setEditMode(true);
+                                    setIsModalOpen(true);
                                   }}
                                 >
                                   <i className="bx bx-edit"></i>

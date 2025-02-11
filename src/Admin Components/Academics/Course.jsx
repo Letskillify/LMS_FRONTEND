@@ -7,6 +7,7 @@ import { PostApi } from '../../Custom Hooks/CustomeHook';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
 import * as Yup from "yup";
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const Course = () => {
     const [showModal, setshowModal] = useState(false)
@@ -14,7 +15,8 @@ const Course = () => {
     const [editShow, setEditShow] = useState(false)
     const [selectEdit, setSelectEdit] = useState({})
     const [search, setSearch] = useState('')
-    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, fetchCourse, Subject } = useContext(MainContext)
+    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, Subject } = getCommonCredentials();
+    // const { fetchCourse } = useContext(MainContext) -->> real time karna hai 
     const initialValues = {
         courseName: "",
         section: [],
@@ -169,7 +171,7 @@ const Course = () => {
         }
     };
     console.log(Course);
-    
+
 
     return (
         <>

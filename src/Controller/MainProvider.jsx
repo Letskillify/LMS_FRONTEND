@@ -12,62 +12,51 @@ import {
   DeleteApi,
   PutApi,
 } from "../Custom Hooks/CustomeHook";
+import { useDispatch } from "react-redux";
+import { use } from "react";
+import {
+  setDesignation,
+  setGlobalBoard,
+  setGlobalClass,
+  setGlobalCourse,
+  setGlobalCourseGroup,
+  setGlobalInstitute,
+  setGlobalInstituteId,
+  setGlobalMedium,
+  setGlobalSection,
+  setGlobalSemester,
+  setGlobalSettings,
+  setGlobalShift,
+  setGlobalStream,
+  setGlobalStudentData,
+  setGlobalSubject,
+  setGlobalTeacher,
+  setGlobalToken,
+  setGlobalUserId,
+  setIslogin,
+} from "../Redux/Slices/MainSlice";
 export const MainContext = createContext();
 export const MainProvider = ({ children }) => {
-  const [StudentTrash, setStudentTrash] = useState([])
-  const [studentData, setStudentData] = useState([])
-  const [institute, setInstitute] = useState(null)
-  const [Student, setStudent] = useState(null)
-  const [Teacher, setTeacher] = useState(null)
-  const [instituteId, setInstituteId] = useState(null)
-  const [sidebaropen, setsidebaropen] = useState(false)
-  const [Semester, setSemester] = useState(null)
-  const [Shift, setShift] = useState(null)
-  const [Medium, setMedium] = useState(null)
-  const [Section, setSection] = useState(null)
-  const [Stream, setStream] = useState(null)
-  const [Subject, setSubject] = useState(null)
-  const [Board, setBoard] = useState(null)
-  const [Course, setCourse] = useState(null)
-  const [CourseGroup, setCourseGroup] = useState(null)
-  const [Class, setClass] = useState(null)
-  const [Settings, setSettings] = useState(null)
+  const [StudentTrash, setStudentTrash] = useState([]);
+  const [studentData, setStudentData] = useState([]);
+  const [institute, setInstitute] = useState(null);
+  const [Student, setStudent] = useState(null);
+  const [Teacher, setTeacher] = useState(null);
+  const [instituteId, setInstituteId] = useState(null);
+  const [sidebaropen, setsidebaropen] = useState(false);
+  const [Semester, setSemester] = useState(null);
+  const [Shift, setShift] = useState(null);
+  const [Medium, setMedium] = useState(null);
+  const [Section, setSection] = useState(null);
+  const [Stream, setStream] = useState(null);
+  const [Subject, setSubject] = useState(null);
+  const [Board, setBoard] = useState(null);
+  const [Course, setCourse] = useState(null);
+  const [CourseGroup, setCourseGroup] = useState(null);
+  const [Class, setClass] = useState(null);
+  const [Settings, setSettings] = useState(null);
 
-  // for stop open inspect
-
-  // useEffect(() => {
-  //   const disableRightClick = (e) => e.preventDefault();
-  //   document.addEventListener("contextmenu", disableRightClick);
-
-  //   return () => {
-  //     document.removeEventListener("contextmenu", disableRightClick);
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   const handleKeyDown = (e) => {
-  //     // F12 key or Ctrl+Shift+I or Ctrl+Shift+J or Ctrl+U
-  //     if (
-  //       e.keyCode === 123 || // F12
-  //       (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-  //       (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
-  //       (e.ctrlKey && e.keyCode === 85) // Ctrl+U
-  //     ) {
-  //       e.preventDefault();
-  //     }
-  //   };
-
-  //   window.addEventListener("keydown", handleKeyDown);
-
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
-
-  //////////////////////////////////////////////////////////////////////////////
-
-  // const [exams, setExams] = useState()
-
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchStudent();
@@ -374,85 +363,160 @@ export const MainProvider = ({ children }) => {
     return { token, userId, designation, Islogin };
   };
 
-  // Usage
   const decryptedData = getDecryptedValues();
   const token = decryptedData.token;
   const userId = decryptedData.userId;
   const designation = decryptedData.designation;
   const Islogin = decryptedData.Islogin;
 
+  useEffect(() => {
+    if (userId) {
+      dispatch(setGlobalUserId(userId));
+    }
+    if (instituteId) {
+      dispatch(setGlobalInstituteId(instituteId));
+    }
+  }, [userId, instituteId]);
+
+  useEffect(() => {
+    dispatch(setGlobalToken(token));
+    dispatch(setDesignation(designation));
+    dispatch(setIslogin(Islogin));
+  }, [token, designation, Islogin]);
+
   // Fetch Institute Data
   const fetchInstitute = async () => {
     const data = await getApi(`/api/institute/get/${userId}`);
     setInstitute(data);
     setInstituteId(data?._id);
-
+    dispatch(setGlobalInstitute(data));
+    dispatch(setGlobalInstituteId(data?._id));
   };
   const fetchStudent = async () => {
-    const data = await getApi(`/api/student/get/${userId}`);
+    const data = await getApi(`/api/student/get/institute/${userId}`);
     setStudent(data);
+    dispatch(setGlobalStudentData(data));
     if (data) {
       setInstituteId(data?.instituteId?._id);
+      dispatch(setGlobalInstituteId(data?.instituteId?._id));
     }
   };
   const fetchTeacher = async () => {
     const data = await getApi(`/api/teacher/get/${userId}`);
     setTeacher(data);
+    dispatch(setGlobalTeacher(data));
     if (data) {
       setInstituteId(data?.instituteId._id);
+      dispatch(setGlobalInstituteId(data?.instituteId._id));
     }
   };
-
-
 
   const fetchSemester = async () => {
     const data = await getApi(`/api/semester/get/institute/${instituteId}`);
     setSemester(Array.isArray(data) ? data : []);
+    dispatch(setGlobalSemester(Array.isArray(data) ? data : []));
   };
   const fetchShift = async () => {
     const data = await getApi(`/api/shift/get/institute/${instituteId}`);
     setShift(Array.isArray(data) ? data : []);
+    dispatch(setGlobalShift(Array.isArray(data) ? data : []));
   };
   const fetchMedium = async () => {
     const data = await getApi(`/api/medium/get/institute/${instituteId}`);
     setMedium(Array.isArray(data) ? data : []);
+    dispatch(setGlobalMedium(Array.isArray(data) ? data : []));
   };
   const fetchSection = async () => {
     const data = await getApi(`/api/Section/get/institute/${instituteId}`);
     setSection(Array.isArray(data) ? data : []);
+    dispatch(setGlobalSection(Array.isArray(data) ? data : []));
   };
   const fetchStream = async () => {
     const data = await getApi(`/api/stream/get/institute/${instituteId}`);
     setStream(Array.isArray(data) ? data : []);
+    dispatch(setGlobalStream(Array.isArray(data) ? data : []));
   };
   const fetchSubject = async () => {
     const data = await getApi(`/api/subject/get/institute/${instituteId}`);
     setSubject(Array.isArray(data) ? data : []);
+    dispatch(setGlobalSubject(Array.isArray(data) ? data : []));
   };
 
   const fetchBoard = async () => {
     const data = await getApi(`/api/board/get/institute/${instituteId}`);
     setBoard(Array.isArray(data) ? data : []);
+    dispatch(setGlobalBoard(Array.isArray(data) ? data : []));
   };
   const fetchCourse = async () => {
     const data = await getApi(`/api/courses/get/institute/${instituteId}`);
     setCourse(Array.isArray(data) ? data : []);
+    dispatch(setGlobalCourse(Array.isArray(data) ? data : []));
   };
   const fetchCourseGroup = async () => {
     const data = await getApi(`/api/course-group/get/institute/${instituteId}`);
     setCourseGroup(Array.isArray(data) ? data : []);
+    dispatch(setGlobalCourseGroup(Array.isArray(data) ? data : []));
   };
   const fetchClass = async () => {
     const data = await getApi(`/api/class/get/institute/${instituteId}`);
     setClass(Array.isArray(data) ? data : []);
+    dispatch(setGlobalClass(Array.isArray(data) ? data : []));
   };
   const fetchSettings = async () => {
     const data = await getApi(`/api/settings/get/institute/${instituteId}`);
     setSettings(data ? data : null);
+    dispatch(setGlobalSettings(data ? data : null));
   };
 
   return (
-    <MainContext.Provider value={{ fetchSettings, Settings, fetchClass, Class, fetchCourseGroup, CourseGroup, fetchCourse, Course, Board, fetchBoard, fetchSubject, Subject, fetchStream, Stream, Section, fetchSection, Medium, fetchMedium, fetchShift, Shift, Semester, fetchSemester, Teacher, instituteId, setsidebaropen, sidebaropen, token, userId, designation, Islogin, fetchInstitute, institute, Student, editedData, handleEdit, fetchTrashData, fetchStudentData, StudentTrash, HandleLogOut, studentData, setStudentData, handlePrint, exportToExcel, handleExportCSV }}>
+    <MainContext.Provider
+      value={{
+        fetchSettings,
+        Settings,
+        fetchClass,
+        Class,
+        fetchCourseGroup,
+        CourseGroup,
+        fetchCourse,
+        Course,
+        Board,
+        fetchBoard,
+        fetchSubject,
+        Subject,
+        fetchStream,
+        Stream,
+        Section,
+        fetchSection,
+        Medium,
+        fetchMedium,
+        fetchShift,
+        Shift,
+        Semester,
+        fetchSemester,
+        Teacher,
+        instituteId,
+        setsidebaropen,
+        sidebaropen,
+        token,
+        userId,
+        designation,
+        Islogin,
+        fetchInstitute,
+        institute,
+        Student,
+        editedData,
+        handleEdit,
+        fetchTrashData,
+        fetchStudentData,
+        StudentTrash,
+        HandleLogOut,
+        studentData,
+        setStudentData,
+        handlePrint,
+        exportToExcel,
+        handleExportCSV,
+      }}
+    >
       {children}
     </MainContext.Provider>
   );

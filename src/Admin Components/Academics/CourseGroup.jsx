@@ -3,14 +3,16 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function CourseGroup() {
     const [courseGroups, setCourseGroups] = useState([]);
     const [editingGroup, setEditingGroup] = useState(null); // State to track the group being edited
-    const { userId } = useContext(MainContext);
+    // const { userId } = getCommonCredentials(); -->> real time karna hai 
+    const { userId } = getCommonCredentials();
 
     useEffect(() => {
-        fetchCourseGroups(); 
+        fetchCourseGroups();
     }, []);
 
     const fetchCourseGroups = async () => {
