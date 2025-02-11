@@ -3,16 +3,17 @@ import Profile from "../../assets/img/avatars/Profile.webp";
 import { MainContext } from "../../Controller/MainProvider";
 import { Link, useNavigate } from "react-router-dom";
 import { DeleteApi } from "../../Custom Hooks/CustomeHook";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const ManageParents = () => {
   const {
-    studentData,
     fetchStudentData,
     fetchTrashData,
     handlePrint,
     printPDF,
     exportToExcel,
     handleExportCSV,
-  } = useContext(MainContext);
+  } = useContext(MainContext); // -->> real time karna hai 
+  const { StudentData } = getCommonCredentials();
   const [selectedParentDetails, setSelectedParentDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("father");
   const [ParentDataShow, setParentDataShow] = useState(10);
@@ -20,7 +21,7 @@ const ManageParents = () => {
 
   const [search, setSearch] = useState("");
 
-  const filteredData = studentData.filter((student) => {
+  const filteredData = StudentData.filter((student) => {
     const studentName = student?.name?.toLowerCase();
     const parentEmail =
       student?.parentDetails?.Father?.email?.toLowerCase() ||
@@ -95,7 +96,7 @@ const ManageParents = () => {
                         onChange={(e) => {
                           const value =
                             e.target.value === ""
-                              ? studentData.length
+                              ? StudentData.length
                               : Number(e.target.value); // Handle "All" option
                           setParentDataShow(value);
                         }}
@@ -184,9 +185,9 @@ const ManageParents = () => {
                       </tr>
                     </thead>
                     <tbody className="table-border-bottom-0">
-                      {studentData ? (
+                      {StudentData ? (
                         <>
-                          {(filteredData || studentData)
+                          {(filteredData || StudentData)
                             ?.slice(0, ParentDataShow || [])
                             .map((student) => (
                               <>
@@ -207,7 +208,7 @@ const ManageParents = () => {
                                     {student?.parentDetails?.Father
                                       ?.contactNumber
                                       ? student?.parentDetails?.Father
-                                          ?.contactNumber
+                                        ?.contactNumber
                                       : "No Phone"}
                                   </td>
                                   {/* <td>1367</td> */}
@@ -215,7 +216,7 @@ const ManageParents = () => {
                                     {student?.parentDetails?.Father
                                       ?.qualification
                                       ? student?.parentDetails?.Father
-                                          ?.qualification
+                                        ?.qualification
                                       : "No Qualification"}
                                   </td>
                                   <td>
@@ -411,11 +412,10 @@ const ManageParents = () => {
                                                 >
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "father"
+                                                      className={`nav-link ${activeTab === "father"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick("father")
                                                       }
@@ -425,11 +425,10 @@ const ManageParents = () => {
                                                   </li>
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "mother"
+                                                      className={`nav-link ${activeTab === "mother"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick("mother")
                                                       }
@@ -439,11 +438,10 @@ const ManageParents = () => {
                                                   </li>
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "guardian"
+                                                      className={`nav-link ${activeTab === "guardian"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick(
                                                           "guardian"

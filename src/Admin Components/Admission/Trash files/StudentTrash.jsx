@@ -2,9 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MainContext } from '../../../Controller/MainProvider';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { DeleteApi, getApi, HitApi, PostApi } from '../../../Custom Hooks/CustomeHook';
+import { getCommonCredentials } from '../../../GlobalHelper/CommonCredentials';
 
 const StudentTrash = () => {
-    const { StudentTrash, fetchTrashData, fetchStudentData, } = useContext(MainContext);
+    const { fetchTrashData, fetchStudentData, } = useContext(MainContext); // -->> real time karna hai 
+    const { StudentTrash, } = getCommonCredentials();
     const Navigate = useNavigate();
 
     const handleRenewAll = async () => {

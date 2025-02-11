@@ -2,9 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function Medium() {
-  const { userId, Medium, fetchMedium } = useContext(MainContext);
+  // const { fetchMedium } = useContext(MainContext);  -->> real time karna hai 
+  const { userId, Medium } = getCommonCredentials();
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
@@ -16,7 +18,7 @@ function Medium() {
     }
   }, [Medium]);
 
-  
+
 
   const handleMedium = async (values) => {
     try {
@@ -27,7 +29,7 @@ function Medium() {
       });
       if (response.status === 201) {
         alert('Data Sent Successfully');
-        setMedium([...medium, response.data])
+        fetchMedium();
       }
     } catch (error) {
       console.error('Error submitting medium:', error);

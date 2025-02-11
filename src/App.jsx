@@ -1,5 +1,4 @@
 import React from "react";
-import { MainContext } from "./Controller/MainProvider";
 import StudentDashboard from "./Dashboards/StudentDashboard";
 import TeacherDashboard from "./Dashboards/TeacherDashboard";
 import StaffDashboard from "./Dashboards/StaffDashboard";

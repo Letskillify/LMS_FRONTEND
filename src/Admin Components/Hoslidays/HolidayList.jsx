@@ -3,7 +3,6 @@ import React, { useContext, useEffect } from 'react'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { useImageUploader } from '../../Custom Hooks/CustomeHook';
-import { MainContext } from '../../Controller/MainProvider';
 import { Modal, Spinner } from 'react-bootstrap';
 
 function HolidayList() {
@@ -15,7 +14,7 @@ function HolidayList() {
     const [addHoliday, setAddHoliday] = React.useState(null);
     const [edit, setEdit] = React.useState(null);
     const { uploadedData, setUploadedData, handleImageUpload } = useImageUploader();
-    const { userId } = useContext(MainContext);
+    const { userId } = getCommonCredentials();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';

@@ -9,8 +9,8 @@ import {
   GET_SALARY_SETTINGS,
   UPDATE_SALARY_SETTINGS_BY_ID,
 } from "../../ApiConstants/Routes";
-import { MainContext } from "../../Controller/MainProvider";
 import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const years = Array.from(
   { length: 10 },
@@ -32,7 +32,7 @@ const months = [
 ];
 
 const SalaryGeneration = () => {
-  const { instituteId } = useContext(MainContext);
+  const { InstituteId: instituteId } = getCommonCredentials();
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
   const [deductions, setDeductions] = useState([]);

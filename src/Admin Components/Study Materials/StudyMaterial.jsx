@@ -11,7 +11,6 @@ import {
   useImageUploader,
   useVideoUploader,
 } from "../../Custom Hooks/CustomeHook";
-import { MainContext } from "../../Controller/MainProvider";
 
 function StudyMaterial() {
   const [mainData, setMainData] = useState([]);
@@ -33,7 +32,7 @@ function StudyMaterial() {
     useVideoUploader();
   const [uploadCompleted, setUploadCompleted] = useState(false);
   const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
-  const { userId } = useContext(MainContext);
+  const { userId } = getCommonCredentials();
   const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
     useFileUploader();
 

@@ -4,11 +4,12 @@ import { MainContext } from '../../Controller/MainProvider';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { toJpeg } from 'html-to-image';
 import { DeleteApi } from '../../Custom Hooks/CustomeHook';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 const Studentsinformation = () => {
 
     // ALL DATA PROVIDER
-    const { studentData, fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext)
-
+    const { fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext) // -->> real time karna hai 
+    const { StudentData: studentData } = getCommonCredentials();
 
     /** Filters studentsData array based on mainCampus, className, section and type */
     const Navigate = useNavigate();
@@ -307,14 +308,14 @@ const Studentsinformation = () => {
                                             </tbody>
 
                                             {popupData && (
-                                                <div class="position-absolute top-0 w-100 h-100" style={{backgroundColor: "rgba(0, 0, 0, 0.5)"}}>
+                                                <div class="position-absolute top-0 w-100 h-100" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
                                                     <div class="modal-dialog mt-5">
                                                         <div class="modal-content bg-light justify-content-center align-items-center d-flex w-100 mt-5 pt-3">
                                                             <div class="modal-header">
                                                                 <h5 class="modal-title">Download/Share Document</h5>
                                                             </div>
                                                             <div class="modal-body d-flex justify-content-center align-items-center">
-                                                                <img src={popupImg} alt="document" style={{maxWidth: "100%", maxHeight: "500px"}}/>
+                                                                <img src={popupImg} alt="document" style={{ maxWidth: "100%", maxHeight: "500px" }} />
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" onClick={closePopup}>Close</button>

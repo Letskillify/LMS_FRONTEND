@@ -3,11 +3,13 @@ import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Bounce, toast } from "react-toastify";
 import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const CreateSemester = () => {
-    const { userId, Semester, fetchSemester } = useContext(MainContext); // Get userId from context
-    const [showModal, setShowModal] = useState(false); // State for modal visibility
-    const [error, setError] = useState(null); // State for error message
+    // const { fetchSemester } = useContext(MainContext); -->> real time karna hai 
+    const { userId,Semester } = getCommonCredentials();
+    const [showModal, setShowModal] = useState(false);
+    const [error, setError] = useState(null);
     const [editingSemester, setEditingSemester] = useState(null);
     const [Edit, setEdit] = useState(false);
     const [SelectEdit, setSelectEdit] = useState(null);
@@ -287,7 +289,7 @@ const CreateSemester = () => {
                                                                         type="submit"
                                                                         className="btn btn-success w-50 text-uppercase fw-bold"
                                                                     >
-                                                                       Update Semester
+                                                                        Update Semester
                                                                     </button>
                                                                 </div>
                                                             </Form>

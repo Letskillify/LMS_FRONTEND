@@ -1,20 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
 import { useParams } from 'react-router-dom';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const StudentDetail = () => {
   const [data, setData] = useState(null)
   const [tables, setTables] = useState("viewDeatils");
-  const { studentData } = useContext(MainContext)
+  const { StudentData } = getCommonCredentials();
   const { id } = useParams();
 
 
   useEffect(() => {
-    if (studentData && studentData.length > 0) {
-      const d = studentData.find((v) => v.StuID == id);
+    if (StudentData && StudentData.length > 0) {
+      const d = StudentData.find((v) => v.StuID == id);
       setData(d);
     }
-  }, [studentData, id]);
+  }, [StudentData, id]);
 
 
   { console.log(data) }
@@ -31,7 +31,7 @@ const StudentDetail = () => {
     a.download = Data.split('/').pop();
     a.click();
     window.URL.revokeObjectURL(url);
-}
+  }
 
   return (
     <>
@@ -695,7 +695,7 @@ const StudentDetail = () => {
 
         {/* Fees Section */}
         <div className={`${tables === "fees" ? "d-initial" : "d-none"}`}>
-{/* Fees follow ups Section */}
+          {/* Fees follow ups Section */}
           <div className="col-lg-12 col-md-12 col-sm-12">
             <div className="card border rounded shadow" >
               <div
@@ -1388,11 +1388,11 @@ const StudentDetail = () => {
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
                       <div className="card-body text-center">
-                        {data?.documents?.marksheet ? <> <img src={data?.documents?.marksheet} alt=""  style={{ maxWidth: "35%", height: "auto" }}/></> :
+                        {data?.documents?.marksheet ? <> <img src={data?.documents?.marksheet} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1416,12 +1416,12 @@ const StudentDetail = () => {
 
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.birthCertificate ? <> <img src={data?.documents?.birthCertificate} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.birthCertificate ? <> <img src={data?.documents?.birthCertificate} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1444,12 +1444,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.aadharCard?.front ?<> <img src={data?.documents?.aadharCard?.front + " " + data?.documents?.aadharCard?.back} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.aadharCard?.front ? <> <img src={data?.documents?.aadharCard?.front + " " + data?.documents?.aadharCard?.back} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1472,12 +1472,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.casteCertificate ? <> <img src={data?.documents?.casteCertificate} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.casteCertificate ? <> <img src={data?.documents?.casteCertificate} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1500,12 +1500,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.transferCertificate ? <> <img src={data?.documents?.transferCertificate} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.transferCertificate ? <> <img src={data?.documents?.transferCertificate} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1528,12 +1528,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.bankPassbook ? <> <img src={data?.documents?.bankPassbook} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.bankPassbook ? <> <img src={data?.documents?.bankPassbook} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1556,12 +1556,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.PANcard?.front ? <> <img src={data?.documents?.PANcard?.front +" " + data?.documents?.PANcard?.back} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.PANcard?.front ? <> <img src={data?.documents?.PANcard?.front + " " + data?.documents?.PANcard?.back} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1584,12 +1584,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.migrationCertificate ? <> <img src={data?.documents?.migrationCertificate} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.migrationCertificate ? <> <img src={data?.documents?.migrationCertificate} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1612,12 +1612,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.scholarship ? <> <img src={data?.documents?.scholarship} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.scholarship ? <> <img src={data?.documents?.scholarship} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 
@@ -1640,12 +1640,12 @@ const StudentDetail = () => {
                   </div>
                   <div className="col-md-6 col-lg-3 mb-4">
                     <div className="card shadow border-2">
-                     <div className="card-body text-center">
-                        {data?.documents?.otherCertificate ? <> <img src={data?.documents?.otherCertificate} alt=""   style={{ maxWidth: "35%", height: "auto" }}/></> :
+                      <div className="card-body text-center">
+                        {data?.documents?.otherCertificate ? <> <img src={data?.documents?.otherCertificate} alt="" style={{ maxWidth: "35%", height: "auto" }} /></> :
                           <p className="text-muted mb-3">
-                           Document Not Submit
+                            Document Not Submit
                           </p>
-                          
+
                         }
                       </div>
 

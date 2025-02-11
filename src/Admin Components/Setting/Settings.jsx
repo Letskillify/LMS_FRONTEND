@@ -1,10 +1,10 @@
 import { Field, Formik, Form } from "formik";
 import React, { useContext, useEffect, useState } from "react";
 import Select from "react-select";
-import { MainContext } from "../../Controller/MainProvider";
 import { Bounce, toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
 import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const months = [
     { value: "January", label: "January" },
@@ -28,7 +28,7 @@ const paymentMethods = [
 ]
 const Settings = () => {
     const [activeTab, setActiveTab] = useState("School");
-    const { Settings, userId } = useContext(MainContext)
+    const { Settings, userId } = getCommonCredentials();
     const handleTabChange = (tab) => {
         setActiveTab(tab);
     };

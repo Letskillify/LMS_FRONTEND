@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function Section() {
-  const { userId } = useContext(MainContext);
+  const { userId } = getCommonCredentials();
   const [sections, setSections] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);

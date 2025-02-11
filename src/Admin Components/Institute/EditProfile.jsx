@@ -1,20 +1,19 @@
 import { Field, Form, Formik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EditApi, useImageUploader } from '../../Custom Hooks/CustomeHook';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function EditProfile() {
 
     const [initialValues, setinitialValues] = useState()
     const [isInput, setisInput] = useState()
-    const { userId } = useContext(MainContext)
+    const { userId } = getCommonCredentials();
     const Navigate = useNavigate()
     const location = useLocation();
     const { institute} = location.state || {};
     const { uploadedData, handleImageUpload } = useImageUploader();
-    const { fetchInstitute } = useContext(MainContext);
 
 
     useEffect(() => {

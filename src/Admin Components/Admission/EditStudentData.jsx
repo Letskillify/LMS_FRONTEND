@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from "yup"
 import { EditApi } from '../../Custom Hooks/CustomeHook';
 import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 
 
@@ -17,8 +18,8 @@ const EditStudentData = () => {
         return <div>No student data available</div>;
     }
 
-
-    const { fetchStudentData, Class, institute } = useContext(MainContext)
+    // const { fetchStudentData } = useContext(MainContext)  -->> real time karna hai 
+    const { Class, Institute } = getCommonCredentials();
 
     const initialValues = {
         personalDetails: {
@@ -298,7 +299,7 @@ const EditStudentData = () => {
                                             <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
                                             {touched?.enrollmentDetails?.admissionDate && errors?.enrollmentDetails?.admissionDate && <div className="text-danger">{errors?.enrollmentDetails?.admissionDate}</div>}
                                         </div>
-                                        {institute?.instituteType === "College" || institute?.instituteType === "University" ? (
+                                        {Institute?.instituteType === "College" || institute?.instituteType === "University" ? (
                                             <>
                                                 <div className="col-md-4 mb-3">
                                                     <label>Enrollment No.</label>
