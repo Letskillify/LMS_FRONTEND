@@ -312,8 +312,6 @@ console.log("Forms:", forms);
     return (
         <>
             <div>
-
-
                 <h2 className='text-center mt-4'>Stock Account</h2>
                 <div className="stockAccount text-center mt-3" >
                     <button className='btn btn-info m-2 ' value="Create" onClick={(e) => setAccount(e.target.value)}>Create</button>
