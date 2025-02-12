@@ -11,6 +11,7 @@ import {
   useImageUploader,
   useVideoUploader,
 } from "../../Custom Hooks/CustomeHook";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 function StudyMaterial() {
   const [mainData, setMainData] = useState([]);

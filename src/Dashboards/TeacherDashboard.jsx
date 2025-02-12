@@ -24,6 +24,7 @@ const TeacherDashboard = () => {
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
+              <Route path="/holidays" element={<Holidays />}></Route>
             </Routes>
             <Footer />
             <div className="content-backdrop fade"></div>

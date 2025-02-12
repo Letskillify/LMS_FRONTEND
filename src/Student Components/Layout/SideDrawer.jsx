@@ -172,13 +172,20 @@ function SideDrawer() {
             <NavLink
               activeclassname="active"
               className="menu-item"
+              to="/holidays"
+            >
+              <a href="javascript:void(0);" className="menu-link">
+                <i className="menu-icon tf-icons bx bx-calendar" aria-hidden="true"></i>
+                <div>Holiday</div>
+              </a>
+            </NavLink>
+            <NavLink
+              activeclassname="active"
+              className="menu-item"
               to="/studenttransfer"
             >
               <a href="javascript:void(0);" className="menu-link">
-                <i
-                  className="menu-icon  fa fa-video-camera"
-                  aria-hidden="true"
-                ></i>
+                <i className="menu-icon  fa fa-arrow-right" aria-hidden="true"></i>
                 <div>Student Transfer</div>
               </a>
             </NavLink>
@@ -189,7 +196,7 @@ function SideDrawer() {
             >
               <a href="javascript:void(0);" className="menu-link">
                 <i
-                  className="menu-icon  fa fa-video-camera"
+                  className="menu-icon  fa fa-book"
                   aria-hidden="true"
                 ></i>
                 <div>Study Material</div>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Bounce, toast } from "react-toastify";
 
@@ -135,14 +136,30 @@ export const EditApi = async (url, Data, successMessage) => {
 
 export const useImageUploader = () => {
     const [uploadedData, setUploadedData] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleImageUpload = (event, key) => {
         const file = event.target.files[0];
         if (file) {
+            setIsLoading(true);
             const data = new FormData();
             data.append("file", file);
             data.append("upload_preset", "uglykgfd");
             data.append("cloud_name", "duzwys877");
+
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "d-flex justify-content-center align-items-center";
+            loadingDiv.style.position = "fixed";
+            loadingDiv.style.top = 0;
+            loadingDiv.style.left = 0;
+            loadingDiv.style.width = "100vw";
+            loadingDiv.style.height = "100vh";
+            loadingDiv.style.zIndex = 99999;
+            loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
+            const spinner = document.createElement("div");
+            spinner.className = "spinner-border text-primary";
+            loadingDiv.appendChild(spinner);
+            document.body.appendChild(loadingDiv);
 
             fetch("https://api.cloudinary.com/v1_1/duzwys877/image/upload", {
                 method: "POST",
@@ -152,6 +169,17 @@ export const useImageUploader = () => {
                 .then((data) => {
                     if (data.error) {
                         console.error("Upload failed:", data.error.message);
+                        toast.error('Upload failed: ' + data.error.message, {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            transition: Bounce,
+                        });
                     } else {
                         console.log("Upload successful!", data?.url);
 
@@ -160,10 +188,37 @@ export const useImageUploader = () => {
                             ...prevState,
                             [key]: data?.url,
                         }));
+
+                        toast.success('Image uploaded successfully!', {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            transition: Bounce,
+                        });
                     }
+                    setIsLoading(false);
+                    document.body.removeChild(loadingDiv);
                 })
                 .catch((error) => {
                     console.error("Error uploading file:", error);
+                    toast.error('Error uploading file: ' + error.message, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        transition: Bounce,
+                    });
+                    setIsLoading(false);
+                    document.body.removeChild(loadingDiv);
                 });
         }
     };
@@ -172,6 +227,7 @@ export const useImageUploader = () => {
         uploadedData,
         setUploadedData,
         handleImageUpload,
+        isLoading,
     };
 };
 
