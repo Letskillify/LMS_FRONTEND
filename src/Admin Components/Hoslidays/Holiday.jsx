@@ -5,8 +5,10 @@ import axios from 'axios'
 import { useImageUploader } from '../../Custom Hooks/CustomeHook';
 
 import { Modal, Spinner } from 'react-bootstrap';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { Bounce, toast } from 'react-toastify';
 
-function HolidayList() {
+function Holiday() {
     const [holidays, setHolidays] = React.useState([]);
     const [defaultHolidays, setDefaultHolidays] = React.useState([]);
     const [popup, setPopup] = React.useState(false);
@@ -15,7 +17,7 @@ function HolidayList() {
     const [addHoliday, setAddHoliday] = React.useState(null);
     const [edit, setEdit] = React.useState(null);
     const { userId } = getCommonCredentials();
-
+    const { uploadedData, handleImageUpload, setUploadedData } = useImageUploader();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';
@@ -39,12 +41,12 @@ function HolidayList() {
 
 
     const handleHoliday = async (values, { resetForm }) => {
-        
+
         const data = {
             ...values,
             thumbnail: uploadedData?.thumbnail
         }
-        console.log("Form Data:", data);
+
         try {
             const response = await axios.post("/api/institute-holiday/post", data, {
                 headers: {
@@ -53,7 +55,17 @@ function HolidayList() {
                 method: "POST"
             })
             if (response.status === 201) {
-                alert("Data Sent Successfully")
+                toast.success("Data Sent Successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
                 setAddHoliday('');
                 setUploadedData({});
                 resetForm();
@@ -61,14 +73,25 @@ function HolidayList() {
             }
         } catch (error) {
             console.log(error);
+            toast.error(error.response?.data?.message || "Error sending data", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         }
     }
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`/api/institute-holiday/get`);
-            console.log(response);
+            const response = await axios.get(`/api/institute-holiday/get/institute/${userId}`);
             setHolidays(response.data);
+            console.log(response.data);
         } catch (error) {
             console.log(error);
         }
@@ -76,7 +99,6 @@ function HolidayList() {
     const fetchHodlidayData = async () => {
         try {
             const response = await axios.get(`/api/holiday-list/get`);
-            console.log(response);
             setDefaultHolidays(response.data);
         } catch (error) {
             console.log(error);
@@ -86,13 +108,33 @@ function HolidayList() {
     const handleDelete = async (id) => {
         try {
             const response = await axios.delete(`/api/institute-holiday/delete/${id}`);
-            console.log(response);
-            fetchData();
             if (response.status === 200) {
-                alert("Data Deleted Successfully")
+                toast.success("Data Deleted Successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
+                fetchData();
             }
         } catch (error) {
             console.log(error);
+            toast.error(error.response?.data?.message || "Error deleting holiday", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         }
     }
 
@@ -110,12 +152,34 @@ function HolidayList() {
             });
             console.log(response);
             if (response.status === 200) {
-                alert("Data Updated Successfully");
+                toast.success("Data Updated Successfully", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                });
                 setPopup(false);
                 fetchData();
+                setUploadedData({});
             }
         } catch (error) {
             console.log(error);
+            toast.error(error.response?.data?.message || "Error updating holiday", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                transition: Bounce,
+            });
         }
     };
 
@@ -129,7 +193,8 @@ function HolidayList() {
     return (
         <>
             <div className="container-fluid my-5">
-                <h1 className="text-center mb-4">Holiday Management</h1>
+                <h1 className="text-center border-end border-start">Holiday Management</h1>
+                <hr />
                 {/* <!-- Holiday Form --> */}
                 <div className="card p-4 mb-4">
                     <div className="row ">
@@ -228,7 +293,7 @@ function HolidayList() {
                                     <td className='text-center rounded'>{holiday.thumbnail ? <img src={holiday.thumbnail} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '50px' }} /> : <p>No Image</p>}</td>
                                     <td>{holiday.title}</td>
                                     <td>{holiday.startingDate ? new Date(holiday.startingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                    <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-'}</td>
+                                    <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
                                     <td>{holiday.description}</td>
                                     <td className="d-flex gap-2">
                                         <button className="btn btn-secondary" onClick={() => { setPopup(true); setEdit(holiday) }}><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
@@ -259,14 +324,8 @@ function HolidayList() {
                                     <tr>
                                         <th>Thumbnail</th>
                                         <th>Holiday Title</th>
-                                        {addHoliday?.multipleDays === "true" ? (
-                                            <>
-                                                <th>Start Date</th>
-                                                <th>End Date</th>
-                                            </>
-                                        ) : (
-                                            <th>Date</th>
-                                        )}
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
                                         <th>Description</th>
                                     </tr>
                                 </thead>
@@ -279,14 +338,8 @@ function HolidayList() {
                                         <tr key={holiday._id} className='align-text-top'>
                                             <td>{holiday.thumbnail ? <img src={holiday.thumbnail} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '100px' }} /> : '-'}</td>
                                             <td>{holiday.title}</td>
-                                            {addHoliday?.multipleDays === "true" ? (
-                                                <>
-                                                    <td>{holiday.startingDate ? new Date(holiday.startingDate).toLocaleDateString() : '-'}</td>
-                                                    <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-'}</td>
-                                                </>
-                                            ) : (
-                                                <td>{holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                            )}
+                                            <td>{holiday.startingDate ? new Date(holiday.startingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
+                                            <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
                                             <td>{holiday.description}</td>
                                             <td onClick={() => { setAddHoliday(holiday); setDefaultShow(false); }} className="fs-4" style={{ cursor: 'pointer' }}>
                                                 <i className="fa fa-edit text-info" aria-hidden="true"></i>
@@ -310,10 +363,11 @@ function HolidayList() {
                             <Formik
                                 initialValues={{
                                     institute: userId || '',
-                                    startingDate: edit?.startingDate ? new Date(edit?.startingDate).toLocaleDateString() : '' || '',
-                                    endingDate: edit?.endingDate ? new Date(edit?.endingDate).toLocaleDateString() : '' || '',
+                                    startingDate: edit?.startingDate ? new Date(edit?.startingDate).toISOString().split('T')[0] : '' || '',
+                                    endingDate: edit?.endingDate ? new Date(edit?.endingDate).toISOString().split('T')[0] : '' || '',
                                     thumbnail: edit?.thumbnail,
-                                    date: edit?.date ? new Date(edit?.date).toLocaleDateString() : '' || '',
+                                    multipleDays: edit?.multipleDays,
+                                    date: edit?.date ? new Date(edit?.date).toISOString().split('T')[0] : '' || '',
                                     title: edit?.title || '',
                                     description: edit?.description || '',
                                     status: edit?.status || '',
@@ -329,24 +383,31 @@ function HolidayList() {
                             //     description: Yup.string().required('Description is required'),
                             // }}
                             >
-                                {() => (
+                                {({ values }) => (
                                     <Form action="/api/holidays/add" method="POST" className="row g-3">
-                                        {edit?.multipleDays ? (
+                                        <div className="col-md-6">
+                                            <label htmlFor="multipleDays" className="form-label">Multiple Days</label>
+                                            <Field as="select" className="form-select" id="multipleDays" name="multipleDays" values={edit?.multipleDays}>
+                                                <option value={false}>No</option>
+                                                <option value={true}>Yes</option>
+                                            </Field>
+                                        </div>
+                                        {values?.multipleDays == true || values?.multipleDays == "true" ? (
                                             <>
                                                 <div className="col-md-6">
                                                     <label for="startingDate" className="form-label">Starting Date</label>
-                                                    <Field className="form-control" id="startingDate" name="startingDate" values={edit?.startingDate} />
+                                                    <Field className="form-control" type="date" id="startingDate" name="startingDate" values={edit?.startingDate} />
                                                 </div>
                                                 <div className="col-md-6">
                                                     <label for="endingDate" className="form-label">Ending Date</label>
-                                                    <Field className="form-control" id="endingDate" name="endingDate" values={edit?.endingDate} />
+                                                    <Field className="form-control" type="date" id="endingDate" name="endingDate" values={edit?.endingDate} />
                                                 </div>
                                             </>
                                         ) : (
                                             <>
                                                 <div className="col-md-6">
-                                                    <label for="date" className="form-label">Ending Date</label>
-                                                    <Field className="form-control" id="date" name="date" values={edit?.date} />
+                                                    <label for="date" className="form-label">Date</label>
+                                                    <Field className="form-control" type="date" id="date" name="date" values={edit?.date} />
                                                 </div>
                                             </>
                                         )}
@@ -389,4 +450,4 @@ function HolidayList() {
     )
 }
 
-export default HolidayList
+export default Holiday

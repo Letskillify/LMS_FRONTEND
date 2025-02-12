@@ -11,7 +11,7 @@ import axios from 'axios';
 
 const localizer = momentLocalizer(moment);
 
-const InstituteHoliday = () => {
+const Holidays = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -36,9 +36,8 @@ const InstituteHoliday = () => {
 
   const showDefaultEvent = (events) => {
     const today = new Date();
-    const defaultEvent = events.find(event => 
-      moment(event.start).isSame(today, 'day') || 
-      moment(event.end).isSame(today, 'day')
+    const defaultEvent = events.sort((a, b) => new Date(a.start) - new Date(b.start)).find(event => 
+      new Date(event.start) > today
     );
     if (defaultEvent) {
       setSelectedEvent(defaultEvent);
@@ -133,5 +132,5 @@ const InstituteHoliday = () => {
   );
 };
 
-export default InstituteHoliday;
+export default Holidays;
 

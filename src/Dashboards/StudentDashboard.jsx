@@ -16,6 +16,7 @@ import HomeWork from '../Student Components/Home Work/HomeWork.jsx';
 import LiveClasses from '../Student Components/Live Class/LiveClasses.jsx';
 import StudentTransfer from '../Student Components/Student Transfer/StudentTransfer.jsx';
 import StudyMaterial from '../Student Components/StudyMaterial/StudyMaterial.jsx';
+import Holidays from '../Student Components/Holiday/Holidays.jsx';
 
 const StudentDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -41,6 +42,7 @@ const StudentDashboard = () => {
               <Route path='/liveclass' element={<LiveClasses />} />
               <Route path='/studenttransfer' element={<StudentTransfer />} />
               <Route path='/studymaterial' element={<StudyMaterial />} />
+              <Route path="/holidays" element={<Holidays />}></Route>
             </Routes>
             <Footer />
             <div className="content-backdrop fade"></div>
