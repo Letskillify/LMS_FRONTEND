@@ -13,9 +13,9 @@ const ExamForm = () => {
   const [exams, setExams] = useState([]);
   const [Subject, setSubject] = useState([]);
   const [Class, setClass] = useState([]);
-  console.log(exams, "exams");
-
-  const fetchExam = async () => {
+  const [EditData, setEditData] = useState('');
+  const [Editpopup, setEditpopup] = useState(false);
+    const fetchExam = async () => {
     if (!InstituteId) return console.error("Error: InstituteId is missing.");
     try {
       const { data } = await axios.get(
@@ -95,7 +95,20 @@ const ExamForm = () => {
       alert("Error Submitting Data");
     }
   };
-
+  const editExam = async () => {
+    try {
+      const response = await axios.get(`/api/exam/update/${EditData._id}`);
+      if (response.status === 200) {
+        setEditData(response.data);
+        alert("Data Fetched Successfully");
+        setEditpopup(true);
+      }
+    } catch (error) {
+      console.error("Error fetching exam:", error.message);
+      alert("Error Fetching Data");
+    }
+  };
+console.log(EditData, "EditData");
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-4">
@@ -149,9 +162,27 @@ const ExamForm = () => {
                     </span>
                   </td>
                   <td className="d-flex justify-content-center gap-2">
-                    <button className="btn btn-primary btn-sm" onClick={() => viewExam(exam._id)}><i class="fa fa-eye" aria-hidden="true"></i></button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => editExam(exam._id)}><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                    <button className="btn btn-danger btn-sm" onClick={() => deleteExam(exam._id)}><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => viewExam(exam._id)}
+                    >
+                      <i class="fa fa-eye" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => {
+                        setEditData(exam);
+                        setEditpopup(true);
+                      }}
+                    >
+                      <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => deleteExam(exam._id)}
+                    >
+                      <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
                   </td>
                 </tr>
               ))
@@ -161,7 +192,6 @@ const ExamForm = () => {
           </tbody>
         </table>
       </div>
-
       {popup && (
         <div
           className="modal fade show d-block"
@@ -484,6 +514,269 @@ const ExamForm = () => {
                           type="button"
                           className="btn btn-secondary"
                           onClick={() => setPopup(false)}
+                        >
+                          Close
+                        </button>
+                        <button type="submit" className="btn btn-success">
+                          Submit Exam
+                        </button>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {Editpopup && EditData && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Exam</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setEditpopup(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <Formik
+                  initialValues={{
+                    examType: EditData.examType || "-",
+                    examName: EditData.examName || "-",
+                    examCode: EditData.examCode || "-",
+                    startingDate: EditData.startingDate ? new Date(EditData.startingDate).toLocaleDateString() : "-",
+                    endingDate: EditData.endingDate ? new Date(EditData.endingDate).toLocaleDateString() : "-",
+                    instituteId: InstituteId,
+                    class: EditData.class || [],
+                    subjects: EditData.subjects || [
+                      {
+                        subjectName: "-",
+                        examDate: "-",
+                        startTime: "-",
+                        endTime: "-",
+                        totalMarks: "-",
+                        passingMarks: "-",
+                        status: "Scheduled",
+                      },
+                    ],
+                    assignedBy: EditData.assignedBy || [],
+                    status: EditData.status || "Upcoming",
+                    totalMarks: EditData.totalMarks || "-",
+                    passingMarks: EditData.passingMarks || "-",
+                    examMode: EditData.examMode || "Offline",
+                    examInstructions: EditData.examInstructions || "-",
+                  }}
+                  onSubmit={editExam}
+                >
+                  {({ values, setFieldValue }) => (
+                    <Form>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Exam Type</label>
+                          <Field
+                            id="examType"
+                            name="examType"
+                            className="form-control"
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Classes</label>
+                          <Field id="class" name="class" className="form-control" />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Exam Name</label>
+                          <Field
+                            name="examName"
+                            className="form-control"
+                            placeholder="Enter Exam Name"
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Exam Code</label>
+                          <Field
+                            type="text"
+                            name="examCode"
+                            className="form-control"
+                            placeholder="Enter Exam Code"
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Starting Date</label>
+                          <Field
+                            type="date"
+                            name="startingDate"
+                            className="form-control"
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Ending Date</label>
+                          <Field
+                            type="date"
+                            name="endingDate"
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
+                      <FieldArray name="subjects">
+                        {({ push, remove }) => (
+                          <div>
+                            <h5>Subjects</h5>
+                            {values.subjects?.map((_, index) => (
+                              <div key={index} className="border p-3 mb-3">
+                                <div className="mb-3">
+                                  <label>Subject</label>
+                                  <Field
+                                    name={`subjects[${index}].subjectName`}
+                                    className="form-control"
+                                  />
+                                </div>
+
+                                <div className="row">
+                                  <div className="col-md-4 mb-3">
+                                    <label>Exam Date</label>
+                                    <Field
+                                      name={`subjects[${index}].examDate`}
+                                      className="form-control"
+                                    />
+                                  </div>
+                                  <div className="col-md-4 mb-3">
+                                    <label>Start Time</label>
+                                    <Field
+                                      name={`subjects[${index}].startTime`}
+                                      className="form-control"
+                                    />
+                                  </div>
+                                  <div className="col-md-4 mb-3">
+                                    <label>End Time</label>
+                                    <Field
+                                      name={`subjects[${index}].endTime`}
+                                      className="form-control"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="row">
+                                  <div className="col-md-6 mb-3">
+                                    <label>Total Marks</label>
+                                    <Field
+                                      type="number"
+                                      name={`subjects[${index}].totalMarks`}
+                                      className="form-control"
+                                      placeholder="Enter Total Marks"
+                                    />
+                                  </div>
+                                  <div className="col-md-6 mb-3">
+                                    <label>Passing Marks</label>
+                                    <Field
+                                      type="number"
+                                      name={`subjects[${index}].passingMarks`}
+                                      className="form-control"
+                                      placeholder="Enter Passing Marks"
+                                    />
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => remove(index)}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ))}
+
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() =>
+                                push({
+                                  subjectName: "",
+                                  examDate: "",
+                                  startTime: "",
+                                  endTime: "",
+                                  totalMarks: "",
+                                  passingMarks: "",
+                                })
+                              }
+                            >
+                              Add Subject
+                            </button>
+                          </div>
+                        )}
+                      </FieldArray>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Assigned By</label>
+                          <Field name="assignedBy" id="assignedBy" className="form-control"/>
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label">Status</label>
+                          <Field name="status" className="form-control"></Field>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">total Marks</label>
+                          <Field
+                            type="number"
+                            name="totalMarks"
+                            className="form-control"
+                            placeholder="Enter Total Marks"
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label">passing Marks</label>
+                          <Field
+                            type="number"
+                            name="passingMarks"
+                            className="form-control"
+                            placeholder="Enter Passing Marks"
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label">examMode</label>
+                          <Field
+                            as="select"
+                            name="examMode"
+                            className="form-control"
+                          >
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                          </Field>
+                        </div>
+                      </div>
+                        <div className="col-12 mb-3">
+                          <label className="form-label">
+                            Exam Instructions
+                          </label>
+                          <Field
+                            as="textarea"
+                            rows="3"
+                            name="examInstructions"
+                            className="form-control"
+                            placeholder="Enter Exam Instructions"
+                          />
+                        </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setEditpopup(false)}
                         >
                           Close
                         </button>
