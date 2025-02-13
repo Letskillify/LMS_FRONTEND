@@ -137,6 +137,7 @@ export const apiSlice = createApi({
     "Deduction",
     "Auth",
     "Leaves",
+    "ExamType",
   ],
   endpoints: () => ({}),
 });
