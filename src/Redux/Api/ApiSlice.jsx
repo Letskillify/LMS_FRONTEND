@@ -1,4 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+const IS_PRODUCTION = import.meta.env.VITE_IS_PRODUCTION === "true";
+
+console.log("IS_PRODUCTION", IS_PRODUCTION);
 
 // Import the correct key and IV from environment variables
 const secretKeyHex = import.meta.env.VITE_CRYPTO_KEY; // 32-byte key (hex)
@@ -113,7 +116,7 @@ const customBaseQuery = async (args, api, extraOptions) => {
 // Create API Slice
 export const apiSlice = createApi({
   reducerPath: "api",
-  baseQuery: customBaseQuery,
+  baseQuery: IS_PRODUCTION ? customBaseQuery : fetchBaseQuery({ baseUrl: "/api" }),
   tagTypes: [
     "ImageUpload",
     "Institute",

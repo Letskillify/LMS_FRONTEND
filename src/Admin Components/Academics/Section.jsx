@@ -3,142 +3,60 @@ import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useCreateSectionMutation, useDeleteSectionMutation, useUpdateSectionMutation } from '../../Redux/Api/academicsApi/sectionSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Section() {
-  const { userId } = getCommonCredentials();
+  const showToast = useGlobalToast();
+  const { userId, Section } = getCommonCredentials();
   const [sections, setSections] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
 
-
-
-  const fetchSections = async () => {
-    try {
-      const response = await axios.get('/api/section/get');
-      setSections(response.data);
-    } catch (error) {
-      console.error('Error fetching Sections:', error);
-    }
-  };
+  const [createSection] = useCreateSectionMutation();
+  const [updateSection] = useUpdateSectionMutation();
+  const [deleteSection] = useDeleteSectionMutation();
 
   const handleSection = async (values, { resetForm }) => {
     try {
-      const response = await axios.post('/api/section/post', values, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.status === 201) {
-        toast.success("Section added successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        // setSections([...sections, response.data]);
+      const response = await createSection(values);
+      if (response.data.status === 201) {
+        showToast("Section Created Successfully", "success");
         resetForm();
-        fetchSections()
       }
     } catch (error) {
       console.error('Error submitting Section:', error);
-      toast.error(error.response.data.message || "Error adding section", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      showToast("Error submitting Section", "error");
     }
   };
 
   const handleSectionDelete = async (id) => {
     try {
-      const response = await axios.delete(`api/section/delete/${id}`);
-      if (response.status === 200) {
-        toast.success("Section deleted successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        setSections(sections.filter((item) => item._id !== id));
-        fetchSections()
+      const response = await deleteSection(id);
+      if (response.data.status === 200) {
+        showToast("Section Deleted Successfully", "success");
       }
     } catch (error) {
       console.error('Error deleting Section:', error);
-      toast.error(error.response.data.message || "Error deleting section", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      showToast("Error deleting Section", "error");
     }
   };
 
   const handleSectionEdit = async (values, id) => {
     try {
-      const response = await axios.put(`/api/section/update/${id}`, values, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        toast.success("Section updated successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        // setSections(
-        //   sections.map((item) =>
-        //     item._id === id ? { ...item, sectionName: values.sectionName } : item
-        //   )
-        // );
+      const response = await updateSection({ sectionId: id, sectionData: values });
+      if (response.data.status === 200) {
+        showToast("Section Updated Successfully", "success");
         setPopup(false);
-        fetchSections()
-      }
+        }
     } catch (error) {
       console.error("Error updating Section:", error.response?.data || error.message);
-      toast.error(error.response.data.message || "Error updating section", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      showToast("Error updating Section", "error");
     }
   };
   useEffect(() => {
-    fetchSections();
-  }, []);
+    setSections(Section);
+  }, [Section]);
   return (
     <div className="px-5 py-5">
       <div className="row">
