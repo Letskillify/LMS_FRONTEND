@@ -47,6 +47,7 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   dispatch(setGlobalInstituteId(instituteId));
   useEffect(() => {
     console.log("instituteId:", instituteId);
+    console.log("instituteId:", instituteId); 
     if (instituteId) {
     }
   }, [instituteId, dispatch]);

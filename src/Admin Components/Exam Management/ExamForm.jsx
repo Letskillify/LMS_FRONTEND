@@ -5,14 +5,14 @@ import Select from "react-select";
 import { useEffect, useState } from "react";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
+// import { showToast } from "../../GlobalHelper/Toast";
+// import { useDeleteExamTypeMutation, useGetExamTypeByInstituteIdQuery } from "../../Redux/Api/ExamTypeApi";
+
 const ExamForm = () => {
-  const { InstituteId } = getCommonCredentials();
+  const { InstituteId, TeacherData, Subject, Class } = getCommonCredentials();
   const [examTypes, setExamTypes] = useState([]);
   const [popup, setPopup] = useState(false);
-  const [teacher, setTeacher] = useState([]);
   const [exams, setExams] = useState([]);
-  const [Subject, setSubject] = useState([]);
-  const [Class, setClass] = useState([]);
   const [EditData, setEditData] = useState('');
   const [Editpopup, setEditpopup] = useState(false);
     const fetchExam = async () => {
@@ -27,9 +27,6 @@ const ExamForm = () => {
       alert("Error Fetching Data");
     }
   };
-  useEffect(() => {
-    fetchExam();
-  }, [InstituteId]);
 
   useEffect(() => {
     axios.get("/api/exam-type/get").then((res) => setExamTypes(res.data));
@@ -37,8 +34,11 @@ const ExamForm = () => {
     axios.get("/api/subject/get").then((res) => setSubject(res.data));
     axios.get("/api/class/get").then((res) => setClass(res.data));
   }, []);
+  useEffect(() => {
+    fetchExam();
+  }, [InstituteId]);
 
-  
+
 
   const initialValues = {
     examType: "",
@@ -228,12 +228,14 @@ console.log(EditData, "EditData");
                             className="form-select"
                           >
                             <option value="">Select Exam Type</option>
-                            {examTypes &&
+
+                            {/* {examTypes &&
                               examTypes?.map((type) => (
                                 <option key={type._id} value={type._id}>
                                   {type?.examTypeName}
                                 </option>
-                              ))}
+
+                              ))} */}
                           </Field>
                         </div>
                         <div className="col-6 mb-3">
@@ -247,10 +249,10 @@ console.log(EditData, "EditData");
                                   label: cls?.className,
                                 }))}
                                 name="class"
-                                value={values.class.map((s) => ({
+                                value={values.class   .map((s) => ({
                                   value: s,
                                   label:
-                                    Class?.find((cl) => cl._id === s)
+                                    Class   ?.find((cl) => cl._id === s)
                                       .className || "Unknown",
                                 }))}
                                 onChange={(selected) =>
@@ -413,7 +415,7 @@ console.log(EditData, "EditData");
                             {({ field, form }) => (
                               <Select
                                 isMulti
-                                options={(teacher || []).map((t) => ({
+                                options={(TeacherData || []).map((t) => ({
                                   value: t._id,
                                   label:
                                     t.fullName.firstName +
@@ -427,10 +429,10 @@ console.log(EditData, "EditData");
                                 ).map((id) => ({
                                   value: id,
                                   label:
-                                    teacher.find((t) => t._id === id)?.fullName
+                                    TeacherData.find((t) => t._id === id)?.fullName
                                       ?.firstName +
                                       " " +
-                                      teacher.find((t) => t._id === id)
+                                      TeacherData.find((t) => t._id === id)
                                         ?.fullName?.lastName || "Unknown",
                                 }))}
                                 onChange={(selected) =>

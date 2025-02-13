@@ -4,6 +4,7 @@ import { Formik, Form, Field } from "formik";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import {
   useCreateExamTypeMutation,
+  useDeleteExamTypeMutation,
   useGetExamTypeByInstituteIdQuery,
   useUpdateExamTypeMutation,
 } from "../../Redux/Api/examTypeSlice";
@@ -19,11 +20,12 @@ function ExamType() {
 
   console.log("InstituteId", InstituteId);
 
-  const { data: examTypeData } = useGetExamTypeByInstituteIdQuery(InstituteId, {
+  const { data: examTypeData, isLoading } = useGetExamTypeByInstituteIdQuery(InstituteId, {
     skip: !InstituteId,
   });
   const [createExamType] = useCreateExamTypeMutation();
   const [updateExamType] = useUpdateExamTypeMutation();
+  const [deleteExamType] = useDeleteExamTypeMutation();
 
   useEffect(() => {
     setExamType(examTypeData);
@@ -51,18 +53,20 @@ function ExamType() {
       }
     } catch (error) {
       console.error("Error submitting ExamType:", error);
+      showToast("Error submitting ExamType", "error");
     }
   };
 
   const handleExamTypeDelete = async (id) => {
     try {
-      const response = await axios.delete(`/api/exam-type/delete/${id}`);
-      if (response.status === 200) {
+      const response = await deleteExamType(id);
+      if (response.data.status === 200) {
         setExamType(ExamType.filter((item) => item._id !== id));
-        alert("Data Deleted Successfully");
+        showToast("Data Deleted Successfully", "success");
       }
     } catch (error) {
       console.error("Error deleting ExamType:", error);
+      showToast("Error deleting ExamType", "error");
     }
   };
 
@@ -79,10 +83,11 @@ function ExamType() {
           )
         );
         setPopup(false);
-        alert("ExamType updated successfully");
+        showToast("ExamType updated successfully", "success");
       }
     } catch (error) {
       console.error("Error updating ExamType:", error);
+      showToast("Error updating ExamType", "error");
     }
   };
 
