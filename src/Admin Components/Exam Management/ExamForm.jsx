@@ -9,6 +9,8 @@ import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const ExamForm = () => {
   const { InstituteId, TeacherData, Subject, Class } = getCommonCredentials();
+  console.log(InstituteId,"InstituteId");
+  
   const [examTypes, setExamTypes] = useState([]);
   const [popup, setPopup] = useState(false);
   const [exams, setExams] = useState([]);
@@ -17,9 +19,8 @@ const ExamForm = () => {
     const fetchExam = async () => {
     if (!InstituteId) return console.error("Error: InstituteId is missing.");
     try {
-      const { data } = await axios.get(
-        `/api/exam/get/institute/${InstituteId}`
-      );
+      const { data } = await useGetAllExamsQuery({ instituteId: InstituteId },{ skip: !InstituteId }
+      ) ;
       setExams(data);
     } catch (error) {
       console.error("Error fetching exams:", error.message);
@@ -29,11 +30,8 @@ const ExamForm = () => {
   useEffect(() => {
     fetchExam();
   }, [InstituteId]);
-
-
-
   const initialValues = {
-    examType: "",
+    examType: "haha",
     examName: "",
     examCode: "",
     startingDate: "",
@@ -78,6 +76,7 @@ const ExamForm = () => {
   });
 
   const handleSubmit = async (values) => {
+  
     try {
       const response = await axios.post("/api/exam/post", values);
       if (response.status === 201) {
