@@ -1,8 +1,6 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import apiSlice from "./ApiSlice";
 
-export const fileUploadApi = createApi({
-  reducerPath: "fileUploadApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+export const fileUploadApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     uploadFiles: builder.mutation({
       query: (formData) => ({
@@ -10,10 +8,9 @@ export const fileUploadApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["ImageUpload"],
     }),
   }),
 });
 
 export const { useUploadFilesMutation } = fileUploadApi;
-
-export default fileUploadApi;

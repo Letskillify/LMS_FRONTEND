@@ -7,19 +7,32 @@ import PersonalDetailsForm from "./Forms/PersonalDetailsForm";
 import EmploymentAndSalaryDetailsForm from "./Forms/EmploymentAndSalaryDetailsForm";
 import DocumentationAndPasswordForm from "./Forms/DocumentationAndPasswordForm";
 import axios from "axios";
-import { MainContext } from "../../Controller/MainProvider";
+// import { MainContext } from "../../Controller/MainProvider";
 import {
   useAddTeacherMutation,
   useGetTeachersByInstituteIdQuery,
+  usePermanentlyDeleteTeacherByIdMutation,
   useUpdateTeacherByIdMutation,
 } from "../../Redux/Api/teacherSlice";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
-import { Spinner } from "react-bootstrap";
+import { Modal, Spinner } from "react-bootstrap";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import { useFileUploader } from "../../GlobalHelper/FileUploader";
+import {
+  useGetAllRolesQuery,
+  useGetRolesByInstituteIdQuery,
+} from "../../Redux/Api/rolesSlice";
+import { useGetDeductionsByInstituteIdQuery } from "../../Redux/Api/SalaryDeductionSlice";
+import { useGetAllowancesByInstituteIdQuery } from "../../Redux/Api/SalaryAllowanceSlice";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 function TeachingStaff() {
+  const { InstituteId, userId, TeacherData } = getCommonCredentials();
+
+  const showToast = useGlobalToast();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    instituteId: "",
     fullName: { firstName: "", lastName: "" },
     personalDetails: {
       dateOfBirth: "",
@@ -79,15 +92,8 @@ function TeachingStaff() {
     },
     salaryDetails: {
       baseSalary: "",
-      allowances: "",
-      deductions: {
-        PF: "",
-        TDS: "",
-        ESIC: "",
-        LDA: "",
-        DA: "",
-        HRA: "",
-      },
+      allowances: [],
+      deductions: [],
       netSalary: "",
       salaryPackage: "",
       paymentMethod: "",
@@ -109,30 +115,151 @@ function TeachingStaff() {
       ofClass: "",
     },
   });
+  const resetFormData = () => {
+    setFormData({
+      instituteId: InstituteId,
+      fullName: { firstName: "", lastName: "" },
+      personalDetails: {
+        dateOfBirth: "",
+        gender: "",
+        disability: false,
+        maritalStatus: "",
+        spouseName: "",
+        fatherName: "",
+        aadharNo: "",
+      },
+      contactInfo: {
+        email: "",
+        mobile: "",
+        whatsapp: "",
+        alternateContact: "",
+        address: "",
+      },
+      religionCategory: {
+        nationality: "",
+        religion: "",
+        category: "",
+        caste: "",
+      },
+      experience: {
+        lastOrganizationName: "",
+        jobPosition: "",
+        duration: "",
+      },
+      qualification: {
+        highestDegree: "",
+        university: "",
+        passOutyear: "",
+        specialization: "",
+        certifications: [],
+        experience: 0,
+      },
+      bankDetails: {
+        accountHolderName: "",
+        bankName: "",
+        PANno: "",
+        accountNumber: "",
+        ifscCode: "",
+      },
+      workArea: "",
+      emergencyContact: {
+        name: "",
+        relation: "",
+        contactNumber: "",
+      },
+      employeementDetails: {
+        role: "",
+        joiningDate: "",
+        designation: "",
+        department: "",
+        employmentType: "",
+        employeeStatus: "",
+      },
+      salaryDetails: {
+        baseSalary: "",
+        allowances: [],
+        deductions: [],
+        netSalary: "",
+        salaryPackage: "",
+        paymentMethod: "",
+      },
+      documents: {
+        profilePhoto: "",
+        casteCertificate: "",
+        idProof: "",
+        resume: "",
+        uploadBankPassbook: "",
+        signature: "",
+        otherDocuments: [],
+      },
+      loginPassword: "",
+      isIDgenerated: false,
+      subjectsHandled: [],
+      classTeacher: {
+        isClassTeacher: false,
+        ofClass: "",
+      },
+    });
+  };
+  const [roles, setRoles] = useState(null);
+  const [allowances, setAllowances] = useState(null);
+  const [deductions, setDeductions] = useState(null);
+  const { uploadDocuments } = useFileUploader();
   const [staffs, setStaffs] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [staffIdToDelete, setStaffIdToDelete] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { InstituteId, userId } = getCommonCredentials();
-
-  const handleModalClose = () => {
-    setStep(1);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
     resetFormData();
+    setStep(1);
+    setEditMode(false);
   };
 
-  const { data, isLoading } = useGetTeachersByInstituteIdQuery({
-    instituteId: InstituteId ? InstituteId : userId,
+  const { data: rolesData } = useGetRolesByInstituteIdQuery(InstituteId, {
+    skip: !InstituteId,
     refetchOnMountOrArgChange: true,
   });
+
+  const { data: allowancesData } = useGetAllowancesByInstituteIdQuery(
+    InstituteId,
+    {
+      skip: !InstituteId,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  const { data: deductionsData } = useGetDeductionsByInstituteIdQuery(
+    InstituteId,
+    {
+      skip: !InstituteId,
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const [addTeacher] = useAddTeacherMutation();
   const [
     updateTeacher,
     { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate },
   ] = useUpdateTeacherByIdMutation();
+
+  const [deleteTeacher] = usePermanentlyDeleteTeacherByIdMutation();
+
   useEffect(() => {
-    setStaffs(data);
-  }, [data]);
+    if (InstituteId) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        instituteId: InstituteId,
+      }));
+    }
+  }, [InstituteId]);
+
+  useEffect(() => {
+    setStaffs(TeacherData);
+    setRoles(rolesData);
+    setAllowances(allowancesData);
+    setDeductions(deductionsData);
+  }, [TeacherData, rolesData, allowancesData, deductionsData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -169,34 +296,17 @@ function TeachingStaff() {
   const handlePrevious = () => setStep((prev) => prev - 1);
 
   const handleSubmit = async (formData) => {
-    console.log("Form Data:", formData);
-
-    const imageFormData = new FormData();
-    imageFormData.append("profilePhoto", formData.documents.profilePhoto);
-    imageFormData.append(
-      "casteCertificate",
-      formData.documents.casteCertificate
-    );
-    imageFormData.append("idProof", formData.documents.idProof);
-    imageFormData.append("resume", formData.documents.resume);
-    imageFormData.append(
-      "uploadBankPassbook",
-      formData.documents.uploadBankPassbook
-    );
-    imageFormData.append("signature", formData.documents.signature);
-    formData.documents.otherDocuments.forEach((file) => {
-      imageFormData.append("otherDocuments", file);
-    });
-
     try {
       // Upload images
-      const imageResponse = await fetch(`/upload`, {
-        method: "POST",
-        body: imageFormData,
+      const imageResponse = await uploadDocuments({
+        documents: formData.documents,
       });
-      const imageData = await imageResponse.json();
 
-      if (imageResponse?.status === 200 && imageData.success) {
+      const imageData = imageResponse?.data;
+
+      console.log("imageData", imageData);
+
+      if (imageData.success) {
         // Update formData with URLs from image upload response
         Object.keys(imageData.files).forEach((fieldName) => {
           const cloudinaryUrl = imageData.files[fieldName];
@@ -205,25 +315,17 @@ function TeachingStaff() {
           }
         });
 
-        console.log(
-          "Updated formData.documents with image URLs:",
-          formData.documents
-        );
-
-        const finalResponse = await addTeacher(JSON.stringify(formData));
-
-        const finalData = await finalResponse.json();
-
-        if (finalResponse.ok) {
-          console.log("Successfully posted formData:", finalData);
-          resetFormData();
-          setStep(1);
-          // setIsModalOpen(false);
-        } else {
-          console.error("Error posting to teachers API:", finalData);
-          alert("Error posting to teachers API");
-          // setIsModalOpen(false);
+        const finalResponse = await addTeacher(formData);
+        console.log("finalResponse", finalResponse);
+        if (
+          finalResponse.data.status_code === 201 ||
+          finalResponse.data.status_code === 200 ||
+          finalResponse.data.success
+        ) {
+          handleCloseModal();
+          setEditMode(false);
         }
+        showToast("Teacher added successfully", "success");
       } else {
         console.error("Error uploading images:", imageData);
         alert("Error uploading images");
@@ -237,18 +339,18 @@ function TeachingStaff() {
   };
 
   const handleUpdate = async (formData, staff_id) => {
-    // console.log("Form Data:", formData);
     try {
       await updateTeacher({
         teacherData: formData,
         teacherId: staff_id,
       });
-      console.log("isSuccessUpdate", isSuccessUpdate);
+
       if (!isSuccessUpdate) {
-        console.log("Successfully updated formData:");
         resetFormData();
         setStep(1);
+        setEditMode(false);
         setIsModalOpen(false);
+        showToast("Teacher updated successfully", "success");
       } else {
         console.error("Error posting to teachers API:");
         alert("Error posting to teachers API");
@@ -261,125 +363,23 @@ function TeachingStaff() {
     }
   };
 
-  const resetFormData = () => {
-    setFormData({
-      fullName: { firstName: "", lastName: "" },
-      personalDetails: {
-        dateOfBirth: "",
-        gender: "",
-        disability: false,
-        maritalStatus: "",
-        spouseName: "",
-        fatherName: "",
-        aadharNo: "",
-      },
-      contactInfo: {
-        email: "",
-        mobile: "",
-        whatsapp: "",
-        alternateContact: "",
-        address: "",
-      },
-      religionCategory: {
-        nationality: "",
-        religion: "",
-        category: "",
-        caste: "",
-      },
-      experience: {
-        lastOrganizationName: "",
-        jobPosition: "",
-        duration: "",
-      },
-      // qualification: {
-      //   lastDegree: "",
-      //   college: "",
-      //   university: "",
-      //   passingYear: "",
-      // },
-      qualifications: {
-        highestDegree: "",
-        university: "",
-        passOutyear: "",
-        specialization: "",
-        certifications: [],
-        experience: 0,
-      },
-      bankDetails: {
-        accountHolderName: "",
-        bankName: "",
-        PANno: "",
-        accountNumber: "",
-        ifscCode: "",
-      },
-      emergencyContact: {
-        name: "",
-        relation: "",
-        contactNumber: "",
-      },
-      employeementDetails: {
-        role: "",
-        joiningDate: "",
-        designation: "",
-        department: "",
-        employmentType: "",
-        employeeStatus: "",
-      },
-      salaryDetails: {
-        baseSalary: "",
-        allowances: "",
-        deductions: {
-          PF: "",
-          TDS: "",
-          ESIC: "",
-          LDA: "",
-          DA: "",
-          HRA: "",
-        },
-        netSalary: "",
-        salaryPackage: "",
-        paymentMethod: "",
-      },
-      documents: {
-        profilePhoto: "",
-        casteCertificate: "",
-        idProof: "",
-        resume: "",
-        uploadBankPassbook: "",
-        signature: "",
-        otherDocuments: [],
-      },
-      loginPassword: "",
-      isIDgenerated: false,
-    });
-  };
-
   const handleDelete = async (staff_id) => {
     try {
-      const response = await fetch(
-        `/api/teacher/delete-permantely/${staff_id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Successfully deleted staff:", data);
-      } else {
-        console.error("Error deleting staff:", data);
-      }
+      await deleteTeacher(staff_id);
+
+      showToast("Teacher deleted successfully", "success");
     } catch (error) {
       console.error("Error deleting staff:", error);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" variant="primary" color="primary" />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="d-flex justify-content-center align-items-center vh-100">
+  //       <Spinner animation="border" variant="primary" color="primary" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
@@ -439,147 +439,101 @@ function TeachingStaff() {
                           className="btn w-100 mb-0 btn-danger"
                           data-bs-toggle="modal"
                           data-bs-target="#modalCenter"
-                        // onClick={() => setIsModalOpen(true)}
+                          onClick={() => setIsModalOpen(true)}
                         >
                           Add New Staff &nbsp;
                           <i className="bx bx-message-square-add me-1"></i>
                         </p>
                       </div>
-                      {/* Add new Acountant */}
-                      {/* {isModalOpen && ( */}
-                      {isModalOpen ? (
-                        <div
-                          className="modal fade"
-                          tabIndex="-1"
-                          id="modalCenter"
-                        >
-                          <div
-                            className="modal-dialog modal-dialog-centered manage-xl"
-                            role="document"
-                          >
-                            <div className="modal-content">
-                              <div className="modal-header">
-                                <h5
-                                  className="modal-title"
-                                  id="modalCenterTitle"
-                                >
-                                  Demo School
-                                </h5>
+                      <Modal
+                        show={isModalOpen}
+                        onHide={handleCloseModal}
+                        size="lg"
+                        centered
+                        backdrop="static"
+                      >
+                        {isLoadingUpdate ? (
+                          <Modal.Body className="d-flex justify-content-center align-items-center">
+                            <Spinner animation="border" variant="primary" />
+                          </Modal.Body>
+                        ) : (
+                          <>
+                            <Modal.Header closeButton>
+                              <Modal.Title>Demo School</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <h1 className="px-2 py-3 text-white fs-5 bg-secondary">
+                                <i
+                                  className="fa fa-plus-circle"
+                                  aria-hidden="true"
+                                ></i>{" "}
+                                Add Staff
+                              </h1>
+                              <form>
+                                {step === 1 && (
+                                  <PersonalDetailsForm
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                  />
+                                )}
+                                {step === 2 && (
+                                  <EmploymentAndSalaryDetailsForm
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    handleChange={handleChange}
+                                    roles={roles}
+                                    allowances={allowances}
+                                    deductions={deductions}
+                                  />
+                                )}
+                                {step === 3 && (
+                                  <DocumentationAndPasswordForm
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    handleFileChange={handleFileChange}
+                                  />
+                                )}
+                              </form>
+                            </Modal.Body>
+
+                            <Modal.Footer>
+                              {step !== 1 && (
                                 <button
                                   type="button"
-                                  className="btn-close"
-                                  data-bs-dismiss="modal"
-                                  aria-label="Close"
-                                  onClick={() => {
-                                    setStep(1);
-                                    resetFormData();
-                                    // setIsModalOpen(false);
-                                  }}
-                                ></button>
-                              </div>
-                              <div className="modal-body">
-                                <div className="nav-align-top mb-4">
-                                  <h1
-                                    className="px-2 py-3"
-                                    style={{
-                                      color: "#fff",
-                                      fontSize: "25px",
-                                      backgroundColor: "#8e8d8dfe",
-                                    }}
-                                  >
-                                    <i
-                                      className="fa fa-plus-circle"
-                                      aria-hidden="true"
-                                    ></i>{" "}
-                                    Add Staff
-                                  </h1>
-                                  <div
-                                    className="table-responsive text-nowrap"
-                                    style={{ border: "none" }}
-                                  >
-                                    <form>
-                                      {step === 1 && (
-                                        <PersonalDetailsForm
-                                          formData={formData}
-                                          handleChange={handleChange}
-                                        />
-                                      )}
-                                      {step === 2 && (
-                                        <EmploymentAndSalaryDetailsForm
-                                          formData={formData}
-                                          handleChange={handleChange}
-                                        />
-                                      )}
-                                      {step === 3 && (
-                                        <DocumentationAndPasswordForm
-                                          formData={formData}
-                                          handleChange={handleChange}
-                                          handleFileChange={handleFileChange}
-                                        />
-                                      )}
-                                    </form>
-                                    {step !== 3 ? (
-                                      <>
-                                        <button
-                                          type="button"
-                                          className="btn btn-secondary me-2"
-                                          disabled={step === 1}
-                                          onClick={handlePrevious}
-                                        >
-                                          Previous
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className="btn btn-primary"
-                                          disabled={step === 3}
-                                          onClick={handleNext}
-                                          style={{
-                                            float: "right",
-                                            cursor:
-                                              step === 3
-                                                ? "not-allowed"
-                                                : "pointer",
-                                          }}
-                                        >
-                                          Next
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <button
-                                          type="button"
-                                          className="btn btn-secondary me-2"
-                                          disabled={step === 1}
-                                          onClick={handlePrevious}
-                                        >
-                                          Previous
-                                        </button>
-                                        <button
-                                          type="button"
-                                          style={{ float: "right" }}
-                                          onClick={() => {
-                                            editMode
-                                              ? handleUpdate(
-                                                formData,
-                                                formData?._id
-                                              )
-                                              : handleSubmit(formData);
-                                          }}
-                                          className="btn btn-primary"
-                                        >
-                                          {editMode ? "Update" : "Submit"}
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-                      {/* )} */}
-                      {/* Modal for confirm delete */}
+                                  className="btn btn-secondary"
+                                  onClick={handlePrevious}
+                                >
+                                  Previous
+                                </button>
+                              )}
+
+                              {step !== 3 ? (
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={handleNext}
+                                  disabled={step === 3}
+                                >
+                                  Next
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() =>
+                                    editMode
+                                      ? handleUpdate(formData, formData?._id)
+                                      : handleSubmit(formData)
+                                  }
+                                >
+                                  {editMode ? "Update" : "Submit"}
+                                </button>
+                              )}
+                            </Modal.Footer>
+                          </>
+                        )}
+                      </Modal>
                       <div
                         className="modal fade"
                         id="DeleteModalCenter"
@@ -814,7 +768,38 @@ function TeachingStaff() {
                                   data-bs-toggle="modal"
                                   data-bs-target="#modalCenter"
                                   onClick={() => {
-                                    setFormData(staff);
+                                    console.log("staff clickeed", staff);
+                                    setFormData((prevFormData) => ({
+                                      ...prevFormData,
+                                      ...staff,
+                                      salaryDetails: {
+                                        ...staff?.salaryDetails,
+                                        allowances:
+                                          staff?.salaryDetails?.allowances?.map(
+                                            (allowance) => ({
+                                              typeOfAllowance:
+                                                allowance?.typeOfAllowance?._id,
+                                              amount: allowance?.amount,
+                                              allowanceName:
+                                                allowance?.typeOfAllowance
+                                                  ?.allowanceName,
+                                              type: allowance?.amountType,
+                                            })
+                                          ) || [],
+                                        deductions:
+                                          staff?.salaryDetails?.deductions?.map(
+                                            (deduction) => ({
+                                              typeOfDeduction:
+                                                deduction?.typeOfDeduction?._id,
+                                              amount: deduction.amount,
+                                              deductionName:
+                                                deduction?.typeOfDeduction
+                                                  ?.deductionName,
+                                              type: deduction.amountType,
+                                            })
+                                          ) || [],
+                                      },
+                                    }));
                                     setStep(1);
                                     setEditMode(true);
                                     setIsModalOpen(true);

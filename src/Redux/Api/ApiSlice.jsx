@@ -74,12 +74,13 @@ async function decryptResponse(encryptedData, iv) {
   return new TextDecoder().decode(decrypted);
 }
 
-// Custom Base Query to handle encryption & decryption
 const customBaseQuery = async (args, api, extraOptions) => {
   const baseQuery = fetchBaseQuery({ baseUrl: "/api" });
 
   let modifiedArgs = args;
-  if (args.body) {
+
+  // Check if the body is FormData (file uploads)
+  if (args.body && !(args.body instanceof FormData)) {
     try {
       modifiedArgs = {
         ...args,
@@ -92,6 +93,7 @@ const customBaseQuery = async (args, api, extraOptions) => {
 
   const response = await baseQuery(modifiedArgs, api, extraOptions);
 
+  // Decrypt only if response contains encryptedData and iv
   if (response.data?.encryptedData && response.data?.iv) {
     try {
       const decryptedText = await decryptResponse(
@@ -113,6 +115,7 @@ export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: customBaseQuery,
   tagTypes: [
+    "ImageUpload",
     "Institute",
     "Student",
     "Teacher",
@@ -133,7 +136,7 @@ export const apiSlice = createApi({
     "Allowance",
     "Deduction",
     "Auth",
-    "Leaves"
+    "Leaves",
   ],
   endpoints: () => ({}),
 });
