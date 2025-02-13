@@ -101,9 +101,14 @@ import Leaveinstitute from '../Admin Components/Leaveinstitute.jsx'
 import NotificationBoard from '../Admin Components/Notification-Board/NotificationBoard.jsx'
 import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
+import { getCommonCredentials } from '../GlobalHelper/CommonCredentials.jsx'
+import { useFetchInstituteData } from '../Controller/useFetchAllQueries.jsx'
 
 const AdminDashboard = () => {
-  const token = sessionStorage.getItem("token");
+  const { userId, Designation: designation, Islogin, Token: token } =
+    getCommonCredentials();
+  // const token = sessionStorage.getItem("token");
+  useFetchInstituteData(userId, Islogin, token, designation);
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">

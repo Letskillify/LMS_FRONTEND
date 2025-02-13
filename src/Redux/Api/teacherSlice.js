@@ -11,7 +11,7 @@ export const teacherApi = apiSlice.injectEndpoints({
       providesTags: ["Teacher"],
     }),
     getTeachersByInstituteId: builder.query({
-      query: ({instituteId}) => `/teacher/get/institute/${instituteId}`,
+      query: (instituteId) => `/teacher/get/institute/${instituteId}`,
       providesTags: ["Teacher"],
     }),
     addTeacher: builder.mutation({

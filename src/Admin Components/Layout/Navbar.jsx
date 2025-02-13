@@ -1,21 +1,24 @@
 import React, { useContext, useEffect } from 'react'
-import { MainContext } from '../../Controller/MainProvider'
+// import { MainContext } from '../../Controller/MainProvider'
 import { Link, useLocation } from 'react-router-dom'
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
+import { useDispatch } from 'react-redux';
+import { setGlobalSidebarOpen, setIslogin } from '../../Redux/Slices/MainSlice';
 function Navbar() {
-    const { HandleLogOut, setsidebaropen } = useContext(MainContext) // -->> real time karna hai 
-    const { userId, Institute } = getCommonCredentials();
+    // const { HandleLogOut, setsidebaropen } = useContext(MainContext) // -->> real time karna hai 
+    const { userId, Institute, SidebarOpen } = getCommonCredentials();
+    const dispatch = useDispatch();
 
     // for sidebar toggle 
     const location = useLocation();
-    useEffect(() => {
-        setsidebaropen(false);
-    }, [location.pathname]);
+    // useEffect(() => {
+    //     dispatch(setGlobalSidebarOpen(false));
+    // }, [location.pathname]);
     return (
         <>
             <div className=' bg-themprimary'>
                 <nav class="navbar navbar-expand-lg navbar-dark px-3 align-items-center mt-2">
-                    <div className='mx-3 d-xl-none d-block' onClick={() => setsidebaropen(true)}>
+                    <div className='mx-3 d-xl-none d-block'>
                         <Link><i class="fa fa-bars fs-4 text-white" aria-hidden="true"></i></Link>
                     </div>
                     <div class="d-flex align-items-center me-auto w-50 shadow-none">
@@ -97,7 +100,7 @@ function Navbar() {
                             </li>
 
                             <li>
-                                <Link className="dropdown-item" onClick={HandleLogOut}>
+                                <Link className="dropdown-item">
                                     <i className="bx bx-power-off me-2"></i>
                                     <a className="align-middle">Log Out</a>
                                 </Link>

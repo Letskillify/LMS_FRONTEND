@@ -10,6 +10,7 @@ const initialState = {
   globalInstitute: null,
   globalStudent: null,
   globalTeacher: null,
+  globalTeacherData: null,
   globalInstituteId: null,
   globalSidebarOpen: false,
   globalSemester: null,
@@ -53,15 +54,18 @@ const mainSlice = createSlice({
     },
     setGlobalInstitute: (state, action) => {
       state.globalInstitute = action.payload;
-      state.globalInstituteId = action.payload?._id || null;
+      state.globalInstituteId = action.payload?._id || state.globalInstituteId;
     },
     setGlobalStudent: (state, action) => {
       state.globalStudent = action.payload;
-      state.globalInstituteId = action.payload?.instituteId?._id || null;
+      state.globalInstituteId = action.payload?.instituteId?._id || state.globalInstituteId;
     },
     setGlobalTeacher: (state, action) => {
       state.globalTeacher = action.payload;
-      state.globalInstituteId = action.payload?.instituteId?._id || null;
+      state.globalInstituteId = action.payload?.instituteId?._id || state.globalInstituteId;
+    },
+    setGlobalTeacherData: (state, action) => {
+      state.globalTeacherData = action.payload;
     },
     setGlobalSidebarOpen: (state, action) => {
       state.globalSidebarOpen = action.payload;
@@ -116,6 +120,7 @@ export const {
   setGlobalInstitute,
   setGlobalStudent,
   setGlobalTeacher,
+  setGlobalTeacherData,
   setGlobalSidebarOpen,
   setGlobalEditedData,
   setGlobalSemester,

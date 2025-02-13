@@ -373,9 +373,9 @@ export const MainProvider = ({ children }) => {
     if (userId) {
       dispatch(setGlobalUserId(userId));
     }
-    if (instituteId) {
-      dispatch(setGlobalInstituteId(instituteId));
-    }
+    // if (instituteId) {
+    //   dispatch(setGlobalInstituteId(instituteId));
+    // }
   }, [userId, instituteId]);
 
   useEffect(() => {
@@ -398,7 +398,7 @@ export const MainProvider = ({ children }) => {
     dispatch(setGlobalStudentData(data));
     if (data) {
       setInstituteId(data?.instituteId?._id);
-      dispatch(setGlobalInstituteId(data?.instituteId?._id));
+      // dispatch(setGlobalInstituteId(data?.instituteId?._id));
     }
   };
   const fetchTeacher = async () => {
@@ -407,7 +407,7 @@ export const MainProvider = ({ children }) => {
     dispatch(setGlobalTeacher(data));
     if (data) {
       setInstituteId(data?.instituteId._id);
-      dispatch(setGlobalInstituteId(data?.instituteId._id));
+      // dispatch(setGlobalInstituteId(data?.instituteId._id));
     }
   };
 
@@ -467,7 +467,6 @@ export const MainProvider = ({ children }) => {
     setSettings(data ? data : null);
     dispatch(setGlobalSettings(data ? data : null));
   };
-
   return (
     <MainContext.Provider
       value={{
