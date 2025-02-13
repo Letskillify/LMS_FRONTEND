@@ -4,6 +4,7 @@ import axios from "axios";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+
 // import { showToast } from "../../GlobalHelper/Toast";
 // import { useDeleteExamTypeMutation, useGetExamTypeByInstituteIdQuery } from "../../Redux/Api/ExamTypeApi";
 
@@ -26,6 +27,13 @@ const ExamForm = () => {
       alert("Error Fetching Data");
     }
   };
+
+  useEffect(() => {
+    axios.get("/api/exam-type/get").then((res) => setExamTypes(res.data));
+    axios.get("/api/teacher/get-all").then((res) => setTeacher(res.data));
+    axios.get("/api/subject/get").then((res) => setSubject(res.data));
+    axios.get("/api/class/get").then((res) => setClass(res.data));
+  }, []);
   useEffect(() => {
     fetchExam();
   }, [InstituteId]);
@@ -220,11 +228,13 @@ console.log(EditData, "EditData");
                             className="form-select"
                           >
                             <option value="">Select Exam Type</option>
+
                             {/* {examTypes &&
                               examTypes?.map((type) => (
                                 <option key={type._id} value={type._id}>
                                   {type?.examTypeName}
                                 </option>
+
                               ))} */}
                           </Field>
                         </div>
@@ -791,4 +801,3 @@ console.log(EditData, "EditData");
 };
 
 export default ExamForm;
-

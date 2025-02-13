@@ -626,6 +626,11 @@ progress {
   .container-md, .container-sm, .container {
     max-width: 720px;
   }
+  .notification-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(250px, 1fr)) !important;
+}
 }
 @media (min-width: 992px) {
   .container-lg, .container-md, .container-sm, .container {

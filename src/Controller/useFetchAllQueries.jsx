@@ -16,6 +16,7 @@ import {
   setGlobalClass,
   setGlobalSettings,
   setGlobalTeacherData,
+  setglobalExamType,
 } from "../Redux/Slices/MainSlice";
 
 import { useGetInstituteByIdQuery } from "../Redux/Api/instituteSlice";
@@ -31,6 +32,7 @@ import { useGetBoardsByInstituteIdQuery } from "../Redux/Api/academicsApi/boardS
 import { useGetCourseGroupByInstituteIdQuery } from "../Redux/Api/academicsApi/courseGroupSlilce";
 import { useGetClassByInstituteIdQuery } from "../Redux/Api/academicsApi/classSlice";
 import { useGetSettingsByInstituteIdQuery } from "../Redux/Api/settingsSlice";
+import { useGetExamTypeByInstituteIdQuery } from "../Redux/Api/examTypeSlice";
 
 export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   const dispatch = useDispatch();
@@ -44,6 +46,7 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
 
   dispatch(setGlobalInstituteId(instituteId));
   useEffect(() => {
+    console.log("instituteId:", instituteId);
     console.log("instituteId:", instituteId); 
     if (instituteId) {
     }
@@ -84,6 +87,9 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
     skip: !instituteId,
   });
   const settingsQuery = useGetSettingsByInstituteIdQuery(instituteId, {
+    skip: !instituteId,
+  });
+  const examTypeQuery = useGetExamTypeByInstituteIdQuery(instituteId, {
     skip: !instituteId,
   });
 
@@ -161,6 +167,11 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
       dispatch(setGlobalSettings(settingsQuery.data));
     }
   }, [dispatch, settingsQuery.data]);
+  useEffect(() => {
+    if (examTypeQuery.data) {
+      dispatch(setglobalExamType(examTypeQuery.data));
+    }
+  }, [dispatch, examTypeQuery.data]);
 
   return { instituteId };
 };
