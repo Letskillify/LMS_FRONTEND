@@ -219,7 +219,7 @@ function FeeStructureManagement() {
                                                     }))}
                                                     name="applicableTo.className"
                                                     value={values.applicableTo.className.map(s => ({
-                                                        value: s,
+                                                        value: s,   
                                                         label: classes.find(cl => cl._id === s).className
                                                     }))}
                                                     onChange={selected => setFieldValue("applicableTo.className", selected.map(s => s.value))}
