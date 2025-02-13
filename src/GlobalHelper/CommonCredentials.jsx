@@ -32,3 +32,4 @@ export const getCommonCredentials = () => {
     EditedData: state.globalEditedData,
   };
 };
+
