@@ -25,6 +25,8 @@ const initialState = {
   globalClass: null,
   globalSettings: null,
   globalEditedData: {},
+  globalExamType: null,
+
 };
 
 const mainSlice = createSlice({
@@ -106,6 +108,9 @@ const mainSlice = createSlice({
     setGlobalSettings: (state, action) => {
       state.globalSettings = action.payload;
     },
+    setglobalExamType: (state, action) => {
+      state.globalExamType = action.payload;
+    },
   },
 });
 
@@ -134,5 +139,6 @@ export const {
   setGlobalCourseGroup,
   setGlobalClass,
   setGlobalSettings,
+  setglobalExamType,
 } = mainSlice.actions;
 export default mainSlice.reducer;
