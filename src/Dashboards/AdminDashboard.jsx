@@ -51,11 +51,9 @@ import FeeDetails from '../Admin Components/Fee Management/FeeDetails.jsx'
 import FeeReminderToAll from '../Admin Components/Fee Management/FeeReminderToAll.jsx'
 import PendingFeesTracker from '../Admin Components/Fee Management/PendingFeesTracker.jsx'
 import EditParents from '../Admin Components/Parents/EditParents.jsx'
-import AddClass from '../Admin Components/Class Management/AddClass.jsx'
 import ImageUploadComponent from '../Admin Components/Test files/ImageUploadComponent.jsx'
 import EditProfile from '../Admin Components/Institute/EditProfile.jsx'
 import Stock from '../Admin Components/stock/Stock.jsx'
-import Subjects from '../Admin Components/Class Management/Subjects.jsx'
 import StaffManagement from '../Admin Components/Staff/StaffManagement.jsx'
 import NonTeachingStaff from '../Admin Components/Staff/NonTeachingStaff.jsx'
 import TeachingStaff from '../Admin Components/Staff/TeachingStaff.jsx'
@@ -96,14 +94,13 @@ import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
 import Settings from '../Admin Components/Setting/Settings.jsx'
-import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
-import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
 import StockInventory from '../Admin Components/stock/Inventory.jsx'
 import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
 import Leave from '../Admin Components/Leave.jsx'
 import Leaveinstitute from '../Admin Components/Leaveinstitute.jsx'
 import NotificationBoard from '../Admin Components/Notification-Board/NotificationBoard.jsx'
 import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
+import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
 
 const AdminDashboard = () => {
   const token = sessionStorage.getItem("token");
@@ -171,8 +168,6 @@ const AdminDashboard = () => {
                 <Route path='/feeremindertoall' element={<FeeReminderToAll />} />
                 <Route path='/pendingfees' element={<PendingFeesTracker />} />
                 <Route path='/feecollection' element={<FeeCollection />} />
-                <Route path='/addclasses' element={<AddClass />} />
-                <Route path='/allclasses&subjects' element={<Subjects />} />
                 <Route path='/stock-Account' element={<Stock />} />
                 <Route path='/stock-inventory' element={<StockInventory/>} />
                 <Route path="/staff-management" element={<StaffManagement />}></Route>
@@ -202,8 +197,7 @@ const AdminDashboard = () => {
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
-                <Route path="/Holiday" element={<InstituteHoliday />}></Route>
-                <Route path="/Holiday-Form" element={<HolidayForm/>}></Route>
+                <Route path="/holiday" element={<Holiday/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>

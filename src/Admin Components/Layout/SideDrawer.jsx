@@ -381,29 +381,16 @@ function SideDrawer() {
                             </ul>
 
                         </li>
-                        <li className={`menu-item ${Stf_salary ? 'active' : ''} ${OpenToggle == 'classNamelogic' ? 'open' : ''}`}>
-                            <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={classNamelogic}>
-                                <i className="menu-icon tf-icons bx bx-layout"></i>
-                                <div>Class & Subject Management</div>
-                            </a>
-
-                            <ul className="menu-sub">
-                                <li className="menu-item">
-                                    <Link to={"/addclasses"} className="menu-link">
-                                        <div>Add Class</div>
-                                    </Link>
-                                </li>
-                                <li className="menu-item">
-                                    <Link to={"/allclasses&subjects"} className="menu-link">
-                                        <div>Classes & Subjects</div>
-                                    </Link>
-                                </li>
-                            </ul>
-                        </li>
                         <NavLink activeclassname="active" className="menu-item" to="/liveclass">
                             <a href="javascript:void(0);" className="menu-link">
                                 <i className="menu-icon  fa fa-video-camera" aria-hidden="true"></i>
                                 <div>Live Classes</div>
+                            </a>
+                        </NavLink>
+                        <NavLink activeclassname="active" className="menu-item" to="/holiday">
+                            <a href="javascript:void(0);" className="menu-link">
+                                <i className="menu-icon  fa fa-calendar" aria-hidden="true"></i>
+                                <div>Holiday</div>
                             </a>
                         </NavLink>
                         <NavLink activeclassname="active" className="menu-item" to="/studymaterial">

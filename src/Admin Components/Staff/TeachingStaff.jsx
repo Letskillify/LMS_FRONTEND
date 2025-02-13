@@ -439,7 +439,7 @@ function TeachingStaff() {
                           className="btn w-100 mb-0 btn-danger"
                           data-bs-toggle="modal"
                           data-bs-target="#modalCenter"
-                          // onClick={() => setIsModalOpen(true)}
+                        // onClick={() => setIsModalOpen(true)}
                         >
                           Add New Staff &nbsp;
                           <i className="bx bx-message-square-add me-1"></i>
@@ -560,9 +560,9 @@ function TeachingStaff() {
                                           onClick={() => {
                                             editMode
                                               ? handleUpdate(
-                                                  formData,
-                                                  formData?._id
-                                                )
+                                                formData,
+                                                formData?._id
+                                              )
                                               : handleSubmit(formData);
                                           }}
                                           className="btn btn-primary"
