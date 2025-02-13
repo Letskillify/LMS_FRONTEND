@@ -103,6 +103,7 @@ import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
 
 import { getCommonCredentials } from '../GlobalHelper/CommonCredentials.jsx'
 import { useFetchInstituteData } from '../Controller/useFetchAllQueries.jsx'
+import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -182,7 +183,7 @@ const AdminDashboard = () => {
                 <Route path="/adminhomework" element={<AdminHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
                 <Route path="/adminexam" element={<ExamForm />}></Route>
-                <Route path="/teacherexam" element={<ExamType />}></Route>
+                <Route path="/teacherexam" element={<ExamType/>}></Route>
                 {/* <Route path="/studentexam" element={<StudentExam />}></Route> */}
                 <Route path="/studymaterial" element={<StudyMaterial />}></Route>
                 {/* <Route path="/addsections" element={<AddSections />}></Route> */}

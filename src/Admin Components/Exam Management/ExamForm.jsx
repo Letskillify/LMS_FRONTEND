@@ -4,42 +4,71 @@ import axios from "axios";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
-
-// import { showToast } from "../../GlobalHelper/Toast";
-// import { useDeleteExamTypeMutation, useGetExamTypeByInstituteIdQuery } from "../../Redux/Api/ExamTypeApi";
+import {
+  useAddNewExamMutation,
+  useDeleteExamMutation,
+  useGetExamByIdQuery,
+  useGetExamByInstituteIdQuery,
+  useUpdateExamByIdMutation,
+} from "../../Redux/Api/examDataSlice";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
 
 const ExamForm = () => {
-  const { InstituteId, TeacherData, Subject, Class } = getCommonCredentials();
-  console.log(InstituteId,"InstituteId");
-  
-  const [examTypes, setExamTypes] = useState([]);
+  const { InstituteId, TeacherData, Subject, Class, ExamType } =
+    getCommonCredentials();
+  const showToast = useGlobalToast();
   const [popup, setPopup] = useState(false);
   const [exams, setExams] = useState([]);
-  const [EditData, setEditData] = useState('');
+  const [EditData, setEditData] = useState(null);
   const [Editpopup, setEditpopup] = useState(false);
-    const fetchExam = async () => {
-    if (!InstituteId) return console.error("Error: InstituteId is missing.");
+
+  const { data: Exam, isLoading } = useGetExamByInstituteIdQuery(InstituteId, {
+    skip: !InstituteId,
+  });
+
+  const [addNewExam] = useAddNewExamMutation();
+  const [updateExam] = useUpdateExamByIdMutation();
+
+  useEffect(() => {
+    setExams(Exam);
+  }, [Exam]);
+
+  const handleSubmit = async (Exam) => {
+    console.log(Exam,"Exam");
     try {
-      const { data } = await useGetAllExamsQuery({ instituteId: InstituteId },{ skip: !InstituteId }
-      ) ;
-      setExams(data);
+      const response = await addNewExam(Exam);
+      alert("Exam Added Successfully");
+      // setExams([...exams, response.data]);
+      setPopup(false);
+      // if (response.data.status === 201) {
+      // }else{
+      //   console.log(Exam,"Exam");
+      // }
     } catch (error) {
-      console.error("Error fetching exams:", error.message);
+      console.error("Error submitting exam:", error.message);
+      alert("Error Submitting Data");
+    }
+  };
+  const editExam = async () => {
+    try {
+      const response = await updateExam({
+        id: EditData._id,
+        ExamData: EditData
+      });
+      setEditData(response.data);
+      // alert("Data Fetched Successfully");
+      setEditpopup(true);
+      // if (response.status === 200) {
+      // }
+    } catch (error) {
+      console.error("Error fetching exam:", error.message);
       alert("Error Fetching Data");
     }
   };
+  console.log(EditData, "EditData");
 
-  useEffect(() => {
-    axios.get("/api/exam-type/get").then((res) => setExamTypes(res.data));
-    axios.get("/api/teacher/get-all").then((res) => setTeacher(res.data));
-    axios.get("/api/subject/get").then((res) => setSubject(res.data));
-    axios.get("/api/class/get").then((res) => setClass(res.data));
-  }, []);
-  useEffect(() => {
-    fetchExam();
-  }, [InstituteId]);
   const initialValues = {
-    examType: "haha",
+    examType: "",
     examName: "",
     examCode: "",
     startingDate: "",
@@ -64,7 +93,6 @@ const ExamForm = () => {
     examMode: "Offline",
     examInstructions: "",
   };
-
   const validationSchema = Yup.object({
     examName: Yup.string().required("Exam name is required"),
     examCode: Yup.string().required("Exam code is required"),
@@ -82,34 +110,6 @@ const ExamForm = () => {
       })
     ),
   });
-
-  const handleSubmit = async (values) => {
-  
-    try {
-      const response = await axios.post("/api/exam/post", values);
-      if (response.status === 201) {
-        alert("Exam Added Successfully");
-        fetchExam(); // Refresh the list
-      }
-    } catch (error) {
-      console.error("Error submitting exam:", error.message);
-      alert("Error Submitting Data");
-    }
-  };
-  const editExam = async () => {
-    try {
-      const response = await axios.get(`/api/exam/update/${EditData._id}`);
-      if (response.status === 200) {
-        setEditData(response.data);
-        alert("Data Fetched Successfully");
-        setEditpopup(true);
-      }
-    } catch (error) {
-      console.error("Error fetching exam:", error.message);
-      alert("Error Fetching Data");
-    }
-  };
-console.log(EditData, "EditData");
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-4">
@@ -228,13 +228,12 @@ console.log(EditData, "EditData");
                           >
                             <option value="">Select Exam Type</option>
 
-                            {/* {examTypes &&
-                              examTypes?.map((type) => (
+                            {ExamType &&
+                              ExamType?.map((type) => (
                                 <option key={type._id} value={type._id}>
                                   {type?.examTypeName}
                                 </option>
-
-                              ))} */}
+                              ))}
                           </Field>
                         </div>
                         <div className="col-6 mb-3">
@@ -248,10 +247,10 @@ console.log(EditData, "EditData");
                                   label: cls?.className,
                                 }))}
                                 name="class"
-                                value={values.class   .map((s) => ({
+                                value={values.class.map((s) => ({
                                   value: s,
                                   label:
-                                    Class   ?.find((cl) => cl._id === s)
+                                    Class?.find((cl) => cl._id === s)
                                       .className || "Unknown",
                                 }))}
                                 onChange={(selected) =>
@@ -428,8 +427,8 @@ console.log(EditData, "EditData");
                                 ).map((id) => ({
                                   value: id,
                                   label:
-                                    TeacherData.find((t) => t._id === id)?.fullName
-                                      ?.firstName +
+                                    TeacherData.find((t) => t._id === id)
+                                      ?.fullName?.firstName +
                                       " " +
                                       TeacherData.find((t) => t._id === id)
                                         ?.fullName?.lastName || "Unknown",
@@ -551,12 +550,17 @@ console.log(EditData, "EditData");
               </div>
               <div className="modal-body">
                 <Formik
-                  initialValues={{
+                  initialValues={
+                    EditData || {
                     examType: EditData.examType || "-",
                     examName: EditData.examName || "-",
                     examCode: EditData.examCode || "-",
-                    startingDate: EditData.startingDate ? new Date(EditData.startingDate).toLocaleDateString() : "-",
-                    endingDate: EditData.endingDate ? new Date(EditData.endingDate).toLocaleDateString() : "-",
+                    startingDate: EditData.startingDate
+                      ? new Date(EditData.startingDate).toLocaleDateString()
+                      : "-",
+                    endingDate: EditData.endingDate
+                      ? new Date(EditData.endingDate).toLocaleDateString()
+                      : "-",
                     instituteId: InstituteId,
                     class: EditData.class || [],
                     subjects: EditData.subjects || [
@@ -576,7 +580,8 @@ console.log(EditData, "EditData");
                     passingMarks: EditData.passingMarks || "-",
                     examMode: EditData.examMode || "Offline",
                     examInstructions: EditData.examInstructions || "-",
-                  }}
+                  }
+                }
                   onSubmit={editExam}
                 >
                   {({ values, setFieldValue }) => (
@@ -592,7 +597,11 @@ console.log(EditData, "EditData");
                         </div>
                         <div className="col-6 mb-3">
                           <label className="form-label">Classes</label>
-                          <Field id="class" name="class" className="form-control" />
+                          <Field
+                            id="class"
+                            name="class"
+                            className="form-control"
+                          />
                         </div>
                       </div>
                       <div className="row">
@@ -618,7 +627,6 @@ console.log(EditData, "EditData");
                         <div className="col-6 mb-3">
                           <label className="form-label">Starting Date</label>
                           <Field
-                            type="date"
                             name="startingDate"
                             className="form-control"
                           />
@@ -626,7 +634,6 @@ console.log(EditData, "EditData");
                         <div className="col-6 mb-3">
                           <label className="form-label">Ending Date</label>
                           <Field
-                            type="date"
                             name="endingDate"
                             className="form-control"
                           />
@@ -723,7 +730,11 @@ console.log(EditData, "EditData");
                       <div className="row">
                         <div className="col-6 mb-3">
                           <label className="form-label">Assigned By</label>
-                          <Field name="assignedBy" id="assignedBy" className="form-control"/>
+                          <Field
+                            name="assignedBy"
+                            id="assignedBy"
+                            className="form-control"
+                          />
                         </div>
                         <div className="col-6 mb-3">
                           <label className="form-label">Status</label>
@@ -763,18 +774,16 @@ console.log(EditData, "EditData");
                           </Field>
                         </div>
                       </div>
-                        <div className="col-12 mb-3">
-                          <label className="form-label">
-                            Exam Instructions
-                          </label>
-                          <Field
-                            as="textarea"
-                            rows="3"
-                            name="examInstructions"
-                            className="form-control"
-                            placeholder="Enter Exam Instructions"
-                          />
-                        </div>
+                      <div className="col-12 mb-3">
+                        <label className="form-label">Exam Instructions</label>
+                        <Field
+                          as="textarea"
+                          rows="3"
+                          name="examInstructions"
+                          className="form-control"
+                          placeholder="Enter Exam Instructions"
+                        />
+                      </div>
                       <div className="modal-footer">
                         <button
                           type="button"
@@ -800,3 +809,4 @@ console.log(EditData, "EditData");
 };
 
 export default ExamForm;
+

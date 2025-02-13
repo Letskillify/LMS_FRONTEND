@@ -41,10 +41,8 @@ function ExamType() {
   // }
 
   const handleExamType = async (examTypeData) => {
-    console.log("values", examTypeData);
-    try {
+      try {
       const response = await createExamType(examTypeData);
-      console.log("response", response);
       if (response.data.status === 201) {
         setExamType([...ExamType, response.data]);
         showToast("Data Sent Successfully", "success");
@@ -74,7 +72,7 @@ function ExamType() {
     try {
       const response = await updateExamType({
         id: selectedExamType._id,
-        examTypeData: values,
+        examTypeData:   values,
       });
       if (response.data.status === 200) {
         setExamType(
