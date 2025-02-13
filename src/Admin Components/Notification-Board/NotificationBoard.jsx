@@ -1,13 +1,35 @@
-import { Field, Formik, Form } from "formik";
+import { Field, Formik, Form, ErrorMessage } from "formik";
 import React, { useContext, useEffect, useState } from "react";
 // import { MainContext } from "../../Controller/MainProvider";
 import axios from "axios";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import Select from "react-select";
-import { useFileUploader } from "../../Custom Hooks/CustomeHook";
+import { getApi, useFileUploader } from "../../Custom Hooks/CustomeHook";
 import { Spinner } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Bounce, toast } from "react-toastify";
+import * as Yup from "yup";
+import { motion } from "framer-motion"
+import { Bell, X, Calendar, Clock, AlertCircle } from "lucide-react"
+
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  attachment: Yup.mixed().nullable(),
+  status: Yup.string().required("Please select a status"),
+  isNoticeForAll: Yup.boolean().required("Please select an option"),
+  targetAudienceType: Yup.string().when("isNoticeForAll", {
+    is: (val) => val === "false",
+    then: Yup.string().required("Please select an audience type"),
+  }),
+  datePosted: Yup.date()
+    .required("Date posted is required")
+    .max(new Date(), "Date cannot be in the future"),
+  validTill: Yup.date()
+    .required("Valid till date is required")
+    .min(Yup.ref("datePosted"), "Valid till date must be after date posted"),
+  description: Yup.string().required("Description is required"),
+});
+
 
 const NotificationBoard = () => {
   const [notification, setNotification] = useState();
@@ -15,8 +37,11 @@ const NotificationBoard = () => {
   const [audienceType, setAudienceType] = useState(false);
   // const { instituteId } = useContext(MainContext);
   const { uploadedFiles, isLoading, handleFileUpload } = useFileUploader();
-  const { globalInstituteId : InstituteId, globalUserId : userId } = useSelector((state) => state.main);
+  const { globalInstituteId: InstituteId, globalUserId: userId } = useSelector((state) => state.main);
+  const { Class, CourseGroup, Course, Board,ExamType } = getCommonCredentials();
 
+  console.log(ExamType,"ExamType");
+  
   console.log(InstituteId, "InstituteId ----");
 
   const initialValues = {
@@ -35,6 +60,12 @@ const NotificationBoard = () => {
     instituteId: InstituteId,
   };
 
+  const getNoticeBoard = () => {
+    getApi("/api/notice-board/get").then((data) => console.log(data))
+  }
+  useEffect(() => {
+    getNoticeBoard();
+  }, [InstituteId])
   const handleSubmit = async (values, { setSubmitting }) => {
     if (!isLoading) {
       const data = {
@@ -96,6 +127,27 @@ const NotificationBoard = () => {
     }
   };
 
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "Important Announcement",
+      description: "All classes will be conducted online next week due to maintenance work.",
+      datePosted: "2025-02-10",
+      validTill: "2025-02-17",
+      status: "Active",
+      color: "bg-blue-100 border-blue-500",
+    },
+    {
+      id: 2,
+      title: "Exam Schedule Update",
+      description: "The final exam schedule has been updated. Please check the portal for details.",
+      datePosted: "2025-02-05",
+      validTill: "2025-03-01",
+      status: "Active",
+      color: "bg-green-100 border-green-500",
+    },
+  ])
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between">
@@ -132,7 +184,7 @@ const NotificationBoard = () => {
           </div>
         ))} */}
       </div>
-      <div className="table-responsive text-nowrap mt-3">
+      {/* <div className="table-responsive text-nowrap mt-3">
         <table className="table table-striped">
           <thead>
             <tr className="text-center">
@@ -146,7 +198,7 @@ const NotificationBoard = () => {
             </tr>
           </thead>
           <tbody className="table-border-bottom-0">
-            {/* {(filteredClasses || Class)?.length > 0 ? (
+            {(filteredClasses || Class)?.length > 0 ? (
               (filteredClasses || Class)?.slice(0, Show)?.map((classes) => (
                 <tr key={classes._id} className="text-center" >
                   <td>{classes?.className || '-'}</td>
@@ -175,10 +227,44 @@ const NotificationBoard = () => {
               <tr>
                 <td colSpan="7" className="text-center">No results found</td>
               </tr>
-            )} */}
+            )}
           </tbody>
         </table>
-      </div>
+      </div> */}
+
+      <motion.div className="notification-grid">
+        {notifications.map((notification) => (
+          <motion.div
+            key={notification.id}
+            className={`notification ${notification.color}`}
+          >
+            <div className="notification-content">
+              <h2 className="notification-title">{notification.title}</h2>
+              <p className="notification-description">{notification.description}</p>
+              <div className="notification-meta">
+                <div className="notification-meta-item">
+                  <Calendar className="notification-meta-icon" />
+                  <span className="notification-meta-text">Posted: {notification.datePosted}</span>
+                </div>
+                <div className="notification-meta-item">
+                  <Clock className="notification-meta-icon" />
+                  <span className="notification-meta-text">Valid till: {notification.validTill}</span>
+                </div>
+              </div>
+              <div className="notification-status justify-content-between text-center">
+                <div>
+                  <AlertCircle className="notification-status-icon" />
+                  <span className="notification-status-text">{notification.status}</span>
+                </div>
+                <div>
+                  Attachment :
+                  <span className="notification-status-text ms-2">Download</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {showPopup && (
         <div className="modal show d-block" tabIndex="-1">
@@ -193,7 +279,7 @@ const NotificationBoard = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <Formik initialValues={initialValues} enableReinitialize onSubmit={handleSubmit}>
+                <Formik initialValues={initialValues} enableReinitialize validationSchema={validationSchema} onSubmit={handleSubmit}>
                   {({ values, setFieldValue }) => (
                     <Form>
 
@@ -207,72 +293,46 @@ const NotificationBoard = () => {
                           />
                         </div> */}
                       <div className="row">
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Title</label>
-                          <Field
-                            type="text"
-                            name="title"
-                            placeholder="Enter Notice Title"
-                            className="form-control"
-                          />
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Title</label>
+                            <Field type="text" name="title" placeholder="Enter Notice Title" className="form-control" />
+                            <ErrorMessage name="title" component="div" className="text-danger" />
+                          </div>
+
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Attachment</label>
+                            <input
+                              type="file"
+                              name="attachment"
+                              className="form-control"
+                              accept=".csv,.pdf,.doc,.docx,.xlsx,.xls"
+                              onChange={(e) => handleFileUpload(e, "attachment")}
+                            />
+                          </div>
                         </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Attachment</label>
-                          <input
-                            type="file"
-                            name="attachment"
-                            placeholder="Enter URL of Attachment"
-                            className="form-control"
-                            accept=".csv,.pdf,.doc,.docx,.xlsx,.xls"
-                            onChange={(e) => handleFileUpload(e, "attachment")}
-                          />
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Status</label>
-                          <Field
-                            as="select"
-                            name="status"
-                            placeholder="Select Status"
-                            className="form-select"
-                          >
-                            <option value="Draft">Draft</option>
-                            <option value="Active">Active</option>
-                            <option value="Expired">Expired</option>
-                            <option value="Archived">Archived</option>
-                          </Field>
-                        </div>
-                        {/* <div className="col-md-6 mb-3">
-                          <label className="form-label">User Type</label>
-                          <Field
-                            as="select"
-                            name="userType"
-                            placeholder="Select User Type"
-                            className="form-select"
-                          >
-                            <option value="TeachingStaff">Teaching Staff</option>
-                            <option value="NonTeachingStaff">
-                              Non-Teaching Staff
-                            </option>
-                            <option value="InstituteProfile">
-                              Institute Profile
-                            </option>
-                          </Field>
-                          </div> */}
-                        <div className="col-md-6">
-                          <label className="form-label">
-                            Is Notice For All
-                          </label>
-                          <Field
-                            as="select"
-                            name="isNoticeForAll"
-                            placeholder="Is Notice For All"
-                            className="form-select"
-                          >
-                            <option value={false}>No</option>
-                            <option value={true}>Yes</option>
-                          </Field>
+
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Status</label>
+                            <Field as="select" name="status" className="form-select">
+                              <option value="">Select Status</option>
+                              <option value="Draft">Draft</option>
+                              <option value="Active">Active</option>
+                              <option value="Expired">Expired</option>
+                              <option value="Archived">Archived</option>
+                            </Field>
+                            <ErrorMessage name="status" component="div" className="text-danger" />
+                          </div>
+
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Is Notice For All</label>
+                            <Field as="select" name="isNoticeForAll" className="form-select">
+                              <option value={false}>No</option>
+                              <option value={true}>Yes</option>
+                            </Field>
+                            <ErrorMessage name="isNoticeForAll" component="div" className="text-danger" />
+                          </div>
                         </div>
                         {/* <div className="col-md-6 mb-3">
                           {!values.isNoticeForAll && (
@@ -314,6 +374,7 @@ const NotificationBoard = () => {
                                   Course Boards
                                 </option>
                               </Field>
+                              <ErrorMessage name="targetAudienceType" component="div" className="text-danger" />
                               {/* <Field name="targetAudienceType">
                               {({ field }) => (
                                 <Select
@@ -467,32 +528,24 @@ const NotificationBoard = () => {
                             }
                           </>
                         )}
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Date Posted</label>
-                          <Field
-                            type="date"
-                            name="datePosted"
-                            placeholder="Select Date"
-                            className="form-control"
-                          />
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Date Posted</label>
+                            <Field type="date" name="datePosted" className="form-control" />
+                            <ErrorMessage name="datePosted" component="div" className="text-danger" />
+                          </div>
+
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Valid Till</label>
+                            <Field type="date" name="validTill" className="form-control" />
+                            <ErrorMessage name="validTill" component="div" className="text-danger" />
+                          </div>
                         </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Valid Till</label>
-                          <Field
-                            type="date"
-                            name="validTill"
-                            placeholder="Select Valid Till Date"
-                            className="form-control"
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
+
+                        <div className="col-md-12 mb-3">
                           <label className="form-label">Description</label>
-                          <Field
-                            as="textarea"
-                            name="description"
-                            placeholder="Enter Notice Description"
-                            className="form-control"
-                          />
+                          <Field as="textarea" name="description" className="form-control" placeholder="Enter description" />
+                          <ErrorMessage name="description" component="div" className="text-danger" />
                         </div>
                       </div>
                       <button type="submit" className="btn btn-success">

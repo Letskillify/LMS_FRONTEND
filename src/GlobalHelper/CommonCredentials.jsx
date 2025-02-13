@@ -46,6 +46,7 @@ export const getCommonCredentials = () => {
     Class: state.globalClass,
     Settings: state.globalSettings,
     EditedData: state.globalEditedData,
+    ExamType: state.globalExamType,
   };
 };
 
