@@ -38,6 +38,8 @@ const ExamForm = () => {
     axios.get("/api/class/get").then((res) => setClass(res.data));
   }, []);
 
+  
+
   const initialValues = {
     examType: "",
     examName: "",
@@ -227,9 +229,9 @@ console.log(EditData, "EditData");
                           >
                             <option value="">Select Exam Type</option>
                             {examTypes &&
-                              examTypes.map((type) => (
+                              examTypes?.map((type) => (
                                 <option key={type._id} value={type._id}>
-                                  {type.examTypeName}
+                                  {type?.examTypeName}
                                 </option>
                               ))}
                           </Field>
