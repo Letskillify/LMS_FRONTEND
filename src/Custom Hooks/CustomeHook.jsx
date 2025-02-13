@@ -302,26 +302,41 @@ export const useVideoUploader = () => {
 
 export const useFileUploader = () => {
     const [uploadedFiles, setUploadedFiles] = useState({});
-    const [isfileLoading, setFileIsLoading] = useState(false); // Loader state
-    const [fileuploadProgress, setFileUploadProgress] = useState(0); // Progress bar
+    const [isfileLoading, setFileIsLoading] = useState(false);
+    const [fileuploadProgress, setFileUploadProgress] = useState(0);
 
     const handleFileUpload = (event, key) => {
         const file = event.target.files[0];
         if (file) {
             const data = new FormData();
             data.append("file", file);
-            data.append("upload_preset", "uglykgfd"); // Replace with your upload preset
-            data.append("cloud_name", "duzwys877"); // Replace with your Cloudinary cloud name
-            data.append("resource_type", "raw"); // Important for non-media files
+            data.append("upload_preset", "uglykgfd");
+            data.append("cloud_name", "duzwys877");
+            data.append("resource_type", "raw");
 
             const xhr = new XMLHttpRequest();
             setFileIsLoading(true);
+
+            // Create spinner
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "d-flex justify-content-center align-items-center";
+            loadingDiv.style.position = "fixed";
+            loadingDiv.style.top = 0;
+            loadingDiv.style.left = 0;
+            loadingDiv.style.width = "100vw";
+            loadingDiv.style.height = "100vh";
+            loadingDiv.style.zIndex = 99999;
+            loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
+            const spinner = document.createElement("div");
+            spinner.className = "spinner-border text-primary";
+            loadingDiv.appendChild(spinner);
+            document.body.appendChild(loadingDiv);
 
             // Track upload progress
             xhr.upload.onprogress = (event) => {
                 if (event.lengthComputable) {
                     const progress = Math.round((event.loaded / event.total) * 100);
-                    setFileUploadProgress(progress); // Update progress state
+                    setFileUploadProgress(progress);
                 }
             };
 
@@ -331,7 +346,6 @@ export const useFileUploader = () => {
                     const response = JSON.parse(xhr.responseText);
                     console.log("File upload successful!", response.secure_url);
 
-                    // Update state with uploaded file URL
                     setUploadedFiles((prevState) => ({
                         ...prevState,
                         [key]: response.secure_url,
@@ -340,7 +354,8 @@ export const useFileUploader = () => {
                     console.error("Upload failed:", xhr.responseText);
                 }
                 setFileIsLoading(false);
-                setFileUploadProgress(0); // Reset progress after upload
+                setFileUploadProgress(0);
+                document.body.removeChild(loadingDiv);
             };
 
             // Handle upload errors
@@ -348,9 +363,9 @@ export const useFileUploader = () => {
                 console.error("Error uploading file.");
                 setFileIsLoading(false);
                 setFileUploadProgress(0);
+                document.body.removeChild(loadingDiv);
             };
 
-            // Open connection and send request
             xhr.open("POST", "https://api.cloudinary.com/v1_1/duzwys877/raw/upload");
             xhr.send(data);
         } else {
