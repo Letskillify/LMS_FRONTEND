@@ -3,144 +3,64 @@ import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import { useCreateStreamMutation, useUpdateStreamMutation, useDeleteStreamMutation} from "../../Redux/Api/academicsApi/streamSlice"
 
 function stream() {
-  const { userId } = getCommonCredentials();
+  const showToast = useGlobalToast();
+  const { userId, Stream } = getCommonCredentials();
   const [stream, setstream] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedstream, setSelectedstream] = useState(null);
+  
+  useEffect(() => {
+    setstream(Stream);
+  }, [Stream]);
 
- 
-    const fetchstreams = async () => {
-      try {
-        const response = await axios.get('/api/stream/get');
-        setstream(response.data || []);
-      } catch (error) {
-        console.error('Error fetching streams:', error);
-      }
-    };
- 
+  const [createStream] = useCreateStreamMutation();
+  const [updateStream] = useUpdateStreamMutation();
+  const [deleteStream] = useDeleteStreamMutation();
 
   const handlestream = async (values, { resetForm }) => {
     try {
-      const response = await axios.post('/api/stream/post', values, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.status === 201) {
-        toast.success("Stream added successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        setstream([...stream, response.data])
+      const response = await createStream(values);
+      if (response.data.status === 201) {
+        showToast("Stream Created Successfully", "success");
         resetForm();
-        fetchstreams()
       }
     } catch (error) {
       console.error('Error submitting stream:', error);
-      toast.error(error.response.data.message || "Error adding Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      })
+      showToast("Error submitting stream", "error");
     }
   };
 
   const handlestreamDelete = async (id) => {
     try{
-      const response = await axios.delete(`api/stream/delete/${id}`);
+      const response = await deleteStream(id);
 
-      if (response.status=== 200) {
-        toast.success("Stream deleted successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+      if (response.data.status === 200) {
+        showToast("Stream Deleted Successfully", "success");
       }
-      fetchstreams()
 
-    }catch(error  ){
+    }catch(error){
       console.error('Error deleting stream:', error);
-      toast.error(error.response.data.message || "Error deleting Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-    })
+      showToast("Error deleting Stream", "error");
     }
   }
   const handlestreamEdit = async (values, { resetForm }) => {
     try {
-      const response = await axios.put(`/api/stream/update/${selectedstream._id}`, values, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        toast.success("Stream Edit successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        setstream(
-          stream.map((item) =>
-            item._id === selectedstream._id ? { ...item, ...values } : item
-          )
-        );
-        setPopup(false); // Close popup
+      const response = await updateStream({ streamId: selectedstream._id, streamData: values });
+      if (response.data.status === 200) {
+        showToast("Stream Edit successfully", "success");
+        setPopup(false);
         resetForm();
-        fetchstreams()
       }
     } catch (error) {
       console.error("Error updating stream:", error); 
-      toast.error(error.response.data.message || "Error updating Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-    })
-
+      showToast("Error updating stream", "error");
     }
   };
-  useEffect(() => {
-    fetchstreams();
-  }, []);
+
 
   return (
     <div className="px-4 py-5">

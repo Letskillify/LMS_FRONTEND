@@ -5,6 +5,8 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import { useCreateSubjectMutation, useDeleteSubjectMutation, useUpdateSubjectMutation } from '../../Redux/Api/academicsApi/subjectSlice';
 
 const validationSchema = Yup.object({
   subjectName: Yup.string().required('Subject name is required'),
@@ -12,122 +14,57 @@ const validationSchema = Yup.object({
 });
 
 function Subject() {
+  const showToast = useGlobalToast();
   // const { fetchSubject } = useContext(MainContext); -->> real time karna hai 
   const { userId, Subject } = getCommonCredentials();
   const [popup, setPopup] = useState(false);
   const [search, setSearch] = useState('')
   const [selectedSubject, setSelectedSubject] = useState(null);
 
+  const [createSubject] = useCreateSubjectMutation();
+  const [updateSubject] = useUpdateSubjectMutation();
+  const [deleteSubject] = useDeleteSubjectMutation();
+
   const handleSubject = async (values, { resetForm }) => {
     console.log(values);
 
     try {
-      const response = await axios.post('/api/subject/post', values, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (response.status === 201) {
-        toast.success(" Subject added successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        fetchSubject();
+      const response = createSubject(values);
+      if (response.data.status === 201) {
+        showToast("Subject Created Successfully", "success");
         resetForm();
       }
     } catch (err) {
       console.error('Failed to send data:', err);
-      toast.error(err.response.data.message || "Error adding inventory", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      })
+      showToast("Error submitting Subject", "error");
     }
   };
 
   const handleSubjectEdit = async (id, values) => {
     try {
-      const response = await axios.put(`/api/subject/update/${id}`, values, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (response.status === 200) {
-        toast.success("Subject updating successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        fetchSubject();
+      const response = await updateSubject({ subjectId: id, subjectData: values });
+      if (response.data.status === 200) {
+        showToast("Subject Updated Successfully", "success"); 
         setPopup(false);
       }
     } catch (err) {
       console.error('Error updating data:', err);
-      toast.error(err.response.data.message || "Error updating Subject", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      })
+      showToast("Error updating Subject", "error");
     }
   };
 
   const handleSubjectDelete = async (id) => {
     try {
-      const response = await axios.delete(`/api/subject/delete/${id}`);
-      if (response.status === 200) {
-        toast.success("Subject Deleting successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        fetchSubject();
+      const response = await deleteSubject(id);
+      if (response.data.status === 200) {
+        showToast("Subject Deleted Successfully", "success");
       }
     } catch (err) {
       console.error('Failed to delete data:', err);
-      toast.error(err.response.data.message || "Error Deleting Subject", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      })
+      showToast("Error deleting Subject", "error");
     }
   };
 
-  useEffect(() => {
-    fetchSubject();
-  }, []);
   const filteredSubjects = Subject?.filter(subject => {
     return (
       subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
