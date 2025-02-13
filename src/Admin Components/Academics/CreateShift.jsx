@@ -3,8 +3,9 @@ import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Bounce, toast } from "react-toastify";
-import { MainContext } from "../../Controller/MainProvider";
+// import { MainContext } from "../../Controller/MainProvider";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { useCreateShiftMutation, useDeleteShiftMutation, useUpdateShiftMutation } from "../../Redux/Api/academicsApi/shiftSlice";
 
 const CreateShift = () => {
     // const { fetchShift } = useContext(MainContext); -->> real time karna hai 
@@ -14,6 +15,10 @@ const CreateShift = () => {
     const [editingShift, setEditingShift] = useState(null);
     const [Edit, setEdit] = useState(false);
     const [SelectEdit, setSelectEdit] = useState(null);
+
+    const [createShift] = useCreateShiftMutation();
+    const [updateShift] = useUpdateShiftMutation();
+    const [deleteShift] = useDeleteShiftMutation();
 
     const validation = Yup.object({
         shiftName: Yup.string().required("Shift Name is required"),
@@ -34,12 +39,8 @@ const CreateShift = () => {
         console.log(values);
 
         try {
-            const response = await axios.post("/api/shift/post", values, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-            if (response.status === 201) {
+            const response = await createShift(values);
+            if (response.data.status === 201) {
                 toast.success("Shift created successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -53,7 +54,7 @@ const CreateShift = () => {
                 });
                 setShowModal(false);
                 resetForm();
-                fetchShift();
+                // fetchShift();
             }
         } catch (error) {
             console.error("Error sumbitting form:", error);
@@ -73,8 +74,8 @@ const CreateShift = () => {
 
     const handleShfitDelete = async (id) => {
         try {
-            const response = await axios.delete(`/api/shift/delete/${id}`);
-            if (response.status === 200) {
+            const response = await deleteShift(id);
+            if (response.data.status === 200) {
                 toast.success("shift deleted successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -86,7 +87,7 @@ const CreateShift = () => {
                     theme: "colored",
                     transition: Bounce,
                 });
-                fetchShift();
+                // fetchShift();
             }
         } catch (error) {
             console.error("Error deleting Shift:", error);
@@ -106,12 +107,8 @@ const CreateShift = () => {
 
     const handleShfitEdit = async (values, id) => {
         try {
-            const response = await axios.put(`/api/shift/update/${id}`, values, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            if (response.status === 200) {
+            const response = await updateShift({ shiftId : id, shiftData: values });
+            if (response.data.status === 200) {
                 toast.success("shift updated successfully", {
                     position: "top-right",
                     autoClose: 5000,
@@ -124,7 +121,7 @@ const CreateShift = () => {
                     transition: Bounce,
                 })
                 setEdit(false);
-                fetchShift();
+                // fetchShift();
             }
         }
         catch (error) {
@@ -142,9 +139,7 @@ const CreateShift = () => {
             });
         }
     };
-    useEffect(() => {
-        fetchShift();
-    }, []);
+
     return (
         <div className="container mt-5 mb-5">
             <div className="card">

@@ -3,14 +3,20 @@ import { MainContext } from '../../Controller/MainProvider';
 import { Field, Formik, Form } from 'formik';
 import axios from 'axios';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useCreateMediumMutation, useDeleteMediumMutation, useUpdateMediumMutation } from '../../Redux/Api/academicsApi/mediumSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Medium() {
+  const showToast = useGlobalToast();
   // const { fetchMedium } = useContext(MainContext);  -->> real time karna hai 
-  const { userId, Medium } = getCommonCredentials();
+  const { userId, Medium, InstituteId } = getCommonCredentials();
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
 
+  const [createMedium] = useCreateMediumMutation();
+  const [updateMedium] = useUpdateMediumMutation();
+  const [deleteMedium] = useDeleteMediumMutation();
 
   useEffect(() => {
     if (Medium) {
@@ -22,14 +28,9 @@ function Medium() {
 
   const handleMedium = async (values) => {
     try {
-      const response = await axios.post('/api/medium/post', values, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.status === 201) {
-        alert('Data Sent Successfully');
-        fetchMedium();
+      const response = await createMedium(values);
+      if (response.data.status === 201) {
+        showToast("Medium Created Successfully", "success");
       }
     } catch (error) {
       console.error('Error submitting medium:', error);
@@ -38,10 +39,10 @@ function Medium() {
 
   const handleMediumDelete = async (id) => {
     try {
-      const response = await axios.delete(`api/medium/delete/${id}`);
+      const response = await deleteMedium(id);
 
-      if (response.status === 200) {
-        alert("Data Deleted Successfully")
+      if (response.data.status === 200) {
+        showToast("Medium Deleted Successfully", "success");
       }
 
     } catch (error) {
@@ -50,19 +51,15 @@ function Medium() {
   }
   const handleMediumEdit = async (values) => {
     try {
-      const response = await axios.put(`/api/medium/update/${selectedMedium._id}`, values, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        alert("Medium updated successfully");
-        setMedium(
-          medium.map((item) =>
-            item._id === selectedMedium._id ? { ...item, ...values } : item
-          )
-        );
-        setPopup(false); // Close popup
+      const response = await updateMedium({mediumId : selectedMedium._id, mediumData: values});
+      if (response.data.status === 200) {
+        showToast("Medium Updated Successfully", "success");
+        // setMedium(
+        //   medium.map((item) =>
+        //     item._id === selectedMedium._id ? { ...item, ...values } : item
+        //   )
+        // );
+        setPopup(false);
       }
     } catch (error) {
       console.error("Error updating medium:", error);
@@ -81,8 +78,9 @@ function Medium() {
               <Formik
                 initialValues={{
                   mediumName: '',
-                  instituteId: userId,
+                  instituteId: InstituteId,
                 }}
+                enableReinitialize
                 onSubmit={handleMedium}
               >
                 {({ }) => (
