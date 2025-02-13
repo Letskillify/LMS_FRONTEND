@@ -11,7 +11,12 @@ import { useSelector } from "react-redux";
 import { getCommonCredentials } from "./GlobalHelper/CommonCredentials";
 
 function App() {
-  const {userId, Designation: designation , Islogin, Token} = getCommonCredentials();
+  const {
+    userId,
+    Designation: designation,
+    Islogin,
+    Token,
+  } = getCommonCredentials();
 
   const location = useLocation();
 
@@ -28,7 +33,7 @@ function App() {
       ) : designation === "Non Teaching-Staff" && Islogin ? (
         <StaffDashboard />
       ) : (
-        <div>
+        <div className="d-flex justify-content-center align-items-center vh-100">
           {location.pathname === "/forgotpassword" ? (
             <PasswordForget />
           ) : location.pathname === "/instituteregister" ? (

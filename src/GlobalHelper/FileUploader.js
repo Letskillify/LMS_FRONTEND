@@ -9,7 +9,6 @@ export function useFileUploader() {
 
     Object.keys(documents).forEach((key) => {
       const file = documents[key];
-      console.log("file", file);
       if (Array.isArray(file)) {
         file.forEach((f) => imageFormData.append(key, f));
       } else {
