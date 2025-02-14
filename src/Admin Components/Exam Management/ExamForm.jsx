@@ -402,8 +402,7 @@ const ExamForm = () => {
                                                 " " +
                                                 staff.fullName.lastName}
                                             </option>
-                                          ))
-                                          }
+                                          ))}
                                     </Field>
                                   </div>
                                 </div>
