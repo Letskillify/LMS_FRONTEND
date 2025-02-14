@@ -11,6 +11,7 @@ const initialState = {
   globalStudent: null,
   globalTeacher: null,
   globalTeacherData: null,
+  globalNonTeachingStaffData: null,
   globalInstituteId: null,
   globalSidebarOpen: false,
   globalSemester: null,
@@ -69,6 +70,9 @@ const mainSlice = createSlice({
     setGlobalTeacherData: (state, action) => {
       state.globalTeacherData = action.payload;
     },
+    setGlobalNonTeachingStaffData: (state, action) => {
+      state.globalNonTeachingStaffData = action.payload;
+    },
     setGlobalSidebarOpen: (state, action) => {
       state.globalSidebarOpen = action.payload;
     },
@@ -126,6 +130,7 @@ export const {
   setGlobalStudent,
   setGlobalTeacher,
   setGlobalTeacherData,
+  setGlobalNonTeachingStaffData,
   setGlobalSidebarOpen,
   setGlobalEditedData,
   setGlobalSemester,

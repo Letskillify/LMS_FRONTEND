@@ -15,7 +15,6 @@ const validationSchema = Yup.object({
 
 function Subject() {
   const showToast = useGlobalToast();
-  // const { fetchSubject } = useContext(MainContext); -->> real time karna hai 
   const { userId, Subject } = getCommonCredentials();
   const [popup, setPopup] = useState(false);
   const [search, setSearch] = useState('')
@@ -29,7 +28,7 @@ function Subject() {
     console.log(values);
 
     try {
-      const response = createSubject(values);
+      const response = await createSubject(values);
       if (response.data.status === 201) {
         showToast("Subject Created Successfully", "success");
         resetForm();

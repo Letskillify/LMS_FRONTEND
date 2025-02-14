@@ -3,20 +3,20 @@ import { apiSlice } from "../ApiSlice";
 export const courseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllCourses: builder.query({
-      query: () => `/course/get`,
+      query: () => `/courses/get`,
       providesTags: ["Course"],
     }),
     getCoursesByInstituteId: builder.query({
-      query: (instituteId) => `/course/get/institute/${instituteId}`,
+      query: (instituteId) => `/courses/get/institute/${instituteId}`,
       providesTags: ["Course"],
     }),
     getCourseById: builder.query({
-      query: (courseId) => `/course/get/${courseId}`,
+      query: (courseId) => `/courses/get/${courseId}`,
       providesTags: ["Course"],
     }),
     createCourse: builder.mutation({
       query: (courseData) => ({
-        url: `/course/post`,
+        url: `/courses/post`,
         method: "POST",
         body: courseData,
       }),
@@ -24,7 +24,7 @@ export const courseApi = apiSlice.injectEndpoints({
     }),
     updateCourse: builder.mutation({
       query: ({ courseId, courseData }) => ({
-        url: `/course/update/${courseId}`,
+        url: `/courses/update/${courseId}`,
         method: "PUT",
         body: courseData,
       }),
@@ -32,7 +32,7 @@ export const courseApi = apiSlice.injectEndpoints({
     }),
     deleteCourse: builder.mutation({
       query: (courseId) => ({
-        url: `/course/delete/${courseId}`,
+        url: `/courses/delete/${courseId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Course"],

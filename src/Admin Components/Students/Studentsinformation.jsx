@@ -7,11 +7,8 @@ import { DeleteApi } from '../../Custom Hooks/CustomeHook';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 const Studentsinformation = () => {
 
-    // ALL DATA PROVIDER
-    const { fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext) // -->> real time karna hai 
-    const { StudentData: studentData } = getCommonCredentials();
+    const { StudentData: studentData, Class, Section } = getCommonCredentials();
 
-    /** Filters studentsData array based on mainCampus, className, section and type */
     const Navigate = useNavigate();
     const [mainCampus, setMainCampus] = React.useState("");
     const [className, setClassName] = React.useState("");
@@ -76,13 +73,9 @@ const Studentsinformation = () => {
 
     const handleDeleteAll = async () => {
         await DeleteApi('/api/student/add-all-trash', 'All students Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
     };
     const handleDeleteone = async (id) => {
         await DeleteApi(`/api/student/add-trash/${id}`, 'Student Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
     };
     const handleDownload = async (Data) => {
         const response = await fetch(Data);
@@ -128,27 +121,18 @@ const Studentsinformation = () => {
                                                     <label className="form-label">Class</label>
                                                     <select onChange={(e) => setClassName(e.target.value)} className="form-select">
                                                         <option value="">All</option>
-                                                        <option value="I">I</option>
-                                                        <option value="II">II</option>
-                                                        <option value="III">III</option>
-                                                        <option value="IV">IV</option>
-                                                        <option value="V">V</option>
-                                                        <option value="VI">VI</option>
-                                                        <option value="VII">VII</option>
-                                                        <option value="VIII">VIII</option>
-                                                        <option value="IX">IX</option>
-                                                        <option value="X">X</option>
-                                                        <option value="XI">XI</option>
-                                                        <option value="XII">XII</option>
+                                                        {Class.map((item, index) => (
+                                                            <option key={index} value={item}>{item?.className}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                                 <div className="col">
                                                     <label className="form-label">Section</label>
                                                     <select onChange={(e) => setSection(e.target.value)} className="form-select">
                                                         <option value="">All</option>
-                                                        <option value="A">A</option>
-                                                        <option value="B">B</option>
-                                                        <option value="C">C</option>
+                                                        {Section.map((item, index) => (
+                                                            <option key={index} value={item}>{item?.sectionName}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                                 <div className="col">
@@ -189,15 +173,15 @@ const Studentsinformation = () => {
                                                         <i className='tf-icons bx bx-trash me-1'></i>
                                                         Delete All
                                                     </Link>
-                                                    <Link type="button" className="btn btn-success" onClick={exportToExcel}>
+                                                    <Link type="button" className="btn btn-success">
                                                         <i className='tf-icons bx bxs-file me-1'></i>
                                                         Excel
                                                     </Link>
-                                                    <Link type="button" className="btn btn-warning" onClick={handleExportCSV}>
+                                                    <Link type="button" className="btn btn-warning" >
                                                         <i className='tf-icons bx bxs-file-doc me-1'></i>
                                                         CSV
                                                     </Link>
-                                                    <Link type="button" className="btn btn-info" onClick={handlePrint}>
+                                                    <Link type="button" className="btn btn-info">
                                                         <i className='tf-icons bx bxs-printer me-1'></i>
                                                         Print
                                                     </Link>

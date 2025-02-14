@@ -9,6 +9,8 @@ import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
 import { Bounce, toast } from 'react-toastify';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useAddAllStudentsToTrashMutation, useAddStudentMutation } from '../../Redux/Api/studentSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -179,17 +181,18 @@ const validationSchema = Yup.object({
 
 
 const AdmitStudents = () => {
-    const [step, setStep] = useState(1); // Step tracker
+    const showToast = useGlobalToast();
+    const [step, setStep] = useState(1);
     const [message, setmessage] = useState('');
     const [StudentDataShow, setStudentDataShow] = useState(10)
     const Navigate = useNavigate();
 
-    // ALL DATA PROVIDER
-    const { fetchTrashData, fetchStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext) // -->> real time karna hai 
 
-    const { userId, Institute, Class, StudentData } = getCommonCredentials(); // -->> StudentData Gives Bad Request 
+    const { userId, Institute, Class, StudentData } = getCommonCredentials(); 
 
-    //set image functionality 
+    const [addStudent] = useAddStudentMutation();
+    const [addAllStudentsToTrash] = useAddAllStudentsToTrashMutation();
+    
     const [dataImg, setDataImg] = useState({
         documents: {
             marksheet: null,
@@ -412,19 +415,9 @@ const AdmitStudents = () => {
         console.log(data);
 
         try {
-            const response = await axios.post('/api/student/post', data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 200 && response.status < 300) {
-                console.log('Form data submitted:', response.data);
-                toast.success('Form submitted successfully!', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    theme: "colored",
-                    transition: Bounce
-                });
+            const response = await addStudent(data);
+            if (response.data.status === 200 && response.data.status === 201) {
+                showToast("Student Added Successfully", "success");
                 const modal = document.getElementById("modalCenter1");
                 if (modal) {
                     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -437,35 +430,23 @@ const AdmitStudents = () => {
         } catch (error) {
             if (error.response) {
                 console.error('Error response:', error.response.data);
-                toast.error(`Error: ${error.response.data.message || 'Submission failed'}`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    theme: "colored",
-                    transition: Bounce
-                });
+                showToast(error.response.data.message, "error");
             } else {
                 console.error('Error:', error.message);
-                toast.error('An unexpected error occurred', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    theme: "colored",
-                    transition: Bounce
-                });
+                showToast(error.message, "error");
             }
         }
     };
 
     // Delete ALL Data function
     const handleDeleteAll = async () => {
-        await DeleteApi('/api/student/add-all-trash', 'All students Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
+        await addAllStudentsToTrash({ instituteId: userId });
     };
 
     const handleDeleteone = async (id) => {
         await DeleteApi(`/api/student/add-trash/${id}`, 'Student Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
+        // fetchStudentData();
+        // fetchTrashData();
     };
 
 
@@ -504,15 +485,15 @@ const AdmitStudents = () => {
                                         <i className='tf-icons bx bx-trash me-1'></i>
                                         Delete All
                                     </button>
-                                    <button type="button" className="btn btn-success" onClick={exportToExcel}>
+                                    <button type="button" className="btn btn-success">
                                         <i className='tf-icons bx bxs-file me-1'></i>
                                         Excel
                                     </button>
-                                    <button type="button" className="btn btn-warning" onClick={handleExportCSV}>
+                                    <button type="button" className="btn btn-warning">
                                         <i className='tf-icons bx bxs-file-doc me-1'></i>
                                         CSV
                                     </button>
-                                    <button type="button" className="btn btn-info" onClick={handlePrint}>
+                                    <button type="button" className="btn btn-info" >
                                         <i className='tf-icons bx bxs-printer me-1'></i>
                                         Print
                                     </button>

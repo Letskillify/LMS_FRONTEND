@@ -8,7 +8,6 @@ import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Medium() {
   const showToast = useGlobalToast();
-  // const { fetchMedium } = useContext(MainContext);  -->> real time karna hai 
   const { userId, Medium, InstituteId } = getCommonCredentials();
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);

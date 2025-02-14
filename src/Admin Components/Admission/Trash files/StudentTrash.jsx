@@ -4,27 +4,26 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { DeleteApi, getApi, HitApi, PostApi } from '../../../Custom Hooks/CustomeHook';
 import { getCommonCredentials } from '../../../GlobalHelper/CommonCredentials';
 
-const StudentTrash = () => {
-    const { fetchTrashData, fetchStudentData, } = useContext(MainContext); // -->> real time karna hai 
+const StudentTrash = () => { 
     const { StudentTrash, } = getCommonCredentials();
     const Navigate = useNavigate();
 
     const handleRenewAll = async () => {
         await HitApi('/api/student/revive-all', 'All students renewed successfully');
-        fetchStudentData();
-        fetchTrashData();
+        // fetchStudentData();
+        // fetchTrashData();
         Navigate('/admit-students');
     };
 
     const handlePermanentDeleteAll = async () => {
         await DeleteApi('/api/student/permanent-delete-all', 'All students Deleted successfully');
-        fetchTrashData();
+        // fetchTrashData();
     };
 
     const handleRenew = async (id) => {
         await PostApi(`/api/student/revive/${id}`, 'Student renewed successfully');
-        fetchStudentData();
-        fetchTrashData();
+        // fetchStudentData();
+        // fetchTrashData();
         Navigate('/admit-students');
     };
     return (
