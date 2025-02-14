@@ -4,23 +4,21 @@ import { getApi } from '../../Custom Hooks/CustomeHook';
 import { Bounce, toast } from 'react-toastify';
 import axios from 'axios';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useUpdateClassMutation } from '../../Redux/Api/academicsApi/classSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 const AssignTeacher = () => {
+    const showToast = useGlobalToast();
     const [selectClass, setSelectClass] = useState(null);
     const [teachers, setTeachers] = useState([]);
     const [staffs, setStaffs] = useState([]);
-    // const {  fetchClass } = useContext(MainContext); --->> real time karna hai 
 
-    const {Class} = getCommonCredentials()
+    const {Class, TeacherData} = getCommonCredentials()
 
-    // Fetch Teachers from API
-    const fetchTeachers = async () => {
-        getApi("/api/teacher/get-all").then((data) => setTeachers(data));
-        getApi("/api/staff/get-all").then((data) => setStaffs(data));
-    };
+    const [updateClass] = useUpdateClassMutation();
 
     useEffect(() => {
-        fetchTeachers();
+        setTeachers(TeacherData);
     }, []);
 
     // Select Class and Set Default Values
@@ -34,7 +32,7 @@ const AssignTeacher = () => {
                 "subject",
                 selected.subject?.map((sub) => ({
                     subjectId: sub._id,
-                    teacher: sub.teacher || "", // Default assigned teacher
+                    teacher: sub.teacher || "",
                 })) || []
             );
         }
@@ -43,20 +41,17 @@ const AssignTeacher = () => {
     // Form Submission
     const handleSubmit = async (values) => {
         try {
-            const response = await axios.put(`/api/class/update/${selectClass._id}`, values, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-            if (response.status === 200) {
-                toast.success("Teacher assigned successfully", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });
+            const response = await updateClass({ classId: selectClass?._id, classData: values });
+            if (response.data.status === 200) {
+                showToast("Teacher Assigned Successfully", "success");
                 selectField();
                 // fetchClass();
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Error Assigning Teacher", { position: "top-right", autoClose: 5000, theme: "colored", transition: Bounce });
+            console.error('Error updating class:', error);
+            showToast("Error updating class", "error");
         }
     };
-
-    const allTeachers = [...staffs, ...teachers];
 
 
     return (
@@ -64,11 +59,11 @@ const AssignTeacher = () => {
             enableReinitialize
             initialValues={{
                 HOD: selectClass?.HOD?._id || '',
-                classTeacher: selectClass?.classTeacher._id || '',
+                classTeacher: selectClass?.classTeacher?._id || '',
                 subject: selectClass?.subject?.map((sub) => ({
-                    name: sub.name._id || '',
-                    teacher: sub.teacher._id || '',
-                    code: sub.code || '',
+                    name: sub?.name?._id || '',
+                    teacher: sub?.teacher?._id || '',
+                    code: sub?.code || '',
                 })) || [],
             }}
             onSubmit={handleSubmit}
@@ -90,7 +85,7 @@ const AssignTeacher = () => {
                                         >
                                             <option value="">Select Class</option>
                                             {Class?.map((item) => (
-                                                <option key={item._id} value={item._id}>{item.className}</option>
+                                                <option key={item?._id} value={item?._id}>{item?.className}</option>
                                             ))}
                                         </Field>
                                     </div>
@@ -107,7 +102,7 @@ const AssignTeacher = () => {
                                                             <option value="">Select Teacher</option>
                                                             {teachers?.map((teacher) => (
                                                                 <option key={teacher._id} value={teacher._id}>
-                                                                    {teacher.fullName.firstName} {teacher.fullName.lastName}
+                                                                    {teacher?.fullName?.firstName} {teacher?.fullName?.lastName}
                                                                 </option>
                                                             ))}
                                                         </Field>
@@ -116,9 +111,9 @@ const AssignTeacher = () => {
                                                         <label className="form-label">Class HOD</label>
                                                         <Field as="select" className="form-select" name="HOD">
                                                             <option value="">Select Teacher</option>
-                                                            {allTeachers?.map((teacher) => (
-                                                                <option key={teacher._id} value={teacher._id}>
-                                                                    {teacher.fullName.firstName} {teacher.fullName.lastName}
+                                                            {teachers?.map((teacher) => (
+                                                                <option key={teacher?._id} value={teacher?._id}>
+                                                                    {teacher?.fullName?.firstName} {teacher?.fullName?.lastName}
                                                                 </option>
                                                             ))}
                                                         </Field>
@@ -127,7 +122,7 @@ const AssignTeacher = () => {
                                                 <hr />
 
                                                 {/* Subjects & Teacher Assignment */}
-                                                {values.subject.map((sub, index) => (
+                                                {values?.subject?.map((sub, index) => (
                                                     <div className="row" key={index}>
                                                         <div className="col-6 mb-2">
                                                             <label className="form-label">Subject Name</label>
@@ -142,8 +137,8 @@ const AssignTeacher = () => {
                                                             <Field as="select" className="form-select" name={`subject.${index}.teacher`}>
                                                                 <option value="">Select Teacher</option>
                                                                 {teachers?.map((teacher) => (
-                                                                    <option key={teacher._id} value={teacher._id}>
-                                                                        {teacher.fullName.firstName} {teacher.fullName.lastName}
+                                                                    <option key={teacher?._id} value={teacher?._id}>
+                                                                        {teacher?.fullName?.firstName} {teacher?.fullName?.lastName}
                                                                     </option>
                                                                 ))}
                                                             </Field>

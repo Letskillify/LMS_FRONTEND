@@ -1,5 +1,5 @@
 import { Field, Form, Formik } from 'formik'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { useImageUploader } from '../../Custom Hooks/CustomeHook';
@@ -7,25 +7,40 @@ import { useImageUploader } from '../../Custom Hooks/CustomeHook';
 import { Modal, Spinner } from 'react-bootstrap';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 import { Bounce, toast } from 'react-toastify';
+import { useGetAllDefaultHolidaysQuery } from '../../Redux/Api/defaultHolidaySlice';
+import { useCreateInstituteHolidayMutation, useDeleteInstituteHolidayMutation, useGetAllInstituteHolidaysQuery, useUpdateInstituteHolidayMutation } from '../../Redux/Api/holidaySlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Holiday() {
-    const [holidays, setHolidays] = React.useState([]);
-    const [defaultHolidays, setDefaultHolidays] = React.useState([]);
-    const [popup, setPopup] = React.useState(false);
-    const [defaultShow, setDefaultShow] = React.useState(false);
-    const [searchTerm, setSearchTerm] = React.useState("");
-    const [addHoliday, setAddHoliday] = React.useState(null);
-    const [edit, setEdit] = React.useState(null);
-    const { userId } = getCommonCredentials();
+    const showToast = useGlobalToast();
+    const [holidays, setHolidays] = useState([]);
+    const [defaultHolidays, setDefaultHolidays] = useState([]);
+    const [popup, setPopup] = useState(false);
+    const [defaultShow, setDefaultShow] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [addHoliday, setAddHoliday] = useState(null);
+    const [edit, setEdit] = useState(null);
+    const { userId, InstituteId } = getCommonCredentials();
     const { uploadedData, handleImageUpload, setUploadedData } = useImageUploader();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';
     };
-    // const today = new Date().toISOString().split('T')[0];
-    // const tomorrow = new Date();
-    // tomorrow.setDate(tomorrow.getDate() + 1);
-    // const nextDay = tomorrow.toISOString().split('T')[0];
+
+    const { data : defaultHolidayData } = useGetAllDefaultHolidaysQuery();
+    const { data : holidayData } = useGetAllInstituteHolidaysQuery();
+    const [addHolidayPost] = useCreateInstituteHolidayMutation();
+    const [updateHoliday] = useUpdateInstituteHolidayMutation();
+    const [deleteHoliday] = useDeleteInstituteHolidayMutation();
+
+    useEffect(() => {
+        if (defaultHolidayData) {
+            setDefaultHolidays(defaultHolidayData?.items);
+        }
+        if(holidayData){
+            setHolidays(holidayData);
+        }
+    }, [defaultHolidayData, holidayData]);
 
     const initialValues = {
         instituteId: userId,
@@ -48,93 +63,28 @@ function Holiday() {
         }
 
         try {
-            const response = await axios.post("/api/institute-holiday/post", data, {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                method: "POST"
-            })
-            if (response.status === 201) {
-                toast.success("Data Sent Successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await addHolidayPost(data);
+            if (response.data.status === 201) {
+                showToast("Data Added Successfully", "success");
                 setAddHoliday('');
                 setUploadedData({});
                 resetForm();
-                fetchData();
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response?.data?.message || "Error sending data", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
-        }
-    }
-
-    const fetchData = async () => {
-        try {
-            const response = await axios.get(`/api/institute-holiday/get/institute/${userId}`);
-            setHolidays(response.data);
-            console.log(response.data);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    const fetchHodlidayData = async () => {
-        try {
-            const response = await axios.get(`/api/holiday-list/get`);
-            setDefaultHolidays(response.data);
-        } catch (error) {
-            console.log(error);
+            showToast("Error adding holiday", "error");
         }
     }
 
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`/api/institute-holiday/delete/${id}`);
-            if (response.status === 200) {
-                toast.success("Data Deleted Successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fetchData();
+            const response = await deleteHoliday(id);
+            if (response.data.status === 200) {
+                showToast("Data Deleted Successfully", "success");
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response?.data?.message || "Error deleting holiday", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error deleting holiday", "error");
         }
     }
 
@@ -145,48 +95,18 @@ function Holiday() {
         }
         console.log("Form Data:", data);
         try {
-            const response = await axios.put(`/api/institute-holiday/update/${edit._id}`, data, {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-            console.log(response);
-            if (response.status === 200) {
-                toast.success("Data Updated Successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await updateHoliday({ id: edit?._id, holidayData: data });
+            if (response.data.status === 200) {
+                showToast("Data Updated Successfully", "success");
                 setPopup(false);
-                fetchData();
+                // fetchData();
                 setUploadedData({});
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response?.data?.message || "Error updating holiday", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error updating holiday", "error");
         }
     };
-
-    useEffect(() => {
-        fetchData();
-        fetchHodlidayData();
-    }, []);
 
 
 
@@ -330,7 +250,7 @@ function Holiday() {
                                     </tr>
                                 </thead>
                                 <tbody id="holidayTableBody" >
-                                    {defaultHolidays.filter((holiday) => {
+                                    {defaultHolidays?.filter((holiday) => {
                                         const search = searchTerm ? searchTerm.toLowerCase() : '';
                                         return holiday?.title?.toLowerCase()?.includes(search) ||
                                             holiday?.description?.toLowerCase()?.includes(search);
