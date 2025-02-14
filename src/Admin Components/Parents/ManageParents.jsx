@@ -5,14 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { DeleteApi } from "../../Custom Hooks/CustomeHook";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const ManageParents = () => {
-  const {
-    fetchStudentData,
-    fetchTrashData,
-    handlePrint,
-    printPDF,
-    exportToExcel,
-    handleExportCSV,
-  } = useContext(MainContext); // -->> real time karna hai 
   const { StudentData } = getCommonCredentials();
   const [selectedParentDetails, setSelectedParentDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("father");
@@ -54,8 +46,6 @@ const ManageParents = () => {
       `/api/student/add-trash/${id}`,
       "Student Deleted successfully"
     );
-    fetchStudentData();
-    fetchTrashData();
     modalRef.current.style.display = "none";
   };
   const handleViewMore = (parentDetails) => {
@@ -74,8 +64,6 @@ const ManageParents = () => {
       "/api/student/add-all-trash",
       "All students Deleted successfully"
     );
-    fetchStudentData();
-    fetchTrashData();
   };
   return (
     <div className="layout-wrapper layout-content-navbar">
@@ -139,7 +127,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-success"
-                          onClick={exportToExcel}
                         >
                           <i className="tf-icons bx bxs-file me-1"></i>
                           Excel
@@ -147,7 +134,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-warning"
-                          onClick={handleExportCSV}
                         >
                           <i className="tf-icons bx bxs-file-doc me-1"></i>
                           CSV
@@ -155,7 +141,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-info"
-                          onClick={handlePrint}
                         >
                           <i className="tf-icons bx bxs-printer me-1"></i>
                           Print
@@ -356,7 +341,13 @@ const ManageParents = () => {
                                                 />
                                                 <div>
                                                   <h5 className="fw-bold border-bottom pb-2">
-                                                    Connect Student
+                                                    {selectedParentDetails
+                                                      ?.personalDetails
+                                                      ?.firstName +
+                                                      " " +
+                                                      selectedParentDetails
+                                                        ?.personalDetails
+                                                        ?.lastName}
                                                   </h5>
                                                   <div className="text-start overflow-auto">
                                                     <p>
@@ -385,13 +376,13 @@ const ManageParents = () => {
                                                     <p>
                                                       <strong>Gender:</strong>{" "}
                                                       {selectedParentDetails
-                                                        ?.contactInfo?.gender ||
+                                                        ?.personalDetails?.gender ||
                                                         "Not Provided"}
                                                     </p>
                                                     <p>
                                                       <strong>Category:</strong>{" "}
                                                       {selectedParentDetails
-                                                        ?.contactInfo
+                                                        ?.personalDetails
                                                         ?.category ||
                                                         "Not Provided"}
                                                     </p>

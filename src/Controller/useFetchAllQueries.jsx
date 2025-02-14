@@ -17,6 +17,7 @@ import {
   setGlobalSettings,
   setGlobalTeacherData,
   setglobalExamType,
+  setGlobalNonTeachingStaffData,
 } from "../Redux/Slices/MainSlice";
 
 import { useGetInstituteByIdQuery } from "../Redux/Api/instituteSlice";
@@ -33,6 +34,8 @@ import { useGetCourseGroupByInstituteIdQuery } from "../Redux/Api/academicsApi/c
 import { useGetClassByInstituteIdQuery } from "../Redux/Api/academicsApi/classSlice";
 import { useGetSettingsByInstituteIdQuery } from "../Redux/Api/settingsSlice";
 import { useGetExamTypeByInstituteIdQuery } from "../Redux/Api/examTypeSlice";
+import { useGetCoursesByInstituteIdQuery } from "../Redux/Api/academicsApi/courseSlice";
+import { useGetNonTeachingStaffByInstituteIdQuery } from "../Redux/Api/nonTeachingSlice";
 
 export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   const dispatch = useDispatch();
@@ -59,6 +62,9 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   const teacherQuery = useGetTeachersByInstituteIdQuery(instituteId, {
     skip: !instituteId,
   });
+  const staffQuery = useGetNonTeachingStaffByInstituteIdQuery(instituteId, {
+    skip: !instituteId,
+  })
   const semesterQuery = useGetSemesterByInstituteIdQuery(instituteId, {
     skip: !instituteId,
   });
@@ -80,7 +86,10 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   const boardQuery = useGetBoardsByInstituteIdQuery(instituteId, {
     skip: !instituteId,
   });
-  const courseQuery = useGetCourseGroupByInstituteIdQuery(instituteId, {
+  const courseQuery = useGetCoursesByInstituteIdQuery(instituteId, {
+    skip: !instituteId,
+  })
+  const courseGroupQuery = useGetCourseGroupByInstituteIdQuery(instituteId, {
     skip: !instituteId,
   });
   const classQuery = useGetClassByInstituteIdQuery(instituteId, {
@@ -107,6 +116,12 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
       dispatch(setGlobalTeacherData(teacherQuery.data));
     }
   }, [dispatch, teacherQuery.data]);
+
+  useEffect(() => {
+    if (staffQuery?.data?.staff) {
+      dispatch(setGlobalNonTeachingStaffData(staffQuery?.data?.staff));
+    }
+  }, [dispatch, staffQuery.data]);
 
   useEffect(() => {
     if (semesterQuery.data) {
@@ -155,6 +170,12 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
       dispatch(setGlobalCourse(courseQuery.data));
     }
   }, [dispatch, courseQuery.data]);
+
+  useEffect(() => {
+    if (courseGroupQuery.data) {
+      dispatch(setGlobalCourseGroup(courseGroupQuery.data));
+    }
+  }, [dispatch, courseGroupQuery.data]);
 
   useEffect(() => {
     if (classQuery.data) {

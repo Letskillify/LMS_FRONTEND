@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { useCreateLiveClassMutation, useDeleteLiveClassMutation, useGetLiveClassByInstituteIdQuery } from "../../Redux/Api/liveClassesSlice";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
 
 function LiveClasses() {
     const navigate = useNavigate();
+    const showToast = useGlobalToast();
     const [liveClasses, setLiveClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showForm, setShowForm] = useState(false);
@@ -14,46 +18,31 @@ function LiveClasses() {
     // const [tutors, setTutors] = useState([]);
     const [institutes, setInstitutes] = useState([]);
 
-    // Fetch subject, course, tutor, and institute data
+    const {Subject, Course, InstituteId} = getCommonCredentials()
+    const {data:liveClassData} = useGetLiveClassByInstituteIdQuery(InstituteId, {
+        skip: !InstituteId
+    });
+
+    const [addLiveClass] = useCreateLiveClassMutation();
+    const [deleteLiveClass] = useDeleteLiveClassMutation();
+
+
     useEffect(() => {
-        // Fetch subjects
-        axios.get("http://localhost:5500/api/subject/get")
-            .then(response => setSubjects(response.data))
-            .catch(error => console.error("Failed to fetch subjects:", error));
-
-        // Fetch courses
-        axios.get("http://localhost:5500/api/courses/get")
-            .then(response => setCourses(response.data))
-            .catch(error => console.error("Failed to fetch courses:", error));
-
-
-        // Fetch institutes
-        axios.get("http://localhost:5500/api/institute/get")
-            .then(response => setInstitutes(response.data))
-            .catch(error => console.error("Failed to fetch institutes:", error));
-    }, [liveClasses]);
-    const fetchLiveClasses = async () => {
-        try {
-            const response = await axios.get("http://localhost:5500/api/live-class/get");
-            setLiveClasses(response.data);
-        } catch (error) {
-            console.error("Failed to fetch live classes:", error);
-        }
-    };
+        setSubjects(Subject);
+        setCourses(Course);
+        setLiveClasses(liveClassData)
+    },[Subject, Course, liveClassData])
 
 
     const handleDeleteOne = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:5500/api/live-class/delete/${id}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'DELETE',
-            });
-            alert("Deleted Data");
-            fetchLiveClasses();
+            const response = await deleteLiveClass(id);
+            if(response?.data?.status === 200){
+                showToast("Live Class Deleted Successfully", "success");
+            }
         } catch (error) {
             console.error("Error submitting form:", error);
+            showToast("Error submitting form", "error");
         }
     };
 
@@ -86,7 +75,7 @@ function LiveClasses() {
         description: "",
         status: "Scheduled",
         attendees: [],
-        instituteID: "",
+        instituteID: InstituteId,
     };
 
     const toggleForm = () => setShowForm(!showForm);
@@ -94,15 +83,15 @@ function LiveClasses() {
 
     const handleSubmit = async (formValues, { resetForm }) => {
         try {
-            const response = await axios.post("http://localhost:5500/api/live-class/post", formValues, {
-                headers: { "Content-Type": "application/json" },
-            });
-            console.log("Form submitted:", response.data);
-            resetForm();
-            fetchLiveClasses();
-            setShowForm(false);
+            const response = await addLiveClass(formValues);
+            if (response?.data?.status === 201) {
+                showToast("Live Class Added Successfully", "success");
+                resetForm();
+                setShowForm(false);
+            }
         } catch (error) {
             console.error("Error submitting form:", error.response?.data || error.message);
+            showToast("Error submitting form", "error");
         }
     };
 
@@ -111,10 +100,6 @@ function LiveClasses() {
         // Redirecting the user to the class link in a new tab
         window.open(classLink, "_blank");
     };
-
-    useEffect(() => {
-        fetchLiveClasses();
-    }, []);
     
 
     return (
@@ -145,6 +130,7 @@ function LiveClasses() {
                                             initialValues={initialValues}
                                             validationSchema={validationSchema}
                                             onSubmit={handleSubmit}
+                                            enableReinitialize
                                         >
                                             {() => (
                                                 <Form className="row g-3">
@@ -269,13 +255,12 @@ function LiveClasses() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {liveClasses.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                                {liveClasses?.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
                                     <tr>
                                         <td colSpan="8" className="text-center">No data available</td>
                                     </tr>
                                 ) : (
-                                    liveClasses
-                                        .filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    liveClasses?.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
                                         .map((item) => (
                                             <tr key={item._id} className="text-center">
                                                 <td>{item.title}</td>

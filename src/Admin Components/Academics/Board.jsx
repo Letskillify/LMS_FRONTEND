@@ -3,127 +3,59 @@ import axios from "axios";
 import { Field, Formik, Form } from "formik";
 import { Bounce, toast } from "react-toastify";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { useCreateBoardMutation, useDeleteBoardMutation, useUpdateBoardMutation } from "../../Redux/Api/academicsApi/boardSlice";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
 
 function Board() {
-    const [Board, setBoard] = useState([]);
-    const {userId} = getCommonCredentials();
+    const showToast = useGlobalToast();
+    const [BoardData, setBoardData] = useState([]);
+    const {userId, Board} = getCommonCredentials();
     const [popup, setPopup] = useState(false);
     const [selectedBoard, setSelectedBoard] = useState(null);
 
+    const [createBoard] = useCreateBoardMutation();
+    const [updateBoard] = useUpdateBoardMutation();
+    const [deleteBoard] = useDeleteBoardMutation();
+
     const handleBoard = async (values, { resetForm }) => {
         try {
-            const res = await axios.post("/api/board/post", values, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (res.status === 201) {
-                toast.success("Board added successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fatchboards();
+            const res = await createBoard(values);
+            if (res.data.status === 201) {
+                showToast("Board Created Successfully", "success");
                 resetForm();
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Error creating board", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error submitting board", "error");
         }
     };
 
-    const fatchboards = async () => {
-        try {
-            const res = await axios.get("/api/board/get");
-            if (res.status === 200) {
-                setBoard(res.data);
-            }
-        } catch (error) {
-            console.error("Error fetching boards:", error);
-        }
-    };
 
     const handleBoardUpdate = async (values, { resetForm }) => {
         try {
-            const res = await axios.put(`/api/board/update/${selectedBoard._id}`, values, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (res.status === 200) {
-                toast.success("Board updated successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fatchboards();
+            const res = await updateBoard({boardId: selectedBoard._id, boardData: values});
+            if (res.data.status === 200) {
+                showToast("Board Updated Successfully", "success");
                 resetForm();
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Error updating board", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error updating board", "error");
         }
     };
 
     const handleBoardDelete = async (id) => {
         try {
-            const res = await axios.delete(`/api/board/delete/${id}`);
-            if (res.status === 200) {
-                toast.success("Board deleted successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fatchboards();
+            const res = await deleteBoard(id);
+            if (res.data.status === 200) {
+                showToast("Board Deleted Successfully", "success");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Error deleting board", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error deleting board", "error");
         }
     };
 
     useEffect(() => {
-        fatchboards();
-    }, []);
+        setBoardData(Board);
+    }, [Board]);
 
     return (
         <>
@@ -182,8 +114,8 @@ function Board() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Board && Board.length > 0 ? (
-                                            Board.map((item, index) => (
+                                        {BoardData && BoardData.length > 0 ? (
+                                            BoardData.map((item, index) => (
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
                                                     <td className="text-capitalize">{item.boardName}</td>

@@ -12,10 +12,12 @@ import {
   useVideoUploader,
 } from "../../Custom Hooks/CustomeHook";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { useCreateStudyMaterialMutation, useDeleteStudyMaterialMutation, useGetStudyMaterialsByInstituteIdQuery, useUpdateStudyMaterialMutation } from "../../Redux/Api/studyMaterialSlice";
 
 function StudyMaterial() {
   const [mainData, setMainData] = useState([]);
   const [studyMaterialData, setStudyMaterialData] = useState([]);
+  console.log("studyMaterialData", studyMaterialData);
   const [originalstudyMaterialData, setOriginalStudyMaterialData] = useState(
     []
   );
@@ -33,90 +35,48 @@ function StudyMaterial() {
     useVideoUploader();
   const [uploadCompleted, setUploadCompleted] = useState(false);
   const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
-  const { userId } = getCommonCredentials();
+  const { userId, InstituteId } = getCommonCredentials();
   const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
     useFileUploader();
 
-  async function getData() {
-    const response = await axios
-      .get("http://localhost:5500/api/study-material/get")
-      .then((res) => {
-        if (res.status === 200) {
-          setStudyMaterialData(res.data);
-          setOriginalStudyMaterialData(res.data);
-        } else {
-          console.log(res);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  const deletePost = async (id) => {
-    if (!id) {
-      console.error("Error: id is not defined.");
-      return;
-    }
+    const {data} = useGetStudyMaterialsByInstituteIdQuery(InstituteId);
+    const [addStudyMaterial] = useCreateStudyMaterialMutation();
+    const [updateStudyMaterial] = useUpdateStudyMaterialMutation();
+    const [deleteStudyMaterial] = useDeleteStudyMaterialMutation();
 
-    console.log("Deleting post with ID:", id); // Debugging log
-    try {
-      const response = await axios.delete(
-        `http://localhost:5500/api/study-material/delete/${id}`
-      );
-      console.log("Post deleted:", response.data);
+    useEffect(() => {
+      if (data) {
+        setStudyMaterialData(data);
+        setOriginalStudyMaterialData(data);
+      }
+    }, [data]);
+    const deletePost = async (id) => {
+      if (!id) {
+        console.error("Error: id is not defined.");
+        return;
+      }
 
-      // Close the modal programmatically
-      const modal = document.getElementById("delete_material");
-      const modalInstance = bootstrap.Modal.getInstance(modal);
-      modalInstance.hide(); // This will close the modal
-    } catch (error) {
-      console.error("Error deleting post:", error);
-    }
-  };
+      console.log("Deleting post with ID:", id);
+      try {
+        const response = await deleteStudyMaterial(id);
 
-  console.log(uploadedFiles);
+        const modal = document.getElementById("delete_material");
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide();
+      } catch (error) {
+        console.error("Error deleting post:", error);
+      }
+    };
 
-  const handleSubmit = (values, { setSubmitting }, modalId) => {
+  const handleSubmit = async(values, { setSubmitting }, modalId) => {
     const data = {
       ...values,
       fileURL: uploadedData?.fileURL || uploadedVideos?.fileURL,
       document: uploadedFiles?.document,
     };
     // console.log("Form Data:", data);
-    axios
-      .put(
-        `http://localhost:5500/api/study-material/update/${selectedId}`,
-        data
-      )
-      .then((response) => {
-        console.log("Hostel updated successfully:", response.data);
-        // Close the modal programmatically
-        const modal = document.getElementById(modalId); // Update with the correct modal ID if needed
-        const modalInstance = bootstrap.Modal.getInstance(modal);
-        modalInstance.hide(); // This will close the modal
-        setSubmitting(false);
-      })
-      .catch((error) => {
-        console.error("Error updating hostel:", error.response?.data || error);
-        // alert("Error updating hostel. Please try again.");
-        setSubmitting(false);
-      });
+    await updateStudyMaterial({ id: selectedId, data })
   };
-
-  useEffect(() => {
-    if (selectedId) {
-      axios
-        .get(`http://localhost:5500/api/study-material/${selectedId}`)
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => console.error("Error fetching hostel data:", error));
-    }
-  }, [selectedId]);
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   const loadMoreTeachers = () => {
     setVisibleTeachers((prevCount) => prevCount + 3);
@@ -654,8 +614,7 @@ function StudyMaterial() {
                 className={`row
                 }`}
               >
-                {studyMaterialData
-                  .slice(0, visibleTeachers)
+                {studyMaterialData?.slice(0, visibleTeachers)
                   .map((teacher, index) =>
                     teacher?.category === Material?.toLowerCase() ? (
                       <div

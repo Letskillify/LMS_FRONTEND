@@ -4,8 +4,12 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import * as Yup from "yup"
 import { useImageUploader } from '../../Custom Hooks/CustomeHook';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useAddBookToTrashByIdMutation, useAddNewBookMutation, useGetAllBooksQuery, useUpdateBookByIdMutation } from '../../Redux/Api/bookSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function BooksList() {
+    const showToast = useGlobalToast(); 
     const [querry, setquerry] = useState()
     const [SearchData, setSearchData] = useState()
     const [BookLists, setBookLists] = useState([])
@@ -25,19 +29,15 @@ function BooksList() {
         postDate: Yup.date().required('Post Date is required'),
     })
 
+    const {data:bookData} = useGetAllBooksQuery()
+    const [addBook]= useAddNewBookMutation();
+    const [updateBookById] =useUpdateBookByIdMutation();
+    const [addBookToTrash]= useAddBookToTrashByIdMutation();
 
-    const fetchData = async () => {
-        try {
-            const res = await axios.get(`http://localhost:5500/api/book/get`);
-            setBookLists(res.data)
-        } catch (error) {
-            console.error("Error fetching data:", error)
-        }
-    }
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        setBookLists(bookData?.items)
+    }, [bookData]);
 
 
     const sortFunctions = {
@@ -97,60 +97,46 @@ function BooksList() {
     const handlepost = async (v, { resetForm }) => {
         const data = { ...v, coverImageURL: uploadedData?.coverImageURL };
         try {
-            const response = await axios.post('api/book/post', data, {
-                headers: {
-                    'Content-Type': "application/json",
-                },
-                method: 'POST'
-
-            });
-            if (response.status === 201) {
-                alert("Data Sent Successfully")
+            const response = await addBook(data);
+            if (response.data.status === 201) {
+                showToast("Book Added Successfully", "success");
                 resetForm();
-                fetchData();
+                // fetchData();
                 setpopup(false)
             } else {
-                alert("Failed to Send Data")
+                showToast("Error adding book", "error");
             }
         } catch (error) {
-            if (error.response) {
-                console.log("something is wrong", error.response.data)
-            }
+            console.error("Error adding book:", error);
+            showToast(`Error adding book ${error}`, "error");
         }
     }
 
     const handledelete = async (id) => {
         try {
-            const res = await axios.delete(`http://localhost:5500/api/book/add-trash/${id}`, {
-                headers: {
-                    'Content-Type': "application/json",
-                },
-                method: "DELETE"
-            });
-            if (res.status === 200) {
-                alert("your data is delete successfully")
-                fetchData();
+            const res = await addBookToTrash(id);
+            if (res.data.status === 200) {
+                showToast("Book Deleted Successfully", "success");
             }
         } catch (error) {
             console.error("Error deleting the book:", error)
+            showToast(`Error deleting the book ${error}`, "error");
         }
     }
     // Handle Form Submit for Update
     const handleUpdate = async (values, id) => {
         const data = { ...values, coverImageURL: uploadedData?.coverImageURL };
         try {
-            const response = await axios.put(`http://localhost:5500/api/book/update/${id}`, data);
-            if (response.status === 200) {
-                alert("Data Updated Successfully")
-                fetchData();
+            const response = await updateBookById({ bookId: id, bookData: data });
+            if (response.data.status === 200) {
+                showToast("Book Updated Successfully", "success");
+                setpopup(false);
             }
         } catch (error) {
             console.error("Error updating book:", error);
-            alert("Failed to update book!");
+            showToast(`Error updating book ${error}`, "error");
         }
     };
-
-    console.log(uploadedData);
 
     return (
         <>
@@ -300,7 +286,7 @@ function BooksList() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {(SearchData || BookLists).map((BookList, index) => (
+                                            {SearchData || BookLists || []?.map((BookList, index) => (
                                                 <tr key={index}>
                                                     <td><a href="#" className="link-primary">{BookList.bookID}</a></td>
                                                     <td>{BookList.bookName}</td>

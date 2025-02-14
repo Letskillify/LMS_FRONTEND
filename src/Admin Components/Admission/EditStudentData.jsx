@@ -5,6 +5,7 @@ import * as Yup from "yup"
 import { EditApi } from '../../Custom Hooks/CustomeHook';
 import { MainContext } from '../../Controller/MainProvider';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useUpdateStudentByIdMutation } from '../../Redux/Api/studentSlice';
 
 
 
@@ -20,6 +21,8 @@ const EditStudentData = () => {
 
     // const { fetchStudentData } = useContext(MainContext)  -->> real time karna hai 
     const { Class, Institute } = getCommonCredentials();
+
+    const [updateStudentById] = useUpdateStudentByIdMutation();
 
 
     const initialValues = {
@@ -243,9 +246,8 @@ const EditStudentData = () => {
                 profilePhoto: dataImg?.personalDetails?.profilePhoto
             }
         };
-        await EditApi("/api/student/update/" + studentId, data, "Student updated successfully");
+        await updateStudentById({ studentId : studentId, studentData: data });
         Navigate(path == "student-info" ? "/student-info" : "/admit-students");
-        fetchStudentData();
         window.scrollTo({ top: 200, behavior: 'smooth' })
     }
 
@@ -321,8 +323,8 @@ const EditStudentData = () => {
                                         )}
                                         <div className="col-md-4 mb-3">
                                             <label>Class<span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.class" as="select" value={values?.enrollmentDetails?.class.className} className="form-select">
-                                                <option >{values?.enrollmentDetails?.class.className}</option>
+                                            <Field name="enrollmentDetails.class" as="select" value={values?.enrollmentDetails?.class?.className} className="form-select">
+                                                <option >{values?.enrollmentDetails?.class?.className}</option>
                                                 {Class?.map((cls, index) => <option key={index} value={cls._id}>{cls.className}</option>)}
                                             </Field>
                                             {touched?.enrollmentDetails?.class && errors?.enrollmentDetails?.class && <div className="text-danger">{errors?.enrollmentDetails?.class}</div>}
