@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import {
-  useFileUploader,
-  useImageUploader,
+  // useFileUploader,
+  // useFileUploader,
   useVideoUploader,
 } from "../../Custom Hooks/CustomeHook";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
@@ -28,8 +28,8 @@ function StudyMaterial() {
   const [addMaterial, setAddMaterial] = useState("");
   const [filteredData, setFilteredData] = useState();
   const [selectedId, setSelectedId] = useState(null);
-  const [edit, setEdit] = useState("");
-  const { uploadedData, handleImageUpload } = useImageUploader();
+  // const [edit, setEdit] = useState("");
+  // const { uploadedData, handleFileUpload } = useFileUploader();
   // const [fileType, setFileType] = useState("image");
   const { uploadedVideos, uploadProgress, isLoading, handleVideoUpload } =
     useVideoUploader();
@@ -409,7 +409,7 @@ function StudyMaterial() {
                                       accept="image/png, image/jpeg"
                                       className="form-control shadow-sm border-2"
                                       onChange={(e) =>
-                                        handleImageUpload(e, "fileURL")
+                                        handleFileUpload(e, "fileURL")
                                       }
                                     />
                                   )}
@@ -843,7 +843,7 @@ function StudyMaterial() {
                                                     accept="image/png, image/jpeg"
                                                     className="form-control shadow-sm border-2"
                                                     onChange={(e) =>
-                                                      handleImageUpload(
+                                                      handleFileUpload(
                                                         e,
                                                         "fileURL"
                                                       )
@@ -870,7 +870,7 @@ function StudyMaterial() {
                                               placeholder="Image"
                                               aria-label="Image"
                                               onChange={(e) =>
-                                                handleImageUpload(e, "fileURL")
+                                                handleFileUpload(e, "fileURL")
                                               }
                                             />
                                           )}

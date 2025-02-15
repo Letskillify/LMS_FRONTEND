@@ -172,6 +172,16 @@ function SideDrawer() {
             <NavLink
               activeclassname="active"
               className="menu-item"
+              to="/noticeboard"
+            >
+              <a href="javascript:void(0);" className="menu-link">
+                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
+                <div>Notice board</div>
+              </a>
+            </NavLink>
+            <NavLink
+              activeclassname="active"
+              className="menu-item"
               to="/holidays"
             >
               <a href="javascript:void(0);" className="menu-link">
@@ -189,6 +199,12 @@ function SideDrawer() {
                 <div>Student Transfer</div>
               </a>
             </NavLink>
+            <NavLink className="menu-item" to={'/applyleave'}>
+              <a className="menu-link" href='javascript:void(0);'>
+                <i className='menu-icon tf-icons bx bx-book-reader'></i>
+                <div>Leave Management</div>
+              </a>
+            </NavLink>
             <NavLink
               activeclassname="active"
               className="menu-item"
@@ -203,9 +219,8 @@ function SideDrawer() {
               </a>
             </NavLink>
             <li
-              className={`menu-item ${Homework ? "active" : ""} ${
-                OpenToggle == "Homework" ? "open" : ""
-              }`}
+              className={`menu-item ${Homework ? "active" : ""} ${OpenToggle == "Homework" ? "open" : ""
+                }`}
               id="timetables"
             >
               <a
@@ -238,9 +253,8 @@ function SideDrawer() {
               </ul>
             </li>
             <li
-              className={`menu-item ${librarypaths ? "active" : ""} ${
-                OpenToggle == "Library" ? "open" : ""
-              }`}
+              className={`menu-item ${librarypaths ? "active" : ""} ${OpenToggle == "Library" ? "open" : ""
+                }`}
               id="Library"
             >
               <a

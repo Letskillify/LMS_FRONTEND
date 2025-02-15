@@ -21,7 +21,7 @@ import {
 } from "../Redux/Slices/MainSlice";
 
 import { useGetInstituteByIdQuery } from "../Redux/Api/instituteSlice";
-import { useGetStudentsByInstituteIdQuery } from "../Redux/Api/studentSlice";
+import { useGetStudentByIdQuery, useGetStudentsByInstituteIdQuery } from "../Redux/Api/studentSlice";
 import { useGetTeachersByInstituteIdQuery } from "../Redux/Api/teacherSlice";
 import { useGetSemesterByInstituteIdQuery } from "../Redux/Api/academicsApi/semesterSlice";
 import { useGetShiftByInstituteIdQuery } from "../Redux/Api/academicsApi/shiftSlice";
@@ -44,13 +44,16 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
   const { data: instituteData } = useGetInstituteByIdQuery(userId, {
     skip: !userId || !isLogin || !token || designation !== "Institute",
   });
+  const { data: studentData } = useGetStudentByIdQuery(userId, {
+    skip: !userId || !isLogin || !token || designation !== "Student",
+  });
 
-  const instituteId = instituteData?._id;
+  const instituteId = instituteData?._id || studentData?.instituteId?._id;
 
   dispatch(setGlobalInstituteId(instituteId));
   useEffect(() => {
     console.log("instituteId:", instituteId);
-    console.log("instituteId:", instituteId); 
+    console.log("instituteId:", instituteId);
     if (instituteId) {
     }
   }, [instituteId, dispatch]);
