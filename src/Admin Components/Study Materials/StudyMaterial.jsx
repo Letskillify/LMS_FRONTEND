@@ -35,9 +35,9 @@ function StudyMaterial() {
     useVideoUploader();
   const [uploadCompleted, setUploadCompleted] = useState(false);
   const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
-  const { userId } = getCommonCredentials();
-  // const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
-  //   useFileUploader();
+  const { userId, InstituteId } = getCommonCredentials();
+  const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
+    useFileUploader();
 
     const {data} = useGetStudyMaterialsByInstituteIdQuery(InstituteId);
     const [addStudyMaterial] = useCreateStudyMaterialMutation();

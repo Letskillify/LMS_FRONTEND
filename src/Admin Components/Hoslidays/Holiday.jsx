@@ -12,15 +12,17 @@ import { useCreateInstituteHolidayMutation, useDeleteInstituteHolidayMutation, u
 import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Holiday() {
-    const [holidays, setHolidays] = React.useState([]);
-    const [defaultHolidays, setDefaultHolidays] = React.useState([]);
-    const [popup, setPopup] = React.useState(false);
-    const [defaultShow, setDefaultShow] = React.useState(false);
-    const [searchTerm, setSearchTerm] = React.useState("");
-    const [addHoliday, setAddHoliday] = React.useState(null);
-    const [edit, setEdit] = React.useState(null);
-    const { userId } = getCommonCredentials();
-    const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
+
+    const showToast = useGlobalToast();
+    const [holidays, setHolidays] = useState([]);
+    const [defaultHolidays, setDefaultHolidays] = useState([]);
+    const [popup, setPopup] = useState(false);
+    const [defaultShow, setDefaultShow] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [addHoliday, setAddHoliday] = useState(null);
+    const [edit, setEdit] = useState(null);
+    const { userId, InstituteId } = getCommonCredentials();
+    const { uploadedData, handleImageUpload, setUploadedData } = useImageUploader();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';
