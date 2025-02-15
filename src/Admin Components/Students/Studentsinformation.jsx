@@ -121,7 +121,7 @@ const Studentsinformation = () => {
                                                     <label className="form-label">Class</label>
                                                     <select onChange={(e) => setClassName(e.target.value)} className="form-select">
                                                         <option value="">All</option>
-                                                        {Class.map((item, index) => (
+                                                        {Class?.map((item, index) => (
                                                             <option key={index} value={item}>{item?.className}</option>
                                                         ))}
                                                     </select>
@@ -130,7 +130,7 @@ const Studentsinformation = () => {
                                                     <label className="form-label">Section</label>
                                                     <select onChange={(e) => setSection(e.target.value)} className="form-select">
                                                         <option value="">All</option>
-                                                        {Section.map((item, index) => (
+                                                        {Section?.map((item, index) => (
                                                             <option key={index} value={item}>{item?.sectionName}</option>
                                                         ))}
                                                     </select>
@@ -214,7 +214,7 @@ const Studentsinformation = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="table-border-bottom-0">
-                                                {(filtereData || studentData).map((student) => (
+                                                {(filtereData || studentData)?.map((student) => (
                                                     <tr key={student._id}>
                                                         <td>{student.StuID}</td>
                                                         <td>

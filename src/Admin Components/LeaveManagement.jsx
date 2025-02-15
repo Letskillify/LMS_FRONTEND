@@ -71,6 +71,9 @@ function LeaveManagement() {
     }
   };
 
+
+  console.log(leaves);
+  
   return (
     <>
       <div className="container">

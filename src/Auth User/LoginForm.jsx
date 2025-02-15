@@ -97,8 +97,8 @@ const LoginForm = () => {
 
   return (
     <section
-      className="h-100 w-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#9A616D" }}
+      className="w-100 d-flex justify-content-center align-items-center"
+      style={{ backgroundColor: "#9A616D", minHeight: "100vh" }}
     >
       <div className="container py-5">
         <div className="row d-flex justify-content-center align-items-center">
