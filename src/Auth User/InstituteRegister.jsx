@@ -1,132 +1,97 @@
 import axios from 'axios';
 import { Field, Form, Formik } from 'formik';
 import React from 'react'
-import * as Yup from 'yup';
+import * as yup from 'yup';
 import { useFileUploader } from '../Custom Hooks/CustomeHook';
 import { useNavigate } from 'react-router-dom';
+import { useAddInstituteMutation } from '../Redux/Api/instituteSlice';
+import useGlobalToast from '../GlobalComponents/GlobalToast';
 
 
-const validationSchema = Yup.object({
-    name: Yup.string().required("Institute name is required"),
-    contact: Yup.object({
-        email: Yup.string().email("Invalid email format").nullable(),
-        mobile: Yup.string()
-            .matches(/^\d{10}$/, "Mobile number must be 10 digits")
-            .nullable(),
-        whatsapp: Yup.string()
-            .matches(/^\d{10}$/, "WhatsApp number must be 10 digits")
-            .nullable(),
-        landline: Yup.string().nullable(),
-        website: Yup.string().url("Invalid URL").nullable(),
+const validationSchema = yup.object().shape({
+    name: yup.string().required("Institute name is required"),
+    contactInfo: yup.object().shape({
+        email: yup.string().email().required("Email is required"),
+        mobile: yup.string().required("Mobile number is required"),
+        whatsapp: yup.string().required("WhatsApp number is required"),
+        landline: yup.string().nullable(),
+        website: yup.string().url().required("Website is required"),
     }),
-    address: Yup.object({
-        line1: Yup.string().nullable(),
-        line2: Yup.string().nullable(),
-        city: Yup.string().nullable(),
-        state: Yup.string().nullable(),
-        country: Yup.string().nullable(),
-        postalCode: Yup.string()
-            .matches(/^\d{5,6}$/, "Postal code must be 5 or 6 digits")
-            .nullable(),
-        MapLocationUrl: Yup.string().url("Invalid URL").nullable(),
+    address: yup.object().shape({
+        line1: yup.string().required("Address line 1 is required"),
+        line2: yup.string().required("Address line 2 is required"),
+        city: yup.string().required("City is required"),
+        state: yup.string().required("State is required"),
+        country: yup.string().required("Country is required"),
+        postalCode: yup.string().required("Postal code is required"),
+        MapLocationUrl: yup.string().required("Map location URL is required"),
     }),
-    establishedYear: Yup.number()
-        .min(1900, "Year must be after 1900")
-        .max(new Date().getFullYear(), "Year cannot be in the future")
-        .required("Established year is required"),
-    NoOfCoursesOffered: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of courses offered is required"),
-    NoOfStaffsEnrolled: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of staffs enrolled is required"),
-    NoOfStudentsEnrolled: Yup.number()
-        .min(0, "Cannot be negative")
-        .required("Number of students enrolled is required"),
-    disableStudentAdmission: Yup.boolean(),
-    acceptScholarshipAdmission: Yup.boolean(),
-    libraryFacilities: Yup.boolean(),
-    cafeteriaFacilities: Yup.boolean(),
-    hostelFacilities: Yup.boolean(),
-    accreditation: Yup.string().nullable(),
-    instituteType: Yup.string()
-        .oneOf(
-            ["School", "College", "University", "Coaching Center"],
-            "Invalid institute type"
-        )
-        .required("Institute type is required"),
-    logo: Yup.mixed().nullable(),
-    aboutInstitute: Yup.string().nullable(),
-    affiliationNo: Yup.string().nullable(),
-    affiliationYear: Yup.number()
-        .min(1900, "Year must be after 1900")
-        .max(new Date().getFullYear(), "Year cannot be in the future")
-        .nullable(),
-    affiliationName: Yup.string().nullable(),
-    AuthorizedPerson: Yup.object({
-        name: Yup.string().nullable(),
-        designation: Yup.string().nullable(),
-        IDproof: Yup.string().nullable(),
-        contactInfo: Yup.object({
-            email: Yup.string().email("Invalid email format").nullable(),
-            mobile: Yup.string()
-                .matches(/^\d{10}$/, "Mobile number must be 10 digits")
-                .nullable(),
-            whatsapp: Yup.string()
-                .matches(/^\d{10}$/, "WhatsApp number must be 10 digits")
-                .nullable(),
-            alternateContact: Yup.string().nullable(),
-            address: Yup.object({
-                houseNo: Yup.string().nullable(),
-                streetName: Yup.string().nullable(),
-                city: Yup.string().nullable(),
-                pincode: Yup.string()
-                    .matches(/^\d{5,6}$/, "Pincode must be 5 or 6 digits")
-                    .nullable(),
-                state: Yup.string().nullable(),
-                country: Yup.string().nullable(),
+    establishedYear: yup.string().matches(/^[0-9]{4}$/, "Established year must be a 4-digit year").required("Established year is required"),
+    NoOfCoursesOffered: yup.number().required("Number of courses offered is required"),
+    NoOfStaffsEnrolled: yup.number().required("Number of staffs enrolled is required"),
+    NoOfStudentsEnrolled: yup.number().required("Number of students enrolled is required"),
+    disableStudentAdmission: yup.boolean(),
+    acceptScholarshipAdmission: yup.boolean(),
+    libraryFacilities: yup.boolean(),
+    cafeteriaFacilities: yup.boolean(),
+    hostelFacilities: yup.boolean(),
+    accreditation: yup.string().required("Accreditation is required"),
+    instituteType: yup.string().required("Institute type is required"),
+    logo: yup.mixed().nullable(),
+    aboutInstitute: yup.string().required("About institute is required"),
+    affiliationNo: yup.string().required("Affiliation number is required"),
+    affiliationYear: yup.string().matches(/^[0-9]{4}$/, "Affiliation year must be a 4-digit year").required("Affiliation year is required"),
+    affiliationName: yup.string().required("Affiliation name is required"),
+    AuthorizedPerson: yup.object().shape({
+        name: yup.string().required("Authorized person name is required"),
+        designation: yup.string().required("Authorized person designation is required"),
+        IDproof: yup.mixed().nullable(),
+        contactInfo: yup.object().shape({
+            email: yup.string().email("Invalid email format").required("Email is required"),
+            mobile: yup.string().required("Mobile number is required"),
+            whatsapp: yup.string().required("WhatsApp number is required"),
+            alternateContact: yup.string().nullable(),
+            address: yup.object().shape({
+                houseNo: yup.string().required("House number is required"),
+                streetName: yup.string().required("Street name is required"),
+                city: yup.string().required("City is required"),
+                pincode: yup.string().required("Pincode is required"),
+                state: yup.string().required("State is required"),
+                country: yup.string().required("Country is required"),
             }),
-            signature: Yup.mixed().nullable(),
+            signature: yup.mixed().nullable(),
         }),
     }),
-    bankDetails: Yup.object({
-        accountHolderName: Yup.string().nullable(),
-        bankName: Yup.string().nullable(),
-        branchName: Yup.string().nullable(),
-        accountNumber: Yup.string()
-            .matches(/^\d+$/, "Account number must be numeric")
-            .nullable(),
-        ifscCode: Yup.string()
-            .matches(/^[A-Z|a-z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code format")
-            .nullable(),
-        upiID: Yup.string().nullable(),
-        panNo: Yup.string()
-            .matches(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "Invalid PAN format")
-            .nullable(),
+    bankDetails: yup.object().shape({
+        accountHolderName: yup.string().matches(/^[a-zA-Z\s]+$/, "Account holder name must be alphabets only").required("Account holder name is required"),
+        bankName: yup.string().matches(/^[a-zA-Z\s]+$/, "Bank name must be alphabets only").required("Bank name is required"),
+        branchName: yup.string().matches(/^[a-zA-Z\s]+$/, "Branch name must be alphabets only").required("Branch name is required"),
+        accountNumber: yup.string().matches(/^[0-9]{9,18}$/, "Account number must be 9 to 18 digits").required("Account number is required"),
+        ifscCode: yup.string().matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "IFSC code must be in the format of XXXX0XXXXXX").required("IFSC code is required"),
+        upiID: yup.string().matches(/^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, "UPI ID must be in the format of [name]@[bankname].[bankcode]").required("UPI ID is required"),
+        panNo: yup.string().matches(/^[A-Z]{5}\d{4}[A-Z]{1}$/, "PAN number must be in the format of XXXXX1234X").required("PAN number is required"),
     }),
-    document: Yup.object({
-        ISOcertificate: Yup.mixed().nullable(),
-        GSTcertificate: Yup.mixed().nullable(),
-        AffiliationCertificate: Yup.mixed().nullable(),
-        PANcard: Yup.mixed().nullable(),
-        MSME: Yup.mixed().nullable(),
-        TIN: Yup.mixed().nullable(),
-        NAAC: Yup.mixed().nullable(),
-        UGCapprovedLetter: Yup.mixed().nullable(),
+    document: yup.object().shape({
+        ISOcertificate: yup.mixed().nullable(),
+        GSTcertificate: yup.mixed().nullable(),
+        AffiliationCertificate: yup.mixed().nullable(),
+        PANcard: yup.mixed().nullable(),
+        MSME: yup.mixed().nullable(),
+        TIN: yup.mixed().nullable(),
+        NAAC: yup.mixed().nullable(),
+        UGCapprovedLetter: yup.mixed().nullable(),
     }),
-    loginPassword: Yup.string()
-        .min(8, "Password must be at least 8 characters")
-        .required("Password is required"),
+    loginPassword: yup.string().required("Login password is required"),
 });
-
-
 
 function InstituteRegister() {
     const { uploadedData, handleFileUpload } = useFileUploader();
+    const [ createInstitute ] = useAddInstituteMutation();
+    const Toast = useGlobalToast();
     const Navigate = useNavigate();
     const initialValues = {
         name: "",
-        contact: {
+        contactInfo: {
             email: null,
             mobile: null,
             whatsapp: null,
@@ -142,17 +107,17 @@ function InstituteRegister() {
             postalCode: null,
             MapLocationUrl: null,
         },
-        establishedYear: 0,
-        NoOfCoursesOffered: 0,
-        NoOfStaffsEnrolled: 0,
-        NoOfStudentsEnrolled: 0,
+        establishedYear: null,
+        NoOfCoursesOffered: null,
+        NoOfStaffsEnrolled: null,
+        NoOfStudentsEnrolled: null,
         disableStudentAdmission: false,
         acceptScholarshipAdmission: false,
         libraryFacilities: false,
         cafeteriaFacilities: false,
         hostelFacilities: false,
         accreditation: "",
-        instituteType: "", // Choose from 'School', 'College', 'University', 'Coaching Center'
+        instituteType: "",
         logo: null,
         aboutInstitute: null,
         affiliationNo: null,
@@ -201,6 +166,7 @@ function InstituteRegister() {
     };
 
     const HandleSubmit = async (values, { resetForm }) => {
+        console.log(values);
 
         const data = {
             ...values,
@@ -226,18 +192,21 @@ function InstituteRegister() {
 
 
         try {
-            const response = await axios.post("http://localhost:5500/api/institute/post", data);
-            if (response.status === 201) {
+            const response = await createInstitute(data);
+            if (response.data) {
+                Toast(response.data.message || "Submission successful.", "success");
                 resetForm();
-                alert("Data Sent Successfully");
-                Navigate("/login");
+                Navigate("/");
+            } else {
+                Toast(response.error.data.message || "Submission failed.", "error");
             }
         } catch (error) {
             if (error.response) {
-                console.error("Server Error:", error.response.data);
-                alert(error.response.data.message || "Submission failed.");
+                Toast((error.response.data.message || error.response.data) || "Submission failed.", "error");
             } else {
-                console.error("Unknown Error:", error.message);
+                Toast("An unknown error occurred.", "error");
+                console.log(error);
+
             }
         }
     };
@@ -247,10 +216,11 @@ function InstituteRegister() {
             <div className="modal-body">
                 <div className="nav-align-top mb-4">
 
-                    <Formik initialValues={initialValues} onSubmit={HandleSubmit} >
+                    <Formik initialValues={initialValues} onSubmit={HandleSubmit} validationSchema={validationSchema} >
                         {({ errors, touched, resetForm }) => (
                             <Form className="border p-4 shadow rounded bg-white">
-                                <h2>Institute registration  </h2>
+                                <h2 className='text-center'>Institute Registration  </h2>
+                                <hr className='mb-5' />
                                 <div>
                                     <h4 className="mb-4">Contact :-</h4>
                                     <div className="row">
@@ -263,113 +233,44 @@ function InstituteRegister() {
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Contact No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.mobile" type="number" className="form-control" placeholder="Enter Your Mobile Number">
+                                            <Field name="contactInfo.mobile" type="number" className="form-control" placeholder="Enter Your Mobile Number">
 
                                             </Field>
-                                            < div className="text-danger">{errors?.contact?.mobile}</div>
+                                            < div className="text-danger">{errors?.contactInfo?.mobile}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Contact Email <span className='text-danger'>*</span></label>
-                                            <Field name="contact.email" type="email" className="form-control" placeholder="Enter Your Mobile email">
+                                            <Field name="contactInfo.email" type="email" className="form-control" placeholder="Enter Your Mobile email">
 
                                             </Field>
-                                            < div className="text-danger">{errors?.contact?.email}</div>
+                                            < div className="text-danger">{errors?.contactInfo?.email}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>WhatsApp No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.whatsapp" type="number" className="form-control" placeholder="Enter Your WhatsApp No.">
+                                            <Field name="contactInfo.whatsapp" type="number" className="form-control" placeholder="Enter Your WhatsApp No.">
 
                                             </Field>
-                                            < div className="text-danger">{errors?.contact?.whatsapp}</div>
+                                            < div className="text-danger">{errors?.contactInfo?.whatsapp}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>Landline No. <span className='text-danger'>*</span></label>
-                                            <Field name="contact.landline" type="number" className="form-control" placeholder="Enter Your Landline No.">
+                                            <label>Landline No.</label>
+                                            <Field name="contactInfo.landline" type="number" className="form-control" placeholder="Enter Your Landline No.">
 
                                             </Field>
-                                            < div className="text-danger">{errors?.contact?.landline}</div>
+                                            < div className="text-danger">{errors?.contactInfo?.landline}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Website <span className='text-danger'>*</span></label>
-                                            <Field name="contact.website" type="text" className="form-control" placeholder="Enter Your Website">
+                                            <Field name="contactInfo.website" type="text" className="form-control" placeholder="Enter Your Website">
 
                                             </Field>
-                                            < div className="text-danger">{errors?.contact?.website}</div>
+                                            < div className="text-danger">{errors?.contactInfo?.website}</div>
                                         </div>
-                                        {/* <div className="col-md-4 mb-3">
-                                            <label>Admission Date <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Institute type<span className='text-danger'>*</span></label>
-                                            <Field as="select" name="enrollmentDetails.instituteType" className="form-control">
-                                                <option value="" label="Select institute type" />
-                                                <option value="Institute" label="Institute" />
-                                                <option value="College" label="College" />
-                                                <option value="School" label="School" />
-                                            </Field>
-
-                                        </div>
-
-                                        <div className="col-md-4 mb-3">
-                                            <label>Course/Class/Degree <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.course" type="text" placeholder="Enter Course/Class/Degree " className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Institute Name <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.instituteName" type="text" placeholder="Enter instituteName" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Intituite Location <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.instituteLocation" type="text" placeholder="Enter institute Location" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Institute Medium <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.instituteMedium" as="select" className="form-select">
-                                                <option value="">Select</option>
-                                                <option value="English">English</option>
-                                                <option value="Hindi">Hindi</option>
-                                                <option value="Other">Other</option>
-                                            </Field>
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Intituite Session</label>
-                                            <Field name="enrollmentDetails.instituteSession" type="text" placeholder="Enter institute Session" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Board/University Name <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.boardName" type="text" placeholder="Enter institute board Name" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Course Stream <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.courseStream" type="text" placeholder="Enter institute course Stream" className="form-control" />
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Enrollment Status <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.enrollmentStatus" as="select" className="form-select">
-                                                <option value="">Select</option>
-                                                <option value="Active">Active</option>
-                                                <option value="Deactive">Deactive</option>
-                                            </Field>
-
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Admission No. <span className='text-danger'>*</span></label>
-                                            <Field name="enrollmentDetails.admissionNO" type="text" placeholder="Enter admission no." className="form-control" />
-
-                                        </div> */}
                                     </div>
                                 </div>
                                 {/* Adress  */}
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Address :-</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -415,7 +316,7 @@ function InstituteRegister() {
                                             < div className="text-danger">{errors?.address?.postalCode}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>MapLocationURL <span className='text-danger'>*</span></label>
+                                            <label>Map Location URL <span className='text-danger'>*</span></label>
                                             <Field name="address.MapLocationUrl" type="url" className="form-control" placeholder="Enter Your MapLocationURL">
 
                                             </Field>
@@ -425,6 +326,7 @@ function InstituteRegister() {
                                 </div>
                                 {/* other detail */}
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Other Information :-</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -477,7 +379,7 @@ function InstituteRegister() {
                                         </div>
                                         <div className="col-md-4 mb-3 ">
                                             <label>Logo <span className='text-danger'>*</span></label>
-                                            <Field name="logo" type="file" onChange={(e) => handleFileUpload(e, "logo")} className="form-control">
+                                            <Field name="logo" type="file" accept="image/jpeg, image/png, image/gif" onChange={(e) => handleFileUpload(e, "logo")} className="form-control">
 
                                             </Field>
                                             < div className="text-danger">{errors?.logo}</div>
@@ -512,7 +414,7 @@ function InstituteRegister() {
                                                 as="textarea"
                                                 name="aboutInstitute"
                                                 id="aboutInstitute"
-                                                className="form-control shadow-sm rounded"
+                                                className="form-control rounded"
                                                 rows="4"
                                                 placeholder="Write about the institute here..."
                                                 style={{
@@ -536,7 +438,7 @@ function InstituteRegister() {
                                                 >
                                                 </Field>
                                                 <label>
-                                                    Accept Disable Student Admission ? <span className="text-danger">*</span>
+                                                    Accept Disable Student Admission ?
                                                 </label>
                                                 < div className="text-danger">{errors?.disableStudentAdmission}</div>
 
@@ -549,7 +451,7 @@ function InstituteRegister() {
                                                 >
                                                 </Field>
                                                 <label>
-                                                    Accept Scholarship Admission ?  <span className="text-danger">*</span>
+                                                    Accept Scholarship Admission ?
                                                 </label>
                                                 < div className="text-danger">{errors?.acceptScholarshipAdmission}</div>
                                             </div>
@@ -561,7 +463,7 @@ function InstituteRegister() {
                                                 >
                                                 </Field>
                                                 <label>
-                                                    Provide Library Facilities ?  <span className="text-danger">*</span>
+                                                    Provide Library Facilities ?
                                                 </label>
                                                 < div className="text-danger">{errors?.libraryFacilities}</div>
 
@@ -574,7 +476,7 @@ function InstituteRegister() {
                                                 >
                                                 </Field>
                                                 <label>
-                                                    Provide Cafeteria Facilities ?  <span className="text-danger">*</span>
+                                                    Provide Cafeteria Facilities ?
                                                 </label>
                                                 < div className="text-danger">{errors?.cafeteriaFacilities}</div>
 
@@ -587,7 +489,7 @@ function InstituteRegister() {
                                                 >
                                                 </Field>
                                                 <label>
-                                                    Provide Hostel Facilities ?  <span className="text-danger">*</span>
+                                                    Provide Hostel Facilities ?
                                                 </label>
                                                 < div className="text-danger">{errors?.hostelFacilities}</div>
 
@@ -597,6 +499,7 @@ function InstituteRegister() {
                                 </div>
                                 {/* Authorized person */}
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Authorized Person:</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -620,7 +523,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.AuthorizedPerson?.designation}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>ID Proof <span className="text-danger">*</span></label>
+                                            <label>ID Proof</label>
                                             <Field
                                                 name="AuthorizedPerson.IDproof"
                                                 type="text"
@@ -660,7 +563,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.AuthorizedPerson?.contactInfo?.whatsapp}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>Alternate Contact <span className="text-danger">*</span></label>
+                                            <label>Alternate Contact</label>
                                             <Field
                                                 name="AuthorizedPerson.contactInfo.alternateContact"
                                                 type="text"
@@ -673,7 +576,7 @@ function InstituteRegister() {
                                             <label>House No. <span className="text-danger">*</span></label>
                                             <Field
                                                 name="AuthorizedPerson.contactInfo.address.houseNo"
-                                                type="text"
+                                                type="number"
                                                 className="form-control"
                                                 placeholder="Enter Your House No."
                                             />
@@ -734,6 +637,7 @@ function InstituteRegister() {
                                             <Field
                                                 name="AuthorizedPerson.contactInfo.signature"
                                                 type="file"
+                                                accept="image/jpeg, image/png, image/gif"
                                                 className="form-control"
                                                 onChange={(e) => handleFileUpload(e, "signature")}
                                             />
@@ -744,6 +648,7 @@ function InstituteRegister() {
 
                                 {/* Bank Details */}
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Bank Details :-</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -768,13 +673,6 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.bankDetails?.branchName}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>State <span className='text-danger'>*</span></label>
-                                            <Field name="bankDetails.state" type="text" className="form-control" placeholder="Enter Your State">
-
-                                            </Field>
-                                            <div className="text-danger">{errors?.bankDetails?.state}</div>
-                                        </div>
-                                        <div className="col-md-4 mb-3">
                                             <label>Account Number <span className='text-danger'>*</span></label>
                                             <Field name="bankDetails.accountNumber" type="text" className="form-control" placeholder="Enter Account Number">
 
@@ -792,7 +690,7 @@ function InstituteRegister() {
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>UPI ID <span className='text-danger'>*</span></label>
-                                            <Field name="bankDetails.upiID" type="url" className="form-control" placeholder="Enter UPI ID">
+                                            <Field name="bankDetails.upiID" type="text" className="form-control" placeholder="Enter UPI ID">
 
                                             </Field>
                                             <div className="text-danger">{errors?.bankDetails?.upiID}</div>
@@ -800,7 +698,7 @@ function InstituteRegister() {
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>PAN No. <span className='text-danger'>*</span></label>
-                                            <Field name="bankDetails.panNo" type="number" className="form-control" placeholder="Enter PAN No.">
+                                            <Field name="bankDetails.panNo" type="text" className="form-control" placeholder="Enter PAN No.">
 
                                             </Field>
                                             <div className="text-danger">{errors?.bankDetails?.panNo}</div>
@@ -810,10 +708,11 @@ function InstituteRegister() {
                                 </div>
                                 {/* Document */}
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Document:</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
-                                            <label>ISO Certificate <span className="text-danger">*</span></label>
+                                            <label>ISO Certificate</label>
                                             <Field
                                                 name="document.ISOcertificate"
                                                 type="file"
@@ -824,7 +723,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.ISOcertificate}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>GST Certificate <span className="text-danger">*</span></label>
+                                            <label>GST Certificate</label>
                                             <Field
                                                 name="document.GSTcertificate"
                                                 type="file"
@@ -835,7 +734,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.GSTcertificate}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>Affiliation Certificate <span className="text-danger">*</span></label>
+                                            <label>Affiliation Certificate</label>
                                             <Field
                                                 name="document.AffiliationCertificate"
                                                 type="file"
@@ -846,7 +745,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.AffiliationCertificate}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>PAN Card <span className="text-danger">*</span></label>
+                                            <label>PAN Card</label>
                                             <Field
                                                 name="document.PANcard"
                                                 type="file"
@@ -857,7 +756,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.PANcard}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>MSME <span className="text-danger">*</span></label>
+                                            <label>MSME</label>
                                             <Field
                                                 name="document.MSME"
                                                 type="file"
@@ -868,7 +767,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.MSME}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>TIN <span className="text-danger">*</span></label>
+                                            <label>TIN</label>
                                             <Field
                                                 name="document.TIN"
                                                 type="file"
@@ -879,7 +778,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.TIN}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>NAAC <span className="text-danger">*</span></label>
+                                            <label>NAAC</label>
                                             <Field
                                                 name="document.NAAC"
                                                 type="file"
@@ -890,7 +789,7 @@ function InstituteRegister() {
                                             <div className="text-danger">{errors?.document?.NAAC}</div>
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label>UGC Approved Letter <span className="text-danger">*</span></label>
+                                            <label>UGC Approved Letter</label>
                                             <Field
                                                 name="document.UGCapprovedLetter"
                                                 type="file"
@@ -904,6 +803,7 @@ function InstituteRegister() {
                                 </div>
 
                                 <div>
+                                    <hr />
                                     <h4 className="mb-4">Login ID :-</h4>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
@@ -916,23 +816,9 @@ function InstituteRegister() {
                                     </div>
                                 </div>
                                 <div className="d-flex justify-content-end mt-2">
-                                    <button type="button" className="w-25 btn btn-danger me-2" onClick={() => resetForm()}>Cancel</button>
-                                    <button type="submit" className="w-25 btn btn-primary ms-2">Submit</button>
+                                    <button type="button" className="btn btn-danger me-2" onClick={() => resetForm()}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary ms-2">Submit</button>
                                 </div>
-                                {/* Status */}
-                                {/* <div>
-                                    <h4 className="mb-4">Status :-</h4>
-                                    <div className="row">
-                                       
-                                    </div>
-                                </div>
-                                FeedBack
-                                <div>
-                                    <h4 className="mb-4">FeedBack :-</h4>
-                                    <div className="row">
-                                       
-                                    </div>
-                                </div> */}
                             </Form>
 
                         )}

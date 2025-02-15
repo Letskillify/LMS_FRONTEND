@@ -156,6 +156,7 @@ function SideDrawer() {
         '/coursegroup',
         '/classes',
         '/assignteachers',
+        '/employe-role',
 
     ]
     // const admission
@@ -258,6 +259,11 @@ function SideDrawer() {
                                 <NavLink activeclassname="active" className="menu-item" to="/assignteachers">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Assign Teachers</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/employe-role">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Employs Role</div>
                                     </a>
                                 </NavLink>
                             </ul>

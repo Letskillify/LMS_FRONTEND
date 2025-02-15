@@ -33,7 +33,7 @@ function App() {
       ) : designation === "Non Teaching-Staff" && Islogin ? (
         <StaffDashboard />
       ) : (
-        <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="d-flex justify-content-center align-items-center">
           {location.pathname === "/forgotpassword" ? (
             <PasswordForget />
           ) : location.pathname === "/instituteregister" ? (

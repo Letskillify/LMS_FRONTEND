@@ -143,10 +143,10 @@ function stream() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stream.map((item, index) => (
-                    <tr key={item.id}>
+                  {stream?.map((item, index) => (
+                    <tr key={item?.id}>
                       <th scope="row">{index + 1}</th>
-                      <td className='text-capitalize'>{item.streamName}</td>
+                      <td className='text-capitalize'>{item?.streamName}</td>
                       <td>
                         <button className="btn btn-primary btn-sm me-2"  onClick={() => {
                             setPopup(true);
@@ -154,7 +154,7 @@ function stream() {
                           }}>
                           <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handlestreamDelete(item._id)}>
+                        <button className="btn btn-danger btn-sm" onClick={() => handlestreamDelete(item?._id)}>
                           <i className="fa fa-trash-o" aria-hidden="true"></i>
                         </button>
                       </td>

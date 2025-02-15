@@ -22,7 +22,7 @@ function Holiday() {
     const [addHoliday, setAddHoliday] = useState(null);
     const [edit, setEdit] = useState(null);
     const { userId, InstituteId } = getCommonCredentials();
-    const { uploadedData, handleImageUpload, setUploadedData } = useImageUploader();
+    const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';

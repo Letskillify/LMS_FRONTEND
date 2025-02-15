@@ -4,10 +4,8 @@ import { Formik, Form, Field, useFormikContext } from 'formik';
 // import * as Yup from 'yup';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 // import LMSTable from '../Students/LMSTable';
-import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
-import { Bounce, toast } from 'react-toastify';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 import { useAddAllStudentsToTrashMutation, useAddStudentMutation } from '../../Redux/Api/studentSlice';
 import useGlobalToast from '../../GlobalComponents/GlobalToast';
@@ -123,7 +121,7 @@ const validationSchema = Yup.object({
         }),
     }),
     enrollmentDetails: Yup.object({
-        admissionType: Yup.string().required("Admission type is required"),
+            ssionType: Yup.string().required("Admission type is required"),
         admissionCategory: Yup.string().required("Admission category is required"),
         admissionDate: Yup.date().required("Admission date is required"),
         enrollmentNO: Yup.string().nullable(),
