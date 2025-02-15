@@ -656,8 +656,22 @@ function SideDrawer() {
                                 <div>Accounting</div>
                             </a>
                         </NavLink>
-
-
+                        <NavLink
+                            activeclassname="active"
+                            className="menu-item"
+                            to="/notice-board"
+                        >
+                            <a href="javascript:void(0);" className="menu-link">
+                                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
+                                <div>Notice board</div>
+                            </a>
+                        </NavLink>
+                        <NavLink className="menu-item" to={'/leavemanagement'}>
+                            <a className="menu-link" href='javascript:void(0);'>
+                                <i className='menu-icon tf-icons bx bx-book-reader'></i>
+                                <div>Leave Management</div>
+                            </a>
+                        </NavLink>
                         {/* <li className="menu-item">
                         <Link className="menu-link">
                             <i className='menu-icon tf-icons bx bx-chat'></i>
@@ -676,21 +690,6 @@ function SideDrawer() {
                             <div>Time Table Management</div>
                         </Link>
                     </li> */}
-
-
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-wallet'></i>
-                                <div>Expense Management</div>
-                            </Link>
-                        </li>
-
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-file'></i>
-                                <div>Reporting Area</div>
-                            </Link>
-                        </li>
                         <li className={`menu-item ${Stockinventory ? 'active' : ''} ${OpenToggle == 'stockInventory' ? 'open' : ''}`} id='stockInventory'>
                             <Link to="/stock-account" className="menu-link menu-link menu-toggle" onClick={() => { StockInventory(); }}>
                                 <i className='menu-icon tf-icons bx bx-layer'></i>
@@ -767,10 +766,17 @@ function SideDrawer() {
                             <div>Library Management</div>
                         </Link>
                     </li> */}
+                     <li className="menu-item">
+                            <Link className="menu-link">
+                                <i className='menu-icon tf-icons bx bx-wallet'></i>
+                                <div>Expense Management</div>
+                            </Link>
+                        </li>
+
                         <li className="menu-item">
                             <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-book-reader'></i>
-                                <div>Leave Management</div>
+                                <i className='menu-icon tf-icons bx bx-file'></i>
+                                <div>Reporting Area</div>
                             </Link>
                         </li>
                         <li className="menu-item">
@@ -789,12 +795,6 @@ function SideDrawer() {
                             <Link className="menu-link">
                                 <i className='menu-icon tf-icons bx bx-envelope' ></i>
                                 <div>Email Alerts</div>
-                            </Link>
-                        </li>
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
-                                <div>School Notice Board</div>
                             </Link>
                         </li>
                         <li className="menu-item">

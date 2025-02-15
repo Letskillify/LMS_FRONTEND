@@ -2,7 +2,7 @@ import { Field, Form, Formik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react'
 import * as Yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EditApi, useImageUploader } from '../../Custom Hooks/CustomeHook';
+import { EditApi, useFileUploader } from '../../Custom Hooks/CustomeHook';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 function EditProfile() {
@@ -13,7 +13,7 @@ function EditProfile() {
     const Navigate = useNavigate()
     const location = useLocation();
     const { institute} = location.state || {};
-    const { uploadedData, handleImageUpload } = useImageUploader();
+    const { uploadedData, handleFileUpload } = useFileUploader();
 
 
     useEffect(() => {
@@ -387,7 +387,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter Your Logo"
-                                                            onChange={(e) => handleImageUpload(e, "logo")}
+                                                            onChange={(e) => handleFileUpload(e, "logo")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -397,7 +397,7 @@ function EditProfile() {
                                                     )}
                                                 </div>
                                             ) : (
-                                                <Field name="logo" type="file" onChange={(e) => handleImageUpload(e, "logo")} className="form-control">
+                                                <Field name="logo" type="file" onChange={(e) => handleFileUpload(e, "logo")} className="form-control">
                                                 </Field>
                                             )}
                                             < div className="text-danger">{errors?.logo}</div>
@@ -666,7 +666,7 @@ function EditProfile() {
                                                             name="AuthorizedPerson.contactInfo.signature"
                                                             type="file"
                                                             className="form-control"
-                                                            onChange={(e) => handleImageUpload(e, "signature")}
+                                                            onChange={(e) => handleFileUpload(e, "signature")}
                                                         />
                                                     )}
                                                 </div>
@@ -675,7 +675,7 @@ function EditProfile() {
                                                     name="AuthorizedPerson.contactInfo.signature"
                                                     type="file"
                                                     className="form-control"
-                                                    onChange={(e) => handleImageUpload(e, "signature")}
+                                                    onChange={(e) => handleFileUpload(e, "signature")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.AuthorizedPerson?.contactInfo?.signature}</div>
@@ -763,7 +763,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter ISO Certificate"
-                                                            onChange={(e) => handleImageUpload(e, "ISOcertificate")}
+                                                            onChange={(e) => handleFileUpload(e, "ISOcertificate")}
                                                         />) : (
                                                         <div>
                                                             <a href={institute?.document?.ISOcertificateUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary me-2 w-50 text-white">Download</a>
@@ -777,7 +777,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter ISO Certificate"
-                                                    onChange={(e) => handleImageUpload(e, "ISOcertificate")}
+                                                    onChange={(e) => handleFileUpload(e, "ISOcertificate")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.ISOcertificate}</div>
@@ -792,7 +792,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter GST Certificate"
-                                                            onChange={(e) => handleImageUpload(e, "GSTcertificate")}
+                                                            onChange={(e) => handleFileUpload(e, "GSTcertificate")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -807,7 +807,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter GST Certificate"
-                                                    onChange={(e) => handleImageUpload(e, "GSTcertificate")}
+                                                    onChange={(e) => handleFileUpload(e, "GSTcertificate")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.GSTcertificate}</div>
@@ -822,7 +822,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter Affiliation Certificate"
-                                                            onChange={(e) => handleImageUpload(e, "AffiliationCertificate")}
+                                                            onChange={(e) => handleFileUpload(e, "AffiliationCertificate")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -837,7 +837,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter Affiliation Certificate"
-                                                    onChange={(e) => handleImageUpload(e, "AffiliationCertificate")}
+                                                    onChange={(e) => handleFileUpload(e, "AffiliationCertificate")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.AffiliationCertificate}</div>
@@ -852,7 +852,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter PAN Card"
-                                                            onChange={(e) => handleImageUpload(e, "PANcard")}
+                                                            onChange={(e) => handleFileUpload(e, "PANcard")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -867,7 +867,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter PAN Card"
-                                                    onChange={(e) => handleImageUpload(e, "PANcard")}
+                                                    onChange={(e) => handleFileUpload(e, "PANcard")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.PANcard}</div>
@@ -882,7 +882,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter MSME"
-                                                            onChange={(e) => handleImageUpload(e, "MSME")}
+                                                            onChange={(e) => handleFileUpload(e, "MSME")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -897,7 +897,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter MSME"
-                                                    onChange={(e) => handleImageUpload(e, "MSME")}
+                                                    onChange={(e) => handleFileUpload(e, "MSME")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.MSME}</div>
@@ -912,7 +912,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter TIN"
-                                                            onChange={(e) => handleImageUpload(e, "TIN")}
+                                                            onChange={(e) => handleFileUpload(e, "TIN")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -927,7 +927,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter TIN"
-                                                    onChange={(e) => handleImageUpload(e, "TIN")}
+                                                    onChange={(e) => handleFileUpload(e, "TIN")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.TIN}</div>
@@ -942,7 +942,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter NAAC"
-                                                            onChange={(e) => handleImageUpload(e, "NAAC")}
+                                                            onChange={(e) => handleFileUpload(e, "NAAC")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -957,7 +957,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter NAAC"
-                                                    onChange={(e) => handleImageUpload(e, "NAAC")}
+                                                    onChange={(e) => handleFileUpload(e, "NAAC")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.NAAC}</div>
@@ -972,7 +972,7 @@ function EditProfile() {
                                                             type="file"
                                                             className="form-control"
                                                             placeholder="Enter UGC Approved Letter"
-                                                            onChange={(e) => handleImageUpload(e, "UGCapprovedLetter")}
+                                                            onChange={(e) => handleFileUpload(e, "UGCapprovedLetter")}
                                                         />
                                                     ) : (
                                                         <div>
@@ -987,7 +987,7 @@ function EditProfile() {
                                                     type="file"
                                                     className="form-control"
                                                     placeholder="Enter UGC Approved Letter"
-                                                    onChange={(e) => handleImageUpload(e, "UGCapprovedLetter")}
+                                                    onChange={(e) => handleFileUpload(e, "UGCapprovedLetter")}
                                                 />
                                             )}
                                             <div className="text-danger">{errors?.document?.UGCapprovedLetter}</div>

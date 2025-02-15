@@ -6,12 +6,12 @@ import { Link } from "react-router-dom";
 // import "slick-carousel/slick/slick-theme.css";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
-import {
-  useFileUploader,
-  useImageUploader,
-  useVideoUploader,
-} from "../../Custom Hooks/CustomeHook";
-import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+// import {
+//   useFileUploader,
+//   useFileUploader,
+//   useVideoUploader,
+// } from "../../Custom Hooks/CustomeHook";
+// import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 function StudyMaterial() {
   const [mainData, setMainData] = useState([]);
@@ -26,16 +26,16 @@ function StudyMaterial() {
   const [addMaterial, setAddMaterial] = useState("");
   const [filteredData, setFilteredData] = useState();
   const [selectedId, setSelectedId] = useState(null);
-  const [edit, setEdit] = useState("");
-  const { uploadedData, handleImageUpload } = useImageUploader();
-  // const [fileType, setFileType] = useState("image");
-  const { uploadedVideos, uploadProgress, isLoading, handleVideoUpload } =
-    useVideoUploader();
-  const [uploadCompleted, setUploadCompleted] = useState(false);
-  const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
-  const { userId } = getCommonCredentials();
-  const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
-    useFileUploader();
+  // const [edit, setEdit] = useState("");
+  // const { uploadedData, handleFileUpload } = useFileUploader();
+  // // const [fileType, setFileType] = useState("image");
+  // const { uploadedVideos, uploadProgress, isLoading, handleVideoUpload } =
+  //   useVideoUploader();
+  // const [uploadCompleted, setUploadCompleted] = useState(false);
+  // const [uploadfileCompleted, setUploadFileCompleted] = useState(false);
+  // const { userId } = getCommonCredentials();
+  // const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
+  //   useFileUploader();
 
   async function getData() {
     const response = await axios

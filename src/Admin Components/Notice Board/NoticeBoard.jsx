@@ -11,6 +11,7 @@ import { Bounce, toast } from "react-toastify";
 import * as Yup from "yup";
 import { motion } from "framer-motion"
 import { Bell, X, Calendar, Clock, AlertCircle } from "lucide-react"
+import { useCreateNoticeBoardMutation, useDeleteNoticeBoardMutation, useGetNoticeBoardsByInstituteIdQuery } from "../../Redux/Api/noticeBoardSlice";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -31,18 +32,25 @@ const validationSchema = Yup.object().shape({
 });
 
 
-const NotificationBoard = () => {
+const NoticeBoard = () => {
   const [notification, setNotification] = useState();
   const [showPopup, setShowPopup] = useState(false);
   const [audienceType, setAudienceType] = useState(false);
+  const [noticeBoard, setNoticeBoard] = useState([]);
   // const { instituteId } = useContext(MainContext);
   const { uploadedFiles, isLoading, handleFileUpload } = useFileUploader();
   const { globalInstituteId: InstituteId, globalUserId: userId } = useSelector((state) => state.main);
-  const { Class, CourseGroup, Course, Board,ExamType } = getCommonCredentials();
+  const { Class, CourseGroup, Course, Board } = getCommonCredentials();
+  const { data: noticeBoardData } = useGetNoticeBoardsByInstituteIdQuery(InstituteId, {
+    skip: !InstituteId,
+  })
+  useEffect(() => {
+    setNoticeBoard(noticeBoardData)
+  }, [noticeBoardData])
+  const [CreateNoticeBoard] = useCreateNoticeBoardMutation()
+  const [DeleteNotice] = useDeleteNoticeBoardMutation()
 
-  console.log(ExamType,"ExamType");
-  
-  console.log(InstituteId, "InstituteId ----");
+
 
   const initialValues = {
     title: "",
@@ -60,12 +68,6 @@ const NotificationBoard = () => {
     instituteId: InstituteId,
   };
 
-  const getNoticeBoard = () => {
-    getApi("/api/notice-board/get").then((data) => console.log(data))
-  }
-  useEffect(() => {
-    getNoticeBoard();
-  }, [InstituteId])
   const handleSubmit = async (values, { setSubmitting }) => {
     if (!isLoading) {
       const data = {
@@ -73,17 +75,11 @@ const NotificationBoard = () => {
         attachment: uploadedFiles?.attachment,
       }
       try {
-        const response = await axios.post(
-          `/api/notice-board/post`,
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.status === 201) {
-          toast.success("Notification added successfully", {
+        const response = await CreateNoticeBoard(data)
+        console.log(response);
+
+        if (response.data) {
+          toast.success("Notice added successfully", {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -97,7 +93,7 @@ const NotificationBoard = () => {
           setSubmitting(false);
           setShowPopup(false);
         } else {
-          toast.warn(response.statusText, {
+          toast.warn("Error adding notice", {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -110,8 +106,8 @@ const NotificationBoard = () => {
           });
         }
       } catch (error) {
-        console.error("Error adding notification:", error);
-        toast.error(error.response.data.message || "Error adding notification", {
+        console.error("Error adding notice:", error);
+        toast.error(error.response.data.message || "Error adding notice", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -126,27 +122,69 @@ const NotificationBoard = () => {
 
     }
   };
+  const handleDelete = async (id) => {
+    try {
+      const response = await DeleteNotice(id)
+      if (response?.data) {
+        toast.success("Notice deleted successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+      } else {
+        toast.warn("Error deleting notice", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting notice:", error);
+      toast.error(error.response.data.message || "Error deleting notice", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
+  };
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Important Announcement",
-      description: "All classes will be conducted online next week due to maintenance work.",
-      datePosted: "2025-02-10",
-      validTill: "2025-02-17",
-      status: "Active",
-      color: "bg-blue-100 border-blue-500",
-    },
-    {
-      id: 2,
-      title: "Exam Schedule Update",
-      description: "The final exam schedule has been updated. Please check the portal for details.",
-      datePosted: "2025-02-05",
-      validTill: "2025-03-01",
-      status: "Active",
-      color: "bg-green-100 border-green-500",
-    },
-  ])
+  const handleDownload = (fileUrl) => {
+  if (!fileUrl) {
+    console.error("No file URL provided");
+    return;
+  }
+
+  // Create an anchor element
+  const link = document.createElement("a");
+  link.href = fileUrl;
+  link.setAttribute("download", "attachment"); // Set default file name
+  link.target = "_blank"; // Open in a new tab if necessary
+
+  // Append to body and trigger click
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+};
 
   return (
     <div className="container mt-4">
@@ -156,109 +194,58 @@ const NotificationBoard = () => {
           className="btn btn-primary round mb-2"
           onClick={() => setShowPopup(true)}
         >
-          {/* <i className="fa fa-plus-circle" aria-hidden="true"></i> */}
           Add Notification
         </button>
       </div>
-      <div id="notice-container">
-        {/* {filteredAudience.map((notice, index) => (
-          <div
-            key={index}
-            className="notice-card border-left-success bg-light p-3 mb-3 shadow-sm rounded"
-          >
-            <div className="d-flex justify-content-between">
-              <div className="notice-title font-weight-bold text-dark h5">
-                {notice.title}
-              </div>
-              <button className="btn border-danger text-dark">
-                <i className="fa fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div className="notice-meta text-muted small">
-              Issued by: {notice.issuedBy} | Date: {notice.datePosted}
-            </div>
-            <div className="notice-description mt-2">{notice.description}</div>
-            <div className="notice-meta text-muted small">
-              Valid Till: {notice.validTill} | Status: {notice.status}
-            </div>
-          </div>
-        ))} */}
-      </div>
-      {/* <div className="table-responsive text-nowrap mt-3">
-        <table className="table table-striped">
-          <thead>
-            <tr className="text-center">
-              <th>Class Name</th>
-              <th>Course</th>
-              <th>Section</th>
-              <th>Semester</th>
-              <th>Medium</th>
-              <th>Stream</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody className="table-border-bottom-0">
-            {(filteredClasses || Class)?.length > 0 ? (
-              (filteredClasses || Class)?.slice(0, Show)?.map((classes) => (
-                <tr key={classes._id} className="text-center" >
-                  <td>{classes?.className || '-'}</td>
-                  <td>{classes?.courses?.courseName || '-'}</td>
-                  <td>{classes?.section?.sectionName || '-'}</td>
-                  <td>{classes?.semester?.semesterName || '-'}</td>
-                  <td>{classes?.medium?.mediumName || '-'}</td>
-                  <td>{classes?.stream?.streamName || '-'}</td>
-                  <td>
-                    <button
-                      className="btn btn-success btn-icon rounded-pill me-1"
-                      onClick={() => { setEditShow(true); setSelectEdit(classes); }}
-                    >
-                      <i className="bx bx-edit"></i>
-                    </button>
-                    <Link
-                      className="btn btn-danger btn-icon rounded-pill"
-                      onClick={() => handleDelete(classes?._id)}
-                    >
-                      <i className="bx bx-trash"></i>
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center">No results found</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div> */}
-
-      <motion.div className="notification-grid">
-        {notifications.map((notification) => (
+      <hr className="m-0" />
+      <motion.div className="notification-grid mt-3">
+        {noticeBoard?.map((noticedata) => (
           <motion.div
-            key={notification.id}
-            className={`notification ${notification.color}`}
+            key={noticedata.id}
+            className={`notification text-${noticedata.targetAudienceType?.toLowerCase() === 'teachingstaff' ? 'primary' : noticedata.targetAudienceType?.toLowerCase() === 'nonteachingstaff' ? 'success' : noticedata.targetAudienceType?.toLowerCase() === 'studentprofile' ? 'info' : noticedata.targetAudienceType?.toLowerCase() === 'classes' ? 'warning' : noticedata.targetAudienceType?.toLowerCase() === 'courses' ? 'danger' : noticedata.targetAudienceType?.toLowerCase() === 'coursegroup' ? 'dark' : noticedata.targetAudienceType?.toLowerCase() === 'courseboards' ? 'secondary' : ''}`}
           >
             <div className="notification-content">
-              <h2 className="notification-title">{notification.title}</h2>
-              <p className="notification-description">{notification.description}</p>
+              <h2 className="notification-title">{noticedata.title || "No Title"}</h2>
+              <p className="notification-description">{noticedata.description || "No Description"}</p>
               <div className="notification-meta">
                 <div className="notification-meta-item">
                   <Calendar className="notification-meta-icon" />
-                  <span className="notification-meta-text">Posted: {notification.datePosted}</span>
+                  <span className="notification-meta-text">Posted: {new Date(noticedata.datePosted || new Date()).toLocaleDateString()}</span>
                 </div>
                 <div className="notification-meta-item">
                   <Clock className="notification-meta-icon" />
-                  <span className="notification-meta-text">Valid till: {notification.validTill}</span>
+                  <span className="notification-meta-text">Valid till: {new Date(noticedata.validTill).toLocaleDateString() || "N/A"}</span>
                 </div>
               </div>
-              <div className="notification-status justify-content-between text-center">
-                <div>
+              <hr />
+              <div className="notification-status justify-content-between text-center d-md-flex flex-wrap d-inline">
+                <div className={`mt-1 text-dark ${noticedata.status === 'Active' ? 'text-success' : noticedata.status === 'Expired' ? 'text-danger' : noticedata.status === 'Draft' ? 'text-warning' : 'text-muted'}`}>
                   <AlertCircle className="notification-status-icon" />
-                  <span className="notification-status-text">{notification.status}</span>
+                  <span className="notification-status-text">{noticedata.status || "N/A"}</span>
                 </div>
-                <div>
+                <div className="mt-1 text-dark">
+                  Audience Type :
+                  <span className="notification-status-text ms-2">{noticedata?.isNoticeForAll ? "All" : noticedata?.targetAudienceType || "N/A"}</span>
+                </div>
+                <div className="mt-1 text-dark">
                   Attachment :
-                  <span className="notification-status-text ms-2">Download</span>
+                  <span className="notification-status-text cursor-pointer ms-2" onClick={() => noticedata?.attachment && handleDownload(noticedata?.attachment || "")}>Download</span>
+                </div>
+                <div className="mt-1 text-dark">
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-icon rounded-pill ms-2  d-none d-md-block"
+                    onClick={() => handleDelete(noticedata?._id)}
+                  >
+                    <i className="bx bx-trash"></i>
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger w-100 mt-2  d-initial d-md-none"
+                    onClick={() => handleDelete(noticedata?._id)}
+                  >
+                    Delete Notice
+                  </button>
                 </div>
               </div>
             </div>
@@ -267,7 +254,7 @@ const NotificationBoard = () => {
       </motion.div>
 
       {showPopup && (
-        <div className="modal show d-block" tabIndex="-1">
+        <div className="modal show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
@@ -563,5 +550,5 @@ const NotificationBoard = () => {
   );
 };
 
-export default NotificationBoard;
+export default NoticeBoard;
 

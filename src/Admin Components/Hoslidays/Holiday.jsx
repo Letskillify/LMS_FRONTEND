@@ -2,7 +2,7 @@ import { Field, Form, Formik } from 'formik'
 import React, { useContext, useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import axios from 'axios'
-import { useImageUploader } from '../../Custom Hooks/CustomeHook';
+import { useFileUploader } from '../../Custom Hooks/CustomeHook';
 
 import { Modal, Spinner } from 'react-bootstrap';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
@@ -12,16 +12,15 @@ import { useCreateInstituteHolidayMutation, useDeleteInstituteHolidayMutation, u
 import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function Holiday() {
-    const showToast = useGlobalToast();
-    const [holidays, setHolidays] = useState([]);
-    const [defaultHolidays, setDefaultHolidays] = useState([]);
-    const [popup, setPopup] = useState(false);
-    const [defaultShow, setDefaultShow] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [addHoliday, setAddHoliday] = useState(null);
-    const [edit, setEdit] = useState(null);
-    const { userId, InstituteId } = getCommonCredentials();
-    const { uploadedData, handleImageUpload, setUploadedData } = useImageUploader();
+    const [holidays, setHolidays] = React.useState([]);
+    const [defaultHolidays, setDefaultHolidays] = React.useState([]);
+    const [popup, setPopup] = React.useState(false);
+    const [defaultShow, setDefaultShow] = React.useState(false);
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [addHoliday, setAddHoliday] = React.useState(null);
+    const [edit, setEdit] = React.useState(null);
+    const { userId } = getCommonCredentials();
+    const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
 
     const formatDate = (date) => {
         return date ? new Date(date).toISOString().split('T')[0] : '';
@@ -167,7 +166,7 @@ function Holiday() {
                                     </div>}
                                     <div className='w-100'>
                                         <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
-                                        <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleImageUpload(e, "thumbnail")} />
+                                        <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleFileUpload(e, "thumbnail")} />
                                     </div>
                                 </div>
                                 <div className="col-6">
@@ -333,7 +332,7 @@ function Holiday() {
                                         )}
                                         <div className="col-md-6">
                                             <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
-                                            <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleImageUpload(e, "thumbnail")} />
+                                            <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleFileUpload(e, "thumbnail")} />
                                         </div>
                                         <div className="col-md-6">
                                             <label for="title" className="form-label">Holiday Title</label>

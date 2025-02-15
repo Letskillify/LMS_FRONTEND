@@ -3,10 +3,7 @@ import { Field, Form, Formik } from 'formik';
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import * as Yup from "yup"
-import { useImageUploader } from '../../Custom Hooks/CustomeHook';
-import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
-import { useAddBookToTrashByIdMutation, useAddNewBookMutation, useGetAllBooksQuery, useUpdateBookByIdMutation } from '../../Redux/Api/bookSlice';
-import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import { useFileUploader } from '../../Custom Hooks/CustomeHook';
 
 function BooksList() {
     const showToast = useGlobalToast(); 
@@ -14,7 +11,7 @@ function BooksList() {
     const [SearchData, setSearchData] = useState()
     const [BookLists, setBookLists] = useState([])
     const { userId } = getCommonCredentials();
-    const { uploadedData, handleImageUpload } = useImageUploader();
+    const { uploadedData, handleFileUpload } = useFileUploader();
 
     const validations = Yup.object({
         bookName: Yup.string().required('Book Name is required'),
@@ -366,7 +363,7 @@ function BooksList() {
                                                                                         type="file"
                                                                                         className="form-control"
                                                                                         name="coverImageURL"
-                                                                                        onChange={(e) => handleImageUpload(e, "coverImageURL")}
+                                                                                        onChange={(e) => handleFileUpload(e, "coverImageURL")}
                                                                                     />
                                                                                 </div>
                                                                                 <div className="mb-3">
@@ -518,7 +515,7 @@ function BooksList() {
                                                             type="file"
                                                             className="form-control"
                                                             name="coverImageURL"
-                                                            onChange={(e) => handleImageUpload(e, "coverImageURL")}
+                                                            onChange={(e) => handleFileUpload(e, "coverImageURL")}
                                                             placeholder="Enter Cover Image URL"
                                                         />
                                                     </div>
