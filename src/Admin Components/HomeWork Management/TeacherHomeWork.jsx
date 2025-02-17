@@ -20,7 +20,7 @@ const ClassHomeWork = () => {
 
     useEffect(() => {
         axios.get("http://localhost:5500/api/courses/get")
-            .then(response => setcourseImport(response.data))
+            .then(response => setcourseImport(response?.data?.items))
             .catch(error => console.error("Failed to fetch courses:", error));
     }, [])
     // console.log(courseImport);
@@ -238,7 +238,7 @@ const ClassHomeWork = () => {
                                                     }}
                                                 >
                                                     <option value="">Select Class</option>
-                                                    {courseImport.map((course) => (
+                                                    {courseImport?.map((course) => (
                                                         <option key={course._id} value={course._id}>
                                                             {course.courseName}
                                                         </option>
