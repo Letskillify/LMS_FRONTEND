@@ -151,8 +151,8 @@ function Medium() {
                   </tr>
                 </thead>
                 <tbody>
-                  {medium.map((item, index) => (
-                    <tr key={item.id}>
+                  {medium?.items?.map((item, index) => (
+                    <tr key={item._id}>
                       <th scope="row">{index + 1}</th>
                       <td className='text-capitalize'>{item.mediumName}</td>
                       <td>

@@ -147,7 +147,9 @@ export const apiSlice = createApi({
     "InstituteHoliday",
     "LiveClass",
     "StudyMaterial",
-    "NonTeachingStaff"
+    "NonTeachingStaff",
+    "NCERTClass",
+    "NCERTsubject"
   ],
   endpoints: () => ({}),
 });

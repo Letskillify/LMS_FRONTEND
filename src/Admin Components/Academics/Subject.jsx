@@ -25,51 +25,55 @@ function Subject() {
   const [deleteSubject] = useDeleteSubjectMutation();
 
   const handleSubject = async (values, { resetForm }) => {
-    console.log(values);
-
+    console.log("Submitting values:", values); // Log the data being sent
     try {
-      const response = await createSubject(values);
-      if (response.data.status === 201) {
+        const response = await createSubject(values).unwrap(); // Use unwrap() to get the real response
+        console.log("API Response:", response); // Log the response
         showToast("Subject Created Successfully", "success");
         resetForm();
-      }
     } catch (err) {
-      console.error('Failed to send data:', err);
-      showToast("Error submitting Subject", "error");
+        console.error("Failed to send data:", err);
+        showToast(err?.data?.message || "Error submitting Subject", "error"); // Show a meaningful error message
     }
-  };
+};
 
+  
   const handleSubjectEdit = async (id, values) => {
     try {
       const response = await updateSubject({ subjectId: id, subjectData: values });
-      if (response.data.status === 200) {
-        showToast("Subject Updated Successfully", "success"); 
+      if ('data' in response && response.data?.status === 200) {
+        showToast("Subject Updated Successfully", "success");
         setPopup(false);
+      } else {
+        throw new Error("Failed to update subject");
       }
     } catch (err) {
       console.error('Error updating data:', err);
       showToast("Error updating Subject", "error");
     }
   };
-
+  
   const handleSubjectDelete = async (id) => {
     try {
       const response = await deleteSubject(id);
-      if (response.data.status === 200) {
+      if ('data' in response && response.data?.status === 200) {
         showToast("Subject Deleted Successfully", "success");
+      } else {
+        throw new Error("Failed to delete subject");
       }
     } catch (err) {
       console.error('Failed to delete data:', err);
       showToast("Error deleting Subject", "error");
     }
   };
+  
 
-  const filteredSubjects = Subject?.filter(subject => {
-    return (
-      subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
-      subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
-    );
-  });
+  const filteredSubjects = Array.isArray(Subject) ? Subject.filter((subject) =>
+    [subject?.subjectName, subject?.subjectType].some((item) =>
+        item?.toLowerCase()?.includes(search?.toLowerCase())
+    )
+) : [];
+
 
   return (
     <div className="px-4 my-5">
@@ -165,8 +169,8 @@ function Subject() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
-                      filteredSubjects.map((subject, index) => (
+                    {filteredSubjects?.items?.length > 0 && Subject?.length > 0 ? (
+                      filteredSubjects?.items?.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>
@@ -266,3 +270,4 @@ function Subject() {
 }
 
 export default Subject;
+

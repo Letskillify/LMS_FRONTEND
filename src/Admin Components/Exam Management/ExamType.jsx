@@ -9,7 +9,6 @@ import {
   useUpdateExamTypeMutation,
 } from "../../Redux/Api/examTypeSlice";
 import useGlobalToast from "../../GlobalComponents/GlobalToast";
-
 function ExamType() {
   const showToast = useGlobalToast();
   const [ExamType, setExamType] = useState([]);
@@ -27,19 +26,11 @@ function ExamType() {
   const [updateExamType] = useUpdateExamTypeMutation();
   const [deleteExamType] = useDeleteExamTypeMutation();
 
-  useEffect(() => {
+  useEffect(() => { 
     setExamType(examTypeData);
   }, [examTypeData]);
 
-  // const fetchExamType = async () => {
-  //   try {
-  //     const response = await axios.get('/api/exam-type/get');
-  //     setExamType(response.data);
-  //   } catch (error) {
-  //     console.error('Error fetching ExamType:', error)
-  //   }
-  // }
-
+ 
   const handleExamType = async (examTypeData) => {
       try {
       const response = await createExamType(examTypeData);

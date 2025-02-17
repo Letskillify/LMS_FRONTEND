@@ -11,12 +11,15 @@ import {
   useUpdateExamByIdMutation,
 } from "../../Redux/Api/examDataSlice";
 import useGlobalToast from "../../GlobalComponents/GlobalToast";
-
 const ExamForm = () => {
-  const { InstituteId, TeacherData, Subject, Class, ExamType } =
-    getCommonCredentials();
-  console.log(TeacherData, "TeacherData");
-
+  const {
+    InstituteId,
+    TeacherData,
+    Subject,
+    Class,
+    ExamType,
+    NonTeachingStaffData,
+  } = getCommonCredentials();
   const showToast = useGlobalToast();
   const [popup, setPopup] = useState(false);
   const [exams, setExams] = useState([]);
@@ -24,8 +27,6 @@ const ExamForm = () => {
   const [Editpopup, setEditpopup] = useState(false);
   const [viewPopup, setViewPopup] = useState(false);
   // const [EditData, setEditData] = useState(null);
-  // console.log(EditData, "EditData");
-
   const { data: Exam, isLoading } = useGetExamByInstituteIdQuery(InstituteId, {
     skip: !InstituteId,
   });
@@ -100,6 +101,7 @@ const ExamForm = () => {
         endTime: "",
         totalMarks: "",
         passingMarks: "",
+        typeOfStaff: "",
         incharge: "",
         status: "Scheduled",
       },
@@ -112,22 +114,55 @@ const ExamForm = () => {
     examInstructions: "",
   };
   const validationSchema = Yup.object({
+    examType: Yup.string().required("Exam type is required"),
     examName: Yup.string().required("Exam name is required"),
     examCode: Yup.string().required("Exam code is required"),
     startingDate: Yup.date().required("Start date is required"),
-    endingDate: Yup.date().required("End date is required"),
+    endingDate: Yup.date()
+      .required("End date is required")
+      .min(Yup.ref("startingDate"), "End date must be after start date"),
+    instituteId: Yup.string().required("Institute ID is required"),
     class: Yup.array().min(1, "Select at least one class"),
-    subjects: Yup.array().of(
-      Yup.object({
-        subjectName: Yup.string().required("Subject is required"),
-        examDate: Yup.date().required("Exam date is required"),
-        startTime: Yup.string().required("Start time is required"),
-        endTime: Yup.string().required("End time is required"),
-        totalMarks: Yup.number().required("Total marks required"),
-        passingMarks: Yup.number().required("Passing marks required"),
-      })
-    ),
+    subjects: Yup.array()
+      .of(
+        Yup.object({
+          subjectName: Yup.string().required("Subject is required"),
+          examDate: Yup.date().required("Exam date is required"),
+          startTime: Yup.string().required("Start time is required"),
+          endTime: Yup.string().required("End time is required"),
+          totalMarks: Yup.number()
+            .typeError("Total marks must be a number")
+            .required("Total marks required")
+            .positive("Total marks must be positive"),
+          passingMarks: Yup.number()
+            .typeError("Passing marks must be a number")
+            .required("Passing marks required")
+            .positive("Passing marks must be positive")
+            .max(Yup.ref("totalMarks"), "Passing marks cannot be more than total marks"),
+          typeOfStaff: Yup.string().required("Type of staff is required"),
+          incharge: Yup.string().required("Incharge is required"),
+        })
+      )
+      .min(1, "At least one subject is required"),
+    assignedBy: Yup.array().min(1, "At least one person must be assigned"),
+    status: Yup.string()
+      .oneOf(["Upcoming", "Ongoing", "Completed", "Cancelled"], "Invalid status")
+      .required("Status is required"),
+    totalMarks: Yup.number()
+      .typeError("Total marks must be a number")
+      .required("Total marks are required")
+      .positive("Total marks must be positive"),
+    passingMarks: Yup.number()
+      .typeError("Passing marks must be a number")
+      .required("Passing marks are required")
+      .positive("Passing marks must be positive")
+      .max(Yup.ref("totalMarks"), "Passing marks cannot be more than total marks"),
+    examMode: Yup.string()
+      .oneOf(["Offline", "Online"], "Invalid exam mode")
+      .required("Exam mode is required"),
+    examInstructions: Yup.string().nullable(),
   });
+  
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-4">
@@ -362,7 +397,7 @@ const ExamForm = () => {
                                 </div>
                                 <div className="row">
                                   <div className="col-6 mb-3">
-                                    <label>Incharge</label>
+                                    <label>Type Of Incharge</label>
                                     <Field
                                       name={`subjects[${index}].typeOfStaff`}
                                       as="select"
@@ -376,33 +411,40 @@ const ExamForm = () => {
                                         Non-Teaching
                                       </option>
                                     </Field>
+                                  </div>
+
+                                  <div className="col-6 mb-3">
+                                    <label>Incharge</label>
                                     <Field
                                       name={`subjects[${index}].incharge`}
                                       className="form-control"
                                       as="select"
                                     >
-                                      <option value=""></option>
-                                      {values.typeOfStaff === "TeachingStaff"
-                                        ? TeacherData?.map((teacher) => (
-                                            <option
-                                              key={teacher._id}
-                                              value={teacher._id}
-                                            >
-                                              {teacher.fullName.firstName +
-                                                " " +
-                                                teacher.fullName.lastName}
-                                            </option>
-                                          ))
-                                        : staffs?.map((staff) => (
-                                            <option
-                                              key={staff._id}
-                                              value={staff._id}
-                                            >
-                                              {staff.fullName.firstName +
-                                                " " +
-                                                staff.fullName.lastName}
-                                            </option>
-                                          ))}
+                                      <option value="">Select Incharge</option>
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "TeachingStaff" &&
+                                        TeacherData?.map((teacher) => (
+                                          <option
+                                            key={teacher._id}
+                                            value={teacher._id}
+                                          >
+                                            {teacher.fullName.firstName +
+                                              " " +
+                                              teacher.fullName.lastName}
+                                          </option>
+                                        ))}
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "NonTeachingStaff" &&
+                                        NonTeachingStaffData?.map((staff) => (
+                                          <option
+                                            key={staff._id}
+                                            value={staff._id}
+                                          >
+                                            {staff.fullName.firstName +
+                                              " " +
+                                              staff.fullName.lastName}
+                                          </option>
+                                        ))}
                                     </Field>
                                   </div>
                                 </div>
@@ -651,6 +693,8 @@ const ExamForm = () => {
                         totalMarks: subject?.totalMarks,
                         passingMarks: subject?.passingMarks,
                         status: subject?.status,
+                        typeOfStaff: subject?.typeOfStaff,
+                        incharge: subject?.incharge?._id,
                       })) || "-",
                     assignedBy: EditData?.assignedBy?._id,
                     status: EditData?.status || "Upcoming",
@@ -661,7 +705,7 @@ const ExamForm = () => {
                   }}
                   onSubmit={editExam}
                 >
-                  {({ values }) => (
+                  {({ values, setFieldValue  }) => (
                     <Form>
                       <div className="row">
                         <div className="col-6 mb-3">
@@ -766,6 +810,69 @@ const ExamForm = () => {
                                         </option>
                                       ))}
                                   </Field>
+                                </div>
+                                <div className="row">
+                                  <div className="col-6 mb-3">
+                                    <label>Type Of Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].typeOfStaff`}
+                                      as="select"
+                                      className="form-select"
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          `subjects[${index}].typeOfStaff`,
+                                          e.target.value
+                                        );
+                                        console.log(
+                                          "Selected Type of Staff:",
+                                          e.target.value
+                                        );
+                                      }}
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      <option value="TeachingStaff">
+                                        Teacher
+                                      </option>
+                                      <option value="NonTeachingStaff">
+                                        Non-Teaching
+                                      </option>
+                                    </Field>
+                                  </div>
+
+                                  <div className="col-6 mb-3">
+                                    <label>Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].incharge`}
+                                      className="form-control"
+                                      as="select"
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "TeachingStaff" &&
+                                        TeacherData?.map((teacher) => (
+                                          <option
+                                            key={teacher._id}
+                                            value={teacher._id}
+                                          >
+                                            {teacher.fullName.firstName +
+                                              " " +
+                                              teacher.fullName.lastName}
+                                          </option>
+                                        ))}
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "NonTeachingStaff" &&
+                                        NonTeachingStaffData?.map((staff) => (
+                                          <option
+                                            key={staff._id}
+                                            value={staff._id}
+                                          >
+                                            {staff.fullName.firstName +
+                                              " " +
+                                              staff.fullName.lastName}
+                                          </option>
+                                        ))}
+                                    </Field>
+                                  </div>
                                 </div>
 
                                 <div className="row">
@@ -1229,5 +1336,4 @@ const ExamForm = () => {
     </div>
   );
 };
-
 export default ExamForm;

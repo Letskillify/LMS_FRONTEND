@@ -70,23 +70,18 @@ function Receipt() {
     const handleAddItem = () => {
         setReceiptItems([...receiptItems, { itemName: '', quantity: 1, unitPrice: 0, subTotal: 0 }])
     }
-
     const handleAddTax = () => {
         setTaxDetails([...taxDetails, { taxName: '', percentage: 0, amount: 0 }])
     }
-
     const handleRemoveItem = (index) => {
         setReceiptItems(receiptItems.filter((item, i) => i !== index))
     }
-
     const handleRemoveTax = (index) => {
         setTaxDetails(taxDetails.filter((tax, i) => i !== index))
     }
-
     const handleTotalAmountChange = (event) => {
         setTotalAmount(event.target.value)
     }
-
     const handleGrandTotalAmountChange = (event) => {
         setGrandTotalAmount(event.target.value) 
     }
@@ -104,8 +99,6 @@ function Receipt() {
             console.error('Error submitting form:', error);
         }
     };
-
-
     return (
         <>
             <div className="container-fluid mt-4 p-4">
