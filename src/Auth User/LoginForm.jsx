@@ -7,9 +7,17 @@ import CryptoJS from "crypto-js";
 import { Bounce, toast } from "react-toastify";
 import { useLoginMutation } from "../Redux/Api/authSlice";
 import { useDispatch } from "react-redux";
-import { setDesignation, setGlobalInstituteId, setGlobalToken, setGlobalUserId, setIslogin } from "../Redux/Slices/MainSlice";
+import {
+  setDesignation,
+  setGlobalInstituteId,
+  setGlobalToken,
+  setGlobalUserId,
+  setIslogin,
+} from "../Redux/Slices/MainSlice";
+import useGlobalToast from "../GlobalComponents/GlobalToast";
 
 const LoginForm = () => {
+  const showToast = useGlobalToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [Message, setMessage] = useState();
@@ -22,10 +30,10 @@ const LoginForm = () => {
     dispatch(setIslogin(loginData?.success));
     dispatch(setGlobalToken(loginData?.token));
     dispatch(setDesignation(loginData?.designation));
-    if(loginData?.designation == "Institute"){
+    if (loginData?.designation == "Institute") {
       dispatch(setGlobalInstituteId(loginData?.userId));
       dispatch(setGlobalUserId(loginData?.userId));
-    }else{
+    } else {
       dispatch(setGlobalUserId(loginData?.userId));
     }
   }, [loginData, dispatch]);
@@ -44,9 +52,9 @@ const LoginForm = () => {
     try {
       const res = await login(values);
 
-      console.log("res", res.data);
+      console.log("resposne : ", res);
 
-      if (res.data.success) {
+      if (res?.data?.success) {
         const { token, userId, designation, message, success } = res.data;
 
         setLoginData(res.data);
@@ -77,21 +85,13 @@ const LoginForm = () => {
         navigate("/", {
           state: { userId, designation, token },
         });
-      }
+      } else if (res?.error?.data?.status == 400) {
+        showToast(res?.error?.data?.message || "Invalid credentials", "warning");
+      };
     } catch (err) {
-      console.error(err);
+      console.log("err", err);
       setMessage(err?.response?.data?.message || "An error occurred");
-      toast.error(err?.response?.data?.message || "An error occurred", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      showToast(err?.response?.data?.message || "An error occurred", "error");
     }
   };
 
