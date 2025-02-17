@@ -13,6 +13,8 @@ import useGlobalToast from "../../GlobalComponents/GlobalToast";
 function Medium() {
   const showToast = useGlobalToast();
   const { userId, Medium, InstituteId } = getCommonCredentials();
+  console.log("userId", InstituteId);
+  
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
@@ -23,7 +25,7 @@ function Medium() {
 
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium?.items);
+      setMedium(Medium);
     }
   }, [Medium]);
 
@@ -145,7 +147,7 @@ function Medium() {
                   />
                 </div>
               </div>
-              {medium.length > 0 ? (
+              {medium?.length > 0 ? (
                 <table className="table table-bordered text-center">
                   <thead>
                     <tr>

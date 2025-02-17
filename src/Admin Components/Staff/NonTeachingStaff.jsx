@@ -7,6 +7,7 @@ import PersonalDetailsForm from "./Forms/PersonalDetailsForm";
 import EmploymentAndSalaryDetailsForm from "./Forms/EmploymentAndSalaryDetailsForm";
 import DocumentationAndPasswordForm from "./Forms/DocumentationAndPasswordForm";
 import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const base_url = import.meta.env.VITE_BASE_URL;
 
 function NonTeachingStaff() {
@@ -110,6 +111,7 @@ function NonTeachingStaff() {
   const [staffs, setStaffs] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [staffIdToDelete, setStaffIdToDelete] = useState(null);
+  const {NonTeachingStaffData} = getCommonCredentials();
   console.log("staffIdToDelete", staffIdToDelete);
 
   const handleModalClose = () => {
@@ -118,17 +120,10 @@ function NonTeachingStaff() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/api/staff/get-all`);
-        console.log(response);
-        setStaffs(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, []);
+    if(NonTeachingStaffData && NonTeachingStaffData.length > 0) {
+      setStaffs(NonTeachingStaffData);
+    }
+  }, [NonTeachingStaffData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -386,7 +381,7 @@ function NonTeachingStaff() {
                   <span className="text-muted fw-light">
                     Dashboard /Staff Management /
                   </span>{" "}
-                  Teaching Staff
+                  Non-Teaching Staff
                 </h4>
                 <div className="row">
                   <div className="col-md-3 col-sm-6 mb-4">
