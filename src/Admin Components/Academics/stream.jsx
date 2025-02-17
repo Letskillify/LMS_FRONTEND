@@ -140,7 +140,7 @@ function stream() {
                   />
                 </div>
               </div>
-              {stream.length > 0 ? (
+              {stream?.length > 0 ? (
                 <table className="table table-bordered text-center">
                   <thead>
                     <tr>
