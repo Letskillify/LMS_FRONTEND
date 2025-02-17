@@ -23,9 +23,12 @@ function Medium() {
   const [updateMedium] = useUpdateMediumMutation();
   const [deleteMedium] = useDeleteMediumMutation();
 
+
+  
+  
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium);
+      setMedium(Medium.items);
     }
   }, [Medium]);
 
@@ -83,6 +86,7 @@ function Medium() {
                 initialValues={{
                   mediumName: "",
                   instituteId: InstituteId,
+                  instituteId: userId,
                 }}
                 enableReinitialize
                 onSubmit={handleMedium}

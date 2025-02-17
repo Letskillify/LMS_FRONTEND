@@ -12,13 +12,13 @@ import {
 
 function stream() {
   const showToast = useGlobalToast();
-  const { userId, Stream } = getCommonCredentials();
+  const { userId, Stream, InstituteId  } = getCommonCredentials();
   const [stream, setstream] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedstream, setSelectedstream] = useState(null);
 
   useEffect(() => {
-    setstream(Stream);
+    setstream(Stream.items);
   }, [Stream]);
 
   const [createStream] = useCreateStreamMutation();
@@ -79,6 +79,7 @@ function stream() {
                 initialValues={{
                   streamName: "",
                   instituteId: userId,
+                  instituteId: InstituteId,
                 }}
                 onSubmit={handlestream}
               >

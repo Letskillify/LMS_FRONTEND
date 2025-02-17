@@ -21,6 +21,9 @@ export const subjectApi = apiSlice.injectEndpoints({
         body: subjectData,
       }),
       invalidatesTags: ["Subject"],
+      headers: {
+        "Content-Type": "application/json",
+      },
     }),
     updateSubject: builder.mutation({
       query: ({ subjectId, subjectData }) => ({
@@ -48,3 +51,4 @@ export const {
   useUpdateSubjectMutation,
   useDeleteSubjectMutation,
 } = subjectApi;
+
