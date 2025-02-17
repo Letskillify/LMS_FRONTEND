@@ -134,11 +134,11 @@ export const EditApi = async (url, Data, successMessage) => {
 
 
 
-export const useImageUploader = () => {
+export const useFileUploader = () => {
     const [uploadedData, setUploadedData] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleImageUpload = (event, key) => {
+    const handleFileUpload = (event, key) => {
         const file = event.target.files[0];
         if (file) {
             setIsLoading(true);
@@ -146,6 +146,7 @@ export const useImageUploader = () => {
             data.append("file", file);
             data.append("upload_preset", "uglykgfd");
             data.append("cloud_name", "duzwys877");
+            data.append("resource_type", "auto");
 
             const loadingDiv = document.createElement("div");
             loadingDiv.className = "d-flex justify-content-center align-items-center";
@@ -161,7 +162,7 @@ export const useImageUploader = () => {
             loadingDiv.appendChild(spinner);
             document.body.appendChild(loadingDiv);
 
-            fetch("https://api.cloudinary.com/v1_1/duzwys877/image/upload", {
+            fetch("https://api.cloudinary.com/v1_1/duzwys877/auto/upload", {
                 method: "POST",
                 body: data,
             })
@@ -189,7 +190,7 @@ export const useImageUploader = () => {
                             [key]: data?.url,
                         }));
 
-                        toast.success('Image uploaded successfully!', {
+                        toast.success('File uploaded successfully!', {
                             position: "top-right",
                             autoClose: 5000,
                             hideProgressBar: false,
@@ -226,7 +227,7 @@ export const useImageUploader = () => {
     return {
         uploadedData,
         setUploadedData,
-        handleImageUpload,
+        handleFileUpload,
         isLoading,
     };
 };
@@ -300,86 +301,86 @@ export const useVideoUploader = () => {
 
 
 
-export const useFileUploader = () => {
-    const [uploadedFiles, setUploadedFiles] = useState({});
-    const [isfileLoading, setFileIsLoading] = useState(false);
-    const [fileuploadProgress, setFileUploadProgress] = useState(0);
+// export const useFileUploader = () => {
+//     const [uploadedFiles, setUploadedFiles] = useState({});
+//     const [isfileLoading, setFileIsLoading] = useState(false);
+//     const [fileuploadProgress, setFileUploadProgress] = useState(0);
 
-    const handleFileUpload = (event, key) => {
-        const file = event.target.files[0];
-        if (file) {
-            const data = new FormData();
-            data.append("file", file);
-            data.append("upload_preset", "uglykgfd");
-            data.append("cloud_name", "duzwys877");
-            data.append("resource_type", "raw");
+//     const handleFileUpload = (event, key) => {
+//         const file = event.target.files[0];
+//         if (file) {
+//             const data = new FormData();
+//             data.append("file", file);
+//             data.append("upload_preset", "uglykgfd");
+//             data.append("cloud_name", "duzwys877");
+//             data.append("resource_type", "raw");
 
-            const xhr = new XMLHttpRequest();
-            setFileIsLoading(true);
+//             const xhr = new XMLHttpRequest();
+//             setFileIsLoading(true);
 
-            // Create spinner
-            const loadingDiv = document.createElement("div");
-            loadingDiv.className = "d-flex justify-content-center align-items-center";
-            loadingDiv.style.position = "fixed";
-            loadingDiv.style.top = 0;
-            loadingDiv.style.left = 0;
-            loadingDiv.style.width = "100vw";
-            loadingDiv.style.height = "100vh";
-            loadingDiv.style.zIndex = 99999;
-            loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
-            const spinner = document.createElement("div");
-            spinner.className = "spinner-border text-primary";
-            loadingDiv.appendChild(spinner);
-            document.body.appendChild(loadingDiv);
+//             // Create spinner
+//             const loadingDiv = document.createElement("div");
+//             loadingDiv.className = "d-flex justify-content-center align-items-center";
+//             loadingDiv.style.position = "fixed";
+//             loadingDiv.style.top = 0;
+//             loadingDiv.style.left = 0;
+//             loadingDiv.style.width = "100vw";
+//             loadingDiv.style.height = "100vh";
+//             loadingDiv.style.zIndex = 99999;
+//             loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
+//             const spinner = document.createElement("div");
+//             spinner.className = "spinner-border text-primary";
+//             loadingDiv.appendChild(spinner);
+//             document.body.appendChild(loadingDiv);
 
-            // Track upload progress
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const progress = Math.round((event.loaded / event.total) * 100);
-                    setFileUploadProgress(progress);
-                }
-            };
+//             // Track upload progress
+//             xhr.upload.onprogress = (event) => {
+//                 if (event.lengthComputable) {
+//                     const progress = Math.round((event.loaded / event.total) * 100);
+//                     setFileUploadProgress(progress);
+//                 }
+//             };
 
-            // Handle successful upload
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    console.log("File upload successful!", response.secure_url);
+//             // Handle successful upload
+//             xhr.onload = () => {
+//                 if (xhr.status === 200) {
+//                     const response = JSON.parse(xhr.responseText);
+//                     console.log("File upload successful!", response.secure_url);
 
-                    setUploadedFiles((prevState) => ({
-                        ...prevState,
-                        [key]: response.secure_url,
-                    }));
-                } else {
-                    console.error("Upload failed:", xhr.responseText);
-                }
-                setFileIsLoading(false);
-                setFileUploadProgress(0);
-                document.body.removeChild(loadingDiv);
-            };
+//                     setUploadedFiles((prevState) => ({
+//                         ...prevState,
+//                         [key]: response.secure_url,
+//                     }));
+//                 } else {
+//                     console.error("Upload failed:", xhr.responseText);
+//                 }
+//                 setFileIsLoading(false);
+//                 setFileUploadProgress(0);
+//                 document.body.removeChild(loadingDiv);
+//             };
 
-            // Handle upload errors
-            xhr.onerror = () => {
-                console.error("Error uploading file.");
-                setFileIsLoading(false);
-                setFileUploadProgress(0);
-                document.body.removeChild(loadingDiv);
-            };
+//             // Handle upload errors
+//             xhr.onerror = () => {
+//                 console.error("Error uploading file.");
+//                 setFileIsLoading(false);
+//                 setFileUploadProgress(0);
+//                 document.body.removeChild(loadingDiv);
+//             };
 
-            xhr.open("POST", "https://api.cloudinary.com/v1_1/duzwys877/raw/upload");
-            xhr.send(data);
-        } else {
-            console.error("No file selected.");
-        }
-    };
+//             xhr.open("POST", "https://api.cloudinary.com/v1_1/duzwys877/raw/upload");
+//             xhr.send(data);
+//         } else {
+//             console.error("No file selected.");
+//         }
+//     };
 
-    return {
-        uploadedFiles,
-        fileuploadProgress,
-        isfileLoading,
-        handleFileUpload,
-    };
-};
+//     return {
+//         uploadedFiles,
+//         fileuploadProgress,
+//         isfileLoading,
+//         handleFileUpload,
+//     };
+// };
 
 
 

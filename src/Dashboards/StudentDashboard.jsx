@@ -17,9 +17,17 @@ import LiveClasses from '../Student Components/Live Class/LiveClasses.jsx';
 import StudentTransfer from '../Student Components/Student Transfer/StudentTransfer.jsx';
 import StudyMaterial from '../Student Components/StudyMaterial/StudyMaterial.jsx';
 import Holidays from '../Student Components/Holiday/Holidays.jsx';
+import NoticeBoard from '../Student Components/Notice Board/NoticeBoard.jsx';
+import { getCommonCredentials } from '../GlobalHelper/CommonCredentials.jsx';
+import { useFetchInstituteData } from '../Controller/useFetchAllQueries.jsx';
+import ApplyLeave from '../Student Components/Leave management/ApplyLeave.jsx';
 
 const StudentDashboard = () => {
-  const token = sessionStorage.getItem("token");
+  const { userId, Designation: designation, Islogin, Token: token } =
+    getCommonCredentials();
+  // const token = sessionStorage.getItem("token");
+  useFetchInstituteData(userId, Islogin, token, designation);
+  // const token = sessionStorage.getItem("token");
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
@@ -43,6 +51,8 @@ const StudentDashboard = () => {
               <Route path='/studenttransfer' element={<StudentTransfer />} />
               <Route path='/studymaterial' element={<StudyMaterial />} />
               <Route path="/holidays" element={<Holidays />}></Route>
+              <Route path="/noticeboard" element={<NoticeBoard />}></Route>
+              <Route path="/applyleave" element={<ApplyLeave />}></Route>
             </Routes>
             <Footer />
             <div className="content-backdrop fade"></div>

@@ -4,13 +4,12 @@ import { Formik, Form, Field, useFormikContext } from 'formik';
 // import * as Yup from 'yup';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 // import LMSTable from '../Students/LMSTable';
-import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
-import { Bounce, toast } from 'react-toastify';
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 import { useAddAllStudentsToTrashMutation, useAddStudentMutation } from '../../Redux/Api/studentSlice';
 import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import StudentTable from './components/AdmitStudentTable';
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -123,7 +122,7 @@ const validationSchema = Yup.object({
         }),
     }),
     enrollmentDetails: Yup.object({
-        admissionType: Yup.string().required("Admission type is required"),
+            ssionType: Yup.string().required("Admission type is required"),
         admissionCategory: Yup.string().required("Admission category is required"),
         admissionDate: Yup.date().required("Admission date is required"),
         enrollmentNO: Yup.string().nullable(),
@@ -514,91 +513,12 @@ const AdmitStudents = () => {
                             Add Student
                         </p>
                     </div>
-                    <div className="table-responsive text-nowrap">
-                        <table className="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Roll ID</th>
-                                    <th>profile</th>
-                                    <th>Name</th>
-                                    <th>DOB</th>
-                                    <th>Parents Name</th>
-                                    <th>Parents Number</th>
-                                    <th>Gender</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="table-border-bottom-0">
-                                {StudentData?.slice(0, StudentDataShow)?.map((student) => (
-                                    <tr key={student._id}>
-                                        <td><Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link></td>
-                                        <td>
-                                            <span className="d-flex align-items-center fw-bold">
-                                                <span className="me-2">
-                                                    <img
-                                                        src={student?.personalDetails?.profilePhoto}
-                                                        alt="Avatar"
-                                                        className="rounded-circle border border-light"
-                                                        style={{ height: "50px", width: "50px" }}
-                                                        onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
-                                                    />
-                                                </span>
-                                            </span>
-                                        </td>
-                                        <td>
-
-                                            {student?.personalDetails?.firstName} {student?.personalDetails?.lastName}
-                                        </td>
-                                        <td>
-                                            {student?.personalDetails?.dateOfBirth
-                                                ? new Date(student.personalDetails.dateOfBirth).toISOString().split("T")[0]
-                                                : ""
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.parentDetails.Father?.name
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.parentDetails?.Father?.contactNumber
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.personalDetails?.gender
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.contactInfo?.email
-                                            }
-                                        </td>
-                                        <td className='text-center'>Active</td>
-                                        <td>
-                                            {
-                                                <button
-                                                    className="btn btn-success btn-icon rounded-pill me-1"
-                                                    onClick={() => handleEdit(student._id, student)}
-                                                >
-                                                    <i className="bx bx-edit"></i>
-                                                </button>
-                                            }
-                                            <Link
-                                                className="btn btn-danger btn-icon rounded-pill"
-                                                onClick={() => handleDeleteone(student?._id)}
-                                            >
-                                                <i className="bx bx-trash"></i>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <StudentTable
+                        StudentData={StudentData}
+                        StudentDataShow={StudentDataShow}
+                        handleEdit={handleEdit}
+                        handleDeleteone={handleDeleteone}
+                    />
                 </div>
             </div>
             <div className="modal fade " id="modalCenter1" tabIndex="-1" aria-hidden="true">

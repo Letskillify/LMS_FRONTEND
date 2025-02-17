@@ -1,8 +1,8 @@
 import React from "react";
-import { useImageUploader } from "../../Custom Hooks/CustomeHook";
+import { useFileUploader } from "../../Custom Hooks/CustomeHook";
 
 const ImageUploadComponent = () => {
-    const { uploadedData, handleImageUpload } = useImageUploader();
+    const { uploadedData, handleFileUpload } = useFileUploader();
   
     console.log("Uploaded Data:", uploadedData);
     
@@ -12,13 +12,13 @@ const ImageUploadComponent = () => {
         {/* Upload Profile Photo */}
         <input
           type="file"
-          onChange={(e) => handleImageUpload(e, "profilePhoto")}
+          onChange={(e) => handleFileUpload(e, "profilePhoto")}
         />
   
         {/* Upload Marksheet */}
         <input
           type="file"
-          onChange={(e) => handleImageUpload(e, "marksheet")}
+          onChange={(e) => handleFileUpload(e, "marksheet")}
         />
   
         <h3>Uploaded Data:</h3>

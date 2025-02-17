@@ -128,7 +128,7 @@ function Section() {
                   />
                 </div>
               </div>
-              {sections.length > 0 ? (
+              {sections?.length >= 0 ? (
                 <table className="table table-bordered text-center">
                   <thead>
                     <tr>
@@ -138,7 +138,7 @@ function Section() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sections.map((item, index) => (
+                    {sections?.map((item, index) => (
                       <tr key={item.id}>
                         <th scope="row">{index + 1}</th>
                         <td className='sections text-capitalize'>{item?.sectionName}</td>

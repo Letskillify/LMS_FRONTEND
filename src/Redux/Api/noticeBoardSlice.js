@@ -3,20 +3,20 @@ import { apiSlice } from "./ApiSlice";
 export const noticeBoardApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getNoticeBoards: builder.query({
-            query: () => `/noticeboard/get`,
+            query: () => `/notice-board/get`,
             providesTags: ["NoticeBoard"],
         }),
         getNoticeBoardById: builder.query({
-            query: (id) => `/noticeboard/get/${id}`,
+            query: (id) => `/notice-board/get/${id}`,
             providesTags: ["NoticeBoard"],
         }),
         getNoticeBoardsByInstituteId: builder.query({
-            query: (instituteId) => `/noticeboard/get/institute/${instituteId}`,
+            query: (instituteId) => `/notice-board/get/institute/${instituteId}`,
             providesTags: ["NoticeBoard"],
         }),
         createNoticeBoard: builder.mutation({
             query: (noticeData) => ({
-                url: `/noticeboard/post`,
+                url: `/notice-board/post`,
                 method: "POST",
                 body: noticeData,
             }),
@@ -24,7 +24,7 @@ export const noticeBoardApi = apiSlice.injectEndpoints({
         }),
         updateNoticeBoard: builder.mutation({
             query: ({ id, noticeData }) => ({
-                url: `/noticeboard/update/${id}`,
+                url: `/notice-board/update/${id}`,
                 method: "PUT",
                 body: noticeData,
             }),
@@ -32,7 +32,7 @@ export const noticeBoardApi = apiSlice.injectEndpoints({
         }),
         deleteNoticeBoard: builder.mutation({
             query: (id) => ({
-                url: `/noticeboard/delete/${id}`,
+                url: `/notice-board/delete/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["NoticeBoard"],
