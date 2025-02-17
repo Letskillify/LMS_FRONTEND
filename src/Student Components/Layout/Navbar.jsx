@@ -5,12 +5,11 @@ import { MainContext } from '../../Controller/MainProvider'
 import { Link, useLocation } from 'react-router-dom'
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 function Navbar() {
-    // const { HandleLogOut, setsidebaropen } = useContext(MainContext); // -->> real time karna hai
     const {userId, Student } = getCommonCredentials();
 
 
     // for sidebar toggle 
-    // const location = useLocation();
+    const location = useLocation();
     // useEffect(() => {
     //     setsidebaropen(false);
     // }, [location.pathname]);
@@ -122,6 +121,8 @@ function Navbar() {
 
                             {/* <li>
                                 <Link className="dropdown-item" onClick={HandleLogOut}>
+                            <li>
+                                <Link className="dropdown-item" >
                                     <i className="bx bx-power-off me-2"></i>
                                     <a className="align-middle">Log Out</a>
                                 </Link>

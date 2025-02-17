@@ -285,12 +285,12 @@ const Course = () => {
                                                         {({ field }) => (
                                                             <Select
                                                                 isMulti
-                                                                options={Medium.map(med => ({
+                                                                options={Medium?.map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}
                                                                 name="medium"
-                                                                value={values.medium.map(m => ({
+                                                                value={values.medium?.map(m => ({
                                                                     value: m,
                                                                     label: Medium.find(med => med._id === m).mediumName
                                                                 }))}
@@ -726,12 +726,12 @@ const Course = () => {
                                                         {({ field }) => (
                                                             <Select
                                                                 isMulti
-                                                                options={Medium.map(med => ({
+                                                                options={Medium?.map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}
                                                                 name="medium"
-                                                                value={Medium.filter(med => values.medium.includes(med._id)).map(med => ({
+                                                                value={Medium?.filter(med => values.medium.includes(med._id)).map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}

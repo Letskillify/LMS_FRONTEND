@@ -256,9 +256,9 @@ function TeachingStaff() {
 
   useEffect(() => {
     setStaffs(TeacherData);
-    setRoles(rolesData);
-    setAllowances(allowancesData);
-    setDeductions(deductionsData);
+    setRoles(rolesData?.items);
+    setAllowances(allowancesData?.items);
+    setDeductions(deductionsData?.items);
   }, [TeacherData, rolesData, allowancesData, deductionsData]);
 
   const handleChange = (e) => {
@@ -399,7 +399,7 @@ function TeachingStaff() {
                     <div className="card bg-primary">
                       <div className="card-body">
                         <h2 className="card-title mb-2 text-white">
-                          {staffs?.length}
+                          {staffs?.length ? staffs.length : 0}
                         </h2>
                         <p className="text-white fw-semibold">Total Teachers</p>
                       </div>

@@ -1,10 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
-import { Field, Formik, Form } from 'formik';
-import axios from 'axios';
-import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
-import { useCreateMediumMutation, useDeleteMediumMutation, useUpdateMediumMutation } from '../../Redux/Api/academicsApi/mediumSlice';
-import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import React, { useContext, useEffect, useState } from "react";
+import { MainContext } from "../../Controller/MainProvider";
+import { Field, Formik, Form } from "formik";
+import axios from "axios";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import {
+  useCreateMediumMutation,
+  useDeleteMediumMutation,
+  useUpdateMediumMutation,
+} from "../../Redux/Api/academicsApi/mediumSlice";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
 
 function Medium() {
   const showToast = useGlobalToast();
@@ -19,11 +23,9 @@ function Medium() {
 
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium);
+      setMedium(Medium?.items);
     }
   }, [Medium]);
-
-
 
   const handleMedium = async (values) => {
     try {
@@ -32,7 +34,7 @@ function Medium() {
         showToast("Medium Created Successfully", "success");
       }
     } catch (error) {
-      console.error('Error submitting medium:', error);
+      console.error("Error submitting medium:", error);
     }
   };
 
@@ -43,14 +45,16 @@ function Medium() {
       if (response.data.status === 200) {
         showToast("Medium Deleted Successfully", "success");
       }
-
     } catch (error) {
-      console.error('Error deleting medium:', error);
+      console.error("Error deleting medium:", error);
     }
-  }
+  };
   const handleMediumEdit = async (values) => {
     try {
-      const response = await updateMedium({mediumId : selectedMedium._id, mediumData: values});
+      const response = await updateMedium({
+        mediumId: selectedMedium._id,
+        mediumData: values,
+      });
       if (response.data.status === 200) {
         showToast("Medium Updated Successfully", "success");
         // setMedium(
@@ -65,7 +69,6 @@ function Medium() {
     }
   };
 
-
   return (
     <div className="px-4 py-5">
       <div className="row">
@@ -76,13 +79,13 @@ function Medium() {
               <h5 className="card-title">Create Medium</h5>
               <Formik
                 initialValues={{
-                  mediumName: '',
+                  mediumName: "",
                   instituteId: InstituteId,
                 }}
                 enableReinitialize
                 onSubmit={handleMedium}
               >
-                {({ }) => (
+                {({}) => (
                   <Form>
                     <div className="mb-3">
                       <label className="form-label">
@@ -138,38 +141,51 @@ function Medium() {
                     type="text"
                     className="form-control ms-4 form-control-sm"
                     placeholder="Search"
-                    style={{ width: '200px' }}
+                    style={{ width: "200px" }}
                   />
                 </div>
               </div>
-              <table className="table table-bordered text-center">
-                <thead>
-                  <tr>
-                    <th scope="col-4">No.</th>
-                    <th scope="col-4">Name</th>
-                    <th scope="col-4">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {medium.map((item, index) => (
-                    <tr key={item.id}>
-                      <th scope="row">{index + 1}</th>
-                      <td className='text-capitalize'>{item.mediumName}</td>
-                      <td>
-                        <button className="btn btn-edit btn-primary me-2" onClick={() => {
-                          setPopup(true);
-                          setSelectedMedium(item);
-                        }}>
-                          <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-                        </button>
-                        <button className="btn btn-delete btn-danger" onClick={() => handleMediumDelete(item._id)}>
-                          <i className="fa fa-trash-o" aria-hidden="true"></i>
-                        </button>
-                      </td>
+              {medium.length > 0 ? (
+                <table className="table table-bordered text-center">
+                  <thead>
+                    <tr>
+                      <th scope="col-4">No.</th>
+                      <th scope="col-4">Name</th>
+                      <th scope="col-4">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {medium?.map((item, index) => (
+                      <tr key={item.id}>
+                        <th scope="row">{index + 1}</th>
+                        <td className="text-capitalize">{item.mediumName}</td>
+                        <td>
+                          <button
+                            className="btn btn-edit btn-primary me-2"
+                            onClick={() => {
+                              setPopup(true);
+                              setSelectedMedium(item);
+                            }}
+                          >
+                            <i
+                              className="fa fa-pencil-square-o"
+                              aria-hidden="true"
+                            ></i>
+                          </button>
+                          <button
+                            className="btn btn-delete btn-danger"
+                            onClick={() => handleMediumDelete(item._id)}
+                          >
+                            <i className="fa fa-trash-o" aria-hidden="true"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-center">No medium available.</p>
+              )}
             </div>
           </div>
         </div>
@@ -220,4 +236,3 @@ function Medium() {
 }
 
 export default Medium;
-

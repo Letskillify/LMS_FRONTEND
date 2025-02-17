@@ -1,23 +1,27 @@
-import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useContext, useEffect, useState } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
-import * as Yup from 'yup';
-import axios from 'axios';
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import React, { useContext, useEffect, useState } from "react";
+import { MainContext } from "../../Controller/MainProvider";
+import * as Yup from "yup";
+import axios from "axios";
 import { Bounce, toast } from "react-toastify";
-import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
-import useGlobalToast from '../../GlobalComponents/GlobalToast';
-import { useCreateSubjectMutation, useDeleteSubjectMutation, useUpdateSubjectMutation } from '../../Redux/Api/academicsApi/subjectSlice';
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import {
+  useCreateSubjectMutation,
+  useDeleteSubjectMutation,
+  useUpdateSubjectMutation,
+} from "../../Redux/Api/academicsApi/subjectSlice";
 
 const validationSchema = Yup.object({
-  subjectName: Yup.string().required('Subject name is required'),
-  subjectType: Yup.string().required('Subject type is required'),
+  subjectName: Yup.string().required("Subject name is required"),
+  subjectType: Yup.string().required("Subject type is required"),
 });
 
 function Subject() {
   const showToast = useGlobalToast();
   const { userId, Subject } = getCommonCredentials();
   const [popup, setPopup] = useState(false);
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("");
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   const [createSubject] = useCreateSubjectMutation();
@@ -34,20 +38,23 @@ function Subject() {
         resetForm();
       }
     } catch (err) {
-      console.error('Failed to send data:', err);
+      console.error("Failed to send data:", err);
       showToast("Error submitting Subject", "error");
     }
   };
 
   const handleSubjectEdit = async (id, values) => {
     try {
-      const response = await updateSubject({ subjectId: id, subjectData: values });
+      const response = await updateSubject({
+        subjectId: id,
+        subjectData: values,
+      });
       if (response.data.status === 200) {
-        showToast("Subject Updated Successfully", "success"); 
+        showToast("Subject Updated Successfully", "success");
         setPopup(false);
       }
     } catch (err) {
-      console.error('Error updating data:', err);
+      console.error("Error updating data:", err);
       showToast("Error updating Subject", "error");
     }
   };
@@ -59,12 +66,12 @@ function Subject() {
         showToast("Subject Deleted Successfully", "success");
       }
     } catch (err) {
-      console.error('Failed to delete data:', err);
+      console.error("Failed to delete data:", err);
       showToast("Error deleting Subject", "error");
     }
   };
 
-  const filteredSubjects = Subject?.filter(subject => {
+  const filteredSubjects = Subject?.filter((subject) => {
     return (
       subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
       subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
@@ -80,8 +87,8 @@ function Subject() {
             <div className="card-body">
               <Formik
                 initialValues={{
-                  subjectName: '',
-                  subjectType: '',
+                  subjectName: "",
+                  subjectType: "",
                   instituteId: userId,
                 }}
                 validationSchema={validationSchema}
@@ -92,19 +99,37 @@ function Subject() {
                     <div className="row ">
                       <div className="col-md-12 mb-3">
                         <label>Subject Name</label>
-                        <Field type="text" name="subjectName" className="form-control" placeholder="Enter Subject Name" />
-                        <ErrorMessage name="subjectName" component="div" className="text-danger" />
+                        <Field
+                          type="text"
+                          name="subjectName"
+                          className="form-control"
+                          placeholder="Enter Subject Name"
+                        />
+                        <ErrorMessage
+                          name="subjectName"
+                          component="div"
+                          className="text-danger"
+                        />
                       </div>
                       <div className="col-md-12 mb-3">
                         <label>Subject Type</label>
-                        <Field as="select" name="subjectType" className="form-select" placeholder="Select Type">
+                        <Field
+                          as="select"
+                          name="subjectType"
+                          className="form-select"
+                          placeholder="Select Type"
+                        >
                           <option value="" disabled>
                             Select Type
                           </option>
                           <option value="Theory">Theory</option>
                           <option value="Practical">Practical</option>
                         </Field>
-                        <ErrorMessage name="subjectType" component="div" className="text-danger" />
+                        <ErrorMessage
+                          name="subjectType"
+                          component="div"
+                          className="text-danger"
+                        />
                       </div>
                     </div>
                     <div className="">
@@ -121,7 +146,7 @@ function Subject() {
             </div>
           </div>
         </div>
-        <div className='col-md-7 col-12'>
+        <div className="col-md-7 col-12">
           <div className="card shadow-sm">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -149,24 +174,25 @@ function Subject() {
                     type="text"
                     className="form-control ms-4 form-control-sm"
                     placeholder="Search"
-                    style={{ width: '200px' }}
-                    value={search} onChange={e => setSearch(e.target.value)}
+                    style={{ width: "200px" }}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
               </div>
-              <div className="table-responsive">
-                <table className="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
-                      filteredSubjects.map((subject, index) => (
+              <div className="table-responsive border-0">
+                {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
+                  <table className="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSubjects.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>
@@ -179,41 +205,47 @@ function Subject() {
                                 setSelectedSubject(subject);
                               }}
                             >
-                              <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
+                              <i
+                                className="fa fa-pencil-square-o"
+                                aria-hidden="true"
+                              ></i>
                             </button>
                             <button
                               className="btn btn-danger btn"
                               onClick={() => handleSubjectDelete(subject._id)}
                             >
-                              <i className="fa fa-trash-o" aria-hidden="true"></i>
+                              <i
+                                className="fa fa-trash-o"
+                                aria-hidden="true"
+                              ></i>
                             </button>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="text-center">
-                          No subjects found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-center">No subjects available.</p>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-
-
       {popup && selectedSubject && (
-        <div className="modal show d-block pt-5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <div
+          className="modal show d-block pt-5"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h5>Edit Subject</h5>
-                <button className="btn-close" onClick={() => setPopup(false)}></button>
+                <button
+                  className="btn-close"
+                  onClick={() => setPopup(false)}
+                ></button>
               </div>
               <div className="modal-body">
                 <Formik
@@ -221,25 +253,43 @@ function Subject() {
                     subjectName: selectedSubject.subjectName,
                     subjectType: selectedSubject.subjectType,
                   }}
-                  onSubmit={(values) => handleSubjectEdit(selectedSubject._id, values)}
+                  onSubmit={(values) =>
+                    handleSubjectEdit(selectedSubject._id, values)
+                  }
                 >
                   {() => (
                     <Form>
                       <div className="mb-3">
                         <label>Subject Name</label>
-                        <Field type="text" name="subjectName" className="form-control" />
-                        <ErrorMessage name="subjectName" component="div" className="text-danger" />
+                        <Field
+                          type="text"
+                          name="subjectName"
+                          className="form-control"
+                        />
+                        <ErrorMessage
+                          name="subjectName"
+                          component="div"
+                          className="text-danger"
+                        />
                       </div>
                       <div className="mb-3">
                         <label>Subject Type</label>
-                        <Field as="select" name="subjectType" className="form-select">
+                        <Field
+                          as="select"
+                          name="subjectType"
+                          className="form-select"
+                        >
                           <option value="" disabled>
                             Select Type
                           </option>
                           <option value="Theory">Theory</option>
                           <option value="Practical">Practical</option>
                         </Field>
-                        <ErrorMessage name="subjectType" component="div" className="text-danger" />
+                        <ErrorMessage
+                          name="subjectType"
+                          component="div"
+                          className="text-danger"
+                        />
                       </div>
                       <div className="text-center">
                         <button type="submit" className="btn btn-primary">
