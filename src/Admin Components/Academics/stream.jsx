@@ -18,7 +18,7 @@ function stream() {
   const [selectedstream, setSelectedstream] = useState(null);
 
   useEffect(() => {
-    setstream(Stream.items);
+    setstream(Stream);
   }, [Stream]);
 
   const [createStream] = useCreateStreamMutation();
