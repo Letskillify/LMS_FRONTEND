@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import {
+  useFileUploader,
   // useFileUploader,
   // useFileUploader,
   useVideoUploader,
@@ -39,14 +40,14 @@ function StudyMaterial() {
   const { uploadedFiles, isfileLoading, fileuploadProgress, handleFileUpload } =
     useFileUploader();
 
-    const {data} = useGetStudyMaterialsByInstituteIdQuery(InstituteId);
+    const {data} = useGetStudyMaterialsByInstituteIdQuery(InstituteId, {skip: !InstituteId});
     const [addStudyMaterial] = useCreateStudyMaterialMutation();
     const [updateStudyMaterial] = useUpdateStudyMaterialMutation();
     const [deleteStudyMaterial] = useDeleteStudyMaterialMutation();
 
     useEffect(() => {
       if (data) {
-        setStudyMaterialData(data);
+        setStudyMaterialData(data?.items);
         setOriginalStudyMaterialData(data);
       }
     }, [data]);
