@@ -11,6 +11,22 @@ import {
 } from "../../ApiConstants/Routes";
 import axios from "axios";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import {
+  useCreateAllowanceMutation,
+  useDeleteAllowanceMutation,
+  useGetAllAllowancesQuery,
+  useGetAllowancesByInstituteIdQuery,
+} from "../../Redux/Api/SalaryAllowanceSlice";
+import {
+  useCreateDeductionMutation,
+  useDeleteDeductionMutation,
+  useGetDeductionsByInstituteIdQuery,
+} from "../../Redux/Api/SalaryDeductionSlice";
+import {
+  useGenerateSalarySettingsMutation,
+  useGetSalarySettingsByInstituteIdQuery,
+  useUpdateSalarySettingsMutation,
+} from "../../Redux/Api/salarySlice";
 
 const years = Array.from(
   { length: 10 },
@@ -33,14 +49,13 @@ const months = [
 
 const SalaryGeneration = () => {
   const { InstituteId: instituteId } = getCommonCredentials();
+
+  console.log("instituteId", instituteId);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
   const [deductions, setDeductions] = useState([]);
   const [allowances, setAllowances] = useState([]);
-  const [allowanceDeductions, setAllowanceDeductions] = useState([
-    ...deductions,
-    ...allowances,
-  ]);
+  const [allowanceDeductions, setAllowanceDeductions] = useState([]);
   const [isSalarySettingsAvailable, setIsSalarySettingsAvailable] =
     useState(false);
   const showToast = GlobalToast();
@@ -53,11 +68,62 @@ const SalaryGeneration = () => {
     freeAbsents: "",
     deductSalaryOnLeave: true,
     workingDays: 0,
-    type: "allowances",
+    type: "allowance",
     name: "",
-    amountType: "",
-    value: "",
   });
+
+  const { data: allowanceData } = useGetAllowancesByInstituteIdQuery(
+    instituteId,
+    { skip: !instituteId }
+  );
+
+  const { data: deductionData } = useGetDeductionsByInstituteIdQuery(
+    instituteId,
+    { skip: !instituteId }
+  );
+
+  const { data: salarySettings } = useGetSalarySettingsByInstituteIdQuery(
+    {
+      instituteId: instituteId,
+      month: currentMonth,
+      year: currentYear,
+    },
+    { skip: !instituteId }
+  );
+
+  const [generateSalarySettings] = useGenerateSalarySettingsMutation();
+  const [updateSalarySettings] = useUpdateSalarySettingsMutation();
+  const [addAllowance] = useCreateAllowanceMutation();
+  const [addDeduction] = useCreateDeductionMutation();
+  const [deleteAllowance] = useDeleteAllowanceMutation();
+  const [deleteDeduction] = useDeleteDeductionMutation();
+
+  useEffect(() => {
+    if (allowanceData?.items) setAllowances(allowanceData.items);
+    if (deductionData?.items) setDeductions(deductionData.items);
+  }, [allowanceData, deductionData]);
+
+  useEffect(() => {
+    const mappedDeductions = deductions.map((d) => ({
+      type: "deduction",
+      ...d,
+    }));
+    const mappedAllowances = allowances.map((a) => ({
+      type: "allowance",
+      ...a,
+    }));
+    setAllowanceDeductions([...mappedDeductions, ...mappedAllowances]);
+  }, [deductions, allowances]);
+
+  useEffect(() => {
+    if (salarySettings?.status === 200 && salarySettings?.items) {
+      setIsSalarySettingsAvailable(true);
+      setFormData((prevData) => ({
+        ...prevData,
+        ...salarySettings?.items,
+      }));
+    }
+  }, [salarySettings]);
 
   const fields = [
     {
@@ -85,81 +151,7 @@ const SalaryGeneration = () => {
       options: ["allowance", "deduction"],
     },
     { label: "Name", name: "name", type: "text", fullWidth: true },
-    {
-      label: "Amount Type",
-      name: "amountType",
-      type: "select",
-      options: ["fixed", "percentage"],
-    },
-    {
-      label: "Value",
-      name: "value",
-      type: "number",
-      disabled: !formData.amountType,
-    },
   ];
-
-  const fetchSalarySettings = async () => {
-    try {
-      const response = await axios.get(
-        `${GET_SALARY_SETTINGS}?instituteId=${instituteId}&month=${currentMonth}&year=${currentYear}`
-      );
-      if (response.data && response.status === 200) {
-        setIsSalarySettingsAvailable(true);
-        setFormData((prevData) => ({
-          ...prevData,
-          ...response.data,
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching salary settings:", error);
-    }
-  };
-
-  const fetchAllowances = async () => {
-    try {
-      const response = await axios.get(`${GET_ALL_ALLOWANCES}`);
-      console.log(response);
-      if (response.data && response.status === 200) {
-        setAllowances(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching allowances:", error);
-    }
-  };
-
-  const fetchDeductions = async () => {
-    try {
-      const response = await axios.get(`${GET_ALL_DEDUCTIONS}`);
-      console.log(response);
-      if (response.data && response.status === 200) {
-        setDeductions(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching allowances:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (!instituteId) return;
-    fetchDeductions();
-    fetchAllowances();
-    fetchSalarySettings();
-  }, [instituteId, currentMonth, currentYear]);
-
-  useEffect(() => {
-    const mappedDeductions = deductions.map((d) => ({
-      type: "deduction",
-      ...d,
-    }));
-
-    const mappedAllowances = allowances.map((a) => ({
-      type: "allowance",
-      ...a,
-    }));
-
-    setAllowanceDeductions([...mappedDeductions, ...mappedAllowances]);
-  }, [allowances, deductions]);
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -187,11 +179,15 @@ const SalaryGeneration = () => {
       : GENERATE_SALARY_SETTINGS;
 
     try {
-      await axios.post(URL, salaryData);
+      const response = isSalarySettingsAvailable
+        ? await updateSalarySettings({
+            instituteId: instituteId,
+            salaryData: salaryData,
+            month: currentMonth,
+            year: currentYear,
+          })
+        : await generateSalarySettings(salaryData);
       showToast("Salary settings updated successfully!", "success");
-
-      // Refetch salary settings after successful submission
-      fetchSalarySettings();
     } catch (error) {
       console.error("Error updating salary settings:", error);
       showToast("Error updating salary settings.", "error");
@@ -199,27 +195,36 @@ const SalaryGeneration = () => {
   };
 
   const handleAllowanceDeductionSubmit = async () => {
-    if (formData.type === "" || !formData.name || !formData.value) {
+    if (!formData.name) {
       showToast("Please fill all required fields.", "error");
       return;
     }
 
     try {
       const URL = `/api/salary/${formData.type}/post`;
-      await axios.post(URL, {
+      const data = {
         [`${formData.type}Name`]: formData.name,
         instituteId: instituteId,
-      });
+      };
 
-      showToast(
-        `${
-          formData.type.charAt(0).toUpperCase() + formData.type.slice(1)
-        } added successfully!`,
-        "success"
-      );
-      
-      fetchAllowances();
-      fetchDeductions();
+      const addAllowanceDeduction =
+        formData.type === "allowance"
+          ? await addAllowance(data)
+          : await addDeduction(data);
+      console.log("addAllowanceDeduction", addAllowanceDeduction);
+      if (addAllowanceDeduction?.data?.status == 201) {
+        setFormData((prevData) => ({
+          ...prevData,
+          name: "",
+          type: "allowance",
+        }));
+        showToast(
+          `${
+            formData.type.charAt(0).toUpperCase() + formData.type.slice(1)
+          } added successfully!`,
+          "success"
+        );
+      }
     } catch (error) {
       console.error("Error adding allowance/deduction:", error);
       showToast("Error adding allowance/deduction.", "error");
@@ -228,15 +233,19 @@ const SalaryGeneration = () => {
 
   const handleDeleteAllowanceDeduction = async (id, type) => {
     try {
-      await axios.delete(`/api/salary/${type}/delete/${id}`);
-      showToast(
-        `${
-          type.charAt(0).toUpperCase() + type.slice(1)
-        } deleted successfully!`,
-        "success"
-      );
-      fetchAllowances();
-      fetchDeductions();
+      const response =
+        type == "allowance"
+          ? await deleteAllowance(id)
+          : await deleteDeduction(id);
+
+      if (response?.data?.status === 200) {
+        showToast(
+          `${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          } deleted successfully!`,
+          "success"
+        );
+      }
     } catch (error) {
       console.error("Error deleting allowance/deduction:", error);
       showToast("Error deleting allowance/deduction.", "error");
@@ -349,40 +358,43 @@ const SalaryGeneration = () => {
         </form>
 
         <div className="w-75 mx-auto py-3">
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>Allowance/Deduction Type</th>
-                <th>Allowance/Deduction Name</th>
-                <th>Allowance/Deduction Value</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allowanceDeductions.map((allowanceDeduction) => (
-                <tr key={allowanceDeduction._id}>
-                  <td>{allowanceDeduction?.type}</td>
-                  <td>
-                    {allowanceDeduction.allowanceName ||
-                      allowanceDeduction.deductionName}
-                  </td>
-                  <td>
-                    {allowanceDeduction.amount || allowanceDeduction.amount}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() =>
-                        handleDeleteAllowanceDeduction(allowanceDeduction._id, allowanceDeduction.type)
-                      }
-                    >
-                      Delete
-                    </button>
-                  </td>
+          {allowanceDeductions.length > 0 ? (
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Allowance/Deduction Type</th>
+                  <th>Allowance/Deduction Name</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {allowanceDeductions?.map((allowanceDeduction) => (
+                  <tr key={allowanceDeduction._id}>
+                    <td>{allowanceDeduction?.type}</td>
+                    <td>
+                      {allowanceDeduction.allowanceName ||
+                        allowanceDeduction.deductionName}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() =>
+                          handleDeleteAllowanceDeduction(
+                            allowanceDeduction._id,
+                            allowanceDeduction.type
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-center">No Allowance/Deduction added yet.</p>
+          )}
         </div>
       </div>
     </div>
