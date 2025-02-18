@@ -50,8 +50,6 @@ const NoticeBoard = () => {
   const [CreateNoticeBoard] = useCreateNoticeBoardMutation()
   const [DeleteNotice] = useDeleteNoticeBoardMutation()
 
-
-
   const initialValues = {
     title: "",
     description: "",

@@ -164,8 +164,8 @@ const CreateShift = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Shift?.items?.length > 0 ? (
-                                    Shift?.items?.map((shift, index) => (
+                                {Shift?.length > 0 ? (
+                                    Shift?.map((shift, index) => (
                                         <tr key={shift._id}>
                                             <td>{index + 1}</td>
                                             <td>{shift.shiftName}</td>

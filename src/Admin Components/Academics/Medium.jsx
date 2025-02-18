@@ -13,7 +13,7 @@ import useGlobalToast from "../../GlobalComponents/GlobalToast";
 function Medium() {
   const showToast = useGlobalToast();
   const { userId, Medium, InstituteId } = getCommonCredentials();
-  console.log("userId", InstituteId);
+  console.log("userId", Medium);
   
   const [medium, setMedium] = useState([]);
   const [popup, setPopup] = useState(false);
@@ -28,7 +28,7 @@ function Medium() {
   
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium.items);
+      setMedium(Medium);
     }
   }, [Medium]);
 
