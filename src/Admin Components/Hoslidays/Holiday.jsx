@@ -39,7 +39,7 @@ function Holiday() {
             setDefaultHolidays(defaultHolidayData?.items);
         }
         if(holidayData){
-            setHolidays(holidayData);
+            setHolidays(holidayData?.items);
         }
     }, [defaultHolidayData, holidayData]);
 

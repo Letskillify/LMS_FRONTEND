@@ -202,9 +202,9 @@ const AdminDashboard = () => {
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
                 <Route path="/holiday" element={<Holiday/>}></Route>
-                <Route path="fee-type" element={<FeeType />}></Route>
-                <Route path="settings" element={<Settings />}></Route>
-                <Route path="employe-role" element={<EmployeRole/>}></Route>
+                <Route path="/fee-type" element={<FeeType />}></Route>
+                <Route path="/settings" element={<Settings />}></Route>
+                <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
               </Route>
