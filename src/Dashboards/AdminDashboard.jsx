@@ -106,7 +106,7 @@ import NCERTsubject from '../Admin Components/NCRT/NCERTsubject.jsx'
 // import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 import NoticeBoard from '../Admin Components/Notice Board/NoticeBoard.jsx'
 import LeaveManagement from '../Admin Components/LeaveManagement.jsx'
->>>>>>> d48587a05b2e58acd65b1dbcd58c8fee280ebadf
+
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -213,7 +213,7 @@ const AdminDashboard = () => {
                 <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
-<<<<<<< HEAD
+
                 <Route path='/leave' element={<Leave/>} />
                 <Route path='/admin-leave' element={<Leaveinstitute/>} />
                 <Route path='/Notification-Board' element={<NotificationBoard/>} />
@@ -221,7 +221,6 @@ const AdminDashboard = () => {
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
->>>>>>> d48587a05b2e58acd65b1dbcd58c8fee280ebadf
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
