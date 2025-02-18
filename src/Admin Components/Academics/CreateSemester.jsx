@@ -152,8 +152,8 @@ const CreateSemester = () => {
                 </tr>
               </thead>
               <tbody>
-                {Semester?.items?.length > 0 ? (
-                  Semester?.items?.map((semester, index) => (
+                {Semester?.length > 0 ? (
+                  Semester?.map((semester, index) => (
                     <tr key={semester._id}>
                       <td>{index + 1}</td>
                       <td>{semester.semesterName}</td>

@@ -28,7 +28,7 @@ function Medium() {
   
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium.items);
+      setMedium(Medium);
     }
   }, [Medium]);
 
