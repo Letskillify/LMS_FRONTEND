@@ -29,7 +29,7 @@ function Holiday() {
     };
 
     const { data : defaultHolidayData } = useGetAllDefaultHolidaysQuery();
-    const { data : holidayData } = useGetAllInstituteHolidaysQuery();
+    const { data : holidayData, isLoading } = useGetAllInstituteHolidaysQuery();
     const [addHolidayPost] = useCreateInstituteHolidayMutation();
     const [updateHoliday] = useUpdateInstituteHolidayMutation();
     const [deleteHoliday] = useDeleteInstituteHolidayMutation();
@@ -209,7 +209,7 @@ function Holiday() {
 
                         </thead>
                         <tbody id="holidayTableBody" >
-                            {holidays.map((holiday) => (
+                            {holidays?.map((holiday) => (
                                 <tr key={holiday._id} className='align-text-top'>
                                     <td className='text-center rounded'>{holiday.thumbnail ? <img src={holiday.thumbnail} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '50px' }} /> : <p>No Image</p>}</td>
                                     <td>{holiday.title}</td>
@@ -224,7 +224,7 @@ function Holiday() {
                             ))}
                         </tbody>
                     </table>
-                    {holidays?.length === 0 && <div className="d-flex mt-5 justify-content-center align-items-center">
+                    {holidays?.length === 0 && isLoading && <div className="d-flex mt-5 justify-content-center align-items-center">
                         <Spinner animation="border" variant="primary" />
                     </div>}
                 </div>

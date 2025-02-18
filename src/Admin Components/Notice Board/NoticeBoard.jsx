@@ -45,7 +45,7 @@ const NoticeBoard = () => {
     skip: !InstituteId,
   })
   useEffect(() => {
-    setNoticeBoard(noticeBoardData)
+    setNoticeBoard(noticeBoardData?.items)
   }, [noticeBoardData])
   const [CreateNoticeBoard] = useCreateNoticeBoardMutation()
   const [DeleteNotice] = useDeleteNoticeBoardMutation()
@@ -293,7 +293,7 @@ const NoticeBoard = () => {
                               type="file"
                               name="attachment"
                               className="form-control"
-                              accept=".csv,.pdf,.doc,.docx,.xlsx,.xls"
+                              accept=".csv,.pdf,.doc,.docx,.png,.jpg,.jpeg"
                               onChange={(e) => handleFileUpload(e, "attachment")}
                             />
                           </div>

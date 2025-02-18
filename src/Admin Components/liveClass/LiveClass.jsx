@@ -30,7 +30,7 @@ function LiveClasses() {
     useEffect(() => {
         setSubjects(Subject);
         setCourses(Course);
-        setLiveClasses(liveClassData)
+        setLiveClasses(liveClassData?.items)
     },[Subject, Course, liveClassData])
 
 

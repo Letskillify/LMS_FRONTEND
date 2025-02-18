@@ -66,7 +66,7 @@ function FeeStructureManagement() {
     const fetchGet = async () => {
         try {
             const response = await axios.get(`/api/fees-structure/get`);
-            setDataget(response.data);
+            setDataget(response.data?.items);
         } catch (error) {
             console.error("Error fetching fee structure:", error);
         }
@@ -124,7 +124,7 @@ function FeeStructureManagement() {
                 }
             });
             if (response.status === 200) {
-                setFeetype(response.data);
+                setFeetype(response.data?.items);
             }
         } catch (error) {
             console.error("Error fetching fee types:", error);
@@ -213,14 +213,14 @@ function FeeStructureManagement() {
                                             {({ field }) => (
                                                 <Select
                                                     isMulti
-                                                    options={classes.map(cl => ({
+                                                    options={classes?.map(cl => ({
                                                         value: cl._id,
                                                         label: cl.className
                                                     }))}
                                                     name="applicableTo.className"
-                                                    value={values.applicableTo.className.map(s => ({
+                                                    value={values?.applicableTo?.className?.map(s => ({
                                                         value: s,   
-                                                        label: classes.find(cl => cl._id === s).className
+                                                        label: classes?.find(cl => cl._id === s).className
                                                     }))}
                                                     onChange={selected => setFieldValue("applicableTo.className", selected.map(s => s.value))}
                                                     placeholder="Select Classes"
@@ -379,7 +379,7 @@ function FeeStructureManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {dataget.map((item, index) => (
+                            {dataget?.map((item, index) => (
                                 <tr key={index}>
                                     <td>{item?.totalIntallmentsFeesAmount}</td>
                                     <td>{item?.totalLumpSumFeesAmount}</td>
