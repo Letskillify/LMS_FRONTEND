@@ -112,6 +112,7 @@ import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
 import ApplyLeave from '../Student Components/Leave management/ApplyLeave.jsx'
 
+
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
     getCommonCredentials();
@@ -217,7 +218,6 @@ const AdminDashboard = () => {
                 <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
-
                 <Route path='/NCERT-class' element={<NCERTclass/>} />
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
