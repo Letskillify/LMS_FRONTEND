@@ -28,41 +28,12 @@ const Calendar = () => {
   const [selectedSection, setSelectedSection] = useState("");
   const [sectionsOptions, setSectionsOptions] = useState([]);
 
-  const { InstituteId, userId } = getCommonCredentials();
+  const { InstituteId, userId, Course, Section } = getCommonCredentials();
 
   useEffect(() => {
-    if (!InstituteId) return;
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get(
-          `/api/courses/get/institute/${InstituteId}`
-        );
-        // setFilters((prev) => ({ ...prev, course: response.data }));
-        setCoursesOptions(response?.data);
-        // setSectionsOptions(response?.data?.section);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-
-    const fetchSections = async () => {
-      try {
-        const response = await axios.get(
-          `/api/section/get/institute/${InstituteId}`
-        );
-        // setSectionsOptions(response?.data);
-      } catch (error) {
-        console.error("Error fetching sections:", error);
-      }
-    };
-
-    fetchCourses();
-    fetchSections();
-
-    return () => {
-      setStudents([]);
-    };
-  }, [InstituteId]);
+    setCoursesOptions(Course);
+    setSectionsOptions(Section);
+  }, [Course, Section]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value._id }));

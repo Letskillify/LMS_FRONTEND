@@ -13,7 +13,7 @@ function LeaveManagement() {
   const { data: leavesData } = useGetLeavesByInstituteIdQuery(InstituteId, { skip: !InstituteId });
   useEffect(() => {
     if (leavesData) {
-      setLeaves(leavesData);
+      setLeaves(leavesData?.items);
     }
   }, [leavesData]);
   const [updateLeave] = useUpdateLeaveMutation();

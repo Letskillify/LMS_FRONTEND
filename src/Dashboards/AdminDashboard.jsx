@@ -211,10 +211,14 @@ const AdminDashboard = () => {
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
                 <Route path="/holiday" element={<Holiday/>}></Route>
+                <Route path="/fee-type" element={<FeeType />}></Route>
+                <Route path="/settings" element={<Settings />}></Route>
+                <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
-                {/* <Route path='/leave' element={<Leave/>} /> */}
-                {/* <Route path='/admin-leave' element={<Leaveinstitute/>} /> */}
+                <Route path='/leave' element={<Leave/>} />
+                <Route path='/admin-leave' element={<Leaveinstitute/>} />
+                <Route path='/Notification-Board' element={<NotificationBoard/>} />
                 <Route path='/NCERT-class' element={<NCERTclass/>} />
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />

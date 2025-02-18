@@ -29,7 +29,7 @@ function Holiday() {
     };
 
     const { data : defaultHolidayData } = useGetAllDefaultHolidaysQuery();
-    const { data : holidayData } = useGetAllInstituteHolidaysQuery();
+    const { data : holidayData, isLoading } = useGetAllInstituteHolidaysQuery();
     const [addHolidayPost] = useCreateInstituteHolidayMutation();
     const [updateHoliday] = useUpdateInstituteHolidayMutation();
     const [deleteHoliday] = useDeleteInstituteHolidayMutation();
@@ -39,7 +39,7 @@ function Holiday() {
             setDefaultHolidays(defaultHolidayData?.items);
         }
         if(holidayData){
-            setHolidays(holidayData);
+            setHolidays(holidayData?.items);
         }
     }, [defaultHolidayData, holidayData]);
 
@@ -224,7 +224,7 @@ function Holiday() {
                             ))}
                         </tbody>
                     </table>
-                    {holidays?.length === 0 && <div className="d-flex mt-5 justify-content-center align-items-center">
+                    {holidays?.length === 0 && isLoading && <div className="d-flex mt-5 justify-content-center align-items-center">
                         <Spinner animation="border" variant="primary" />
                     </div>}
                 </div>
