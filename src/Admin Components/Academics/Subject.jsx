@@ -31,17 +31,16 @@ function Subject() {
   const handleSubject = async (values, { resetForm }) => {
     console.log("Submitting values:", values); // Log the data being sent
     try {
-        const response = await createSubject(values).unwrap(); // Use unwrap() to get the real response
-        console.log("API Response:", response); // Log the response
-        showToast("Subject Created Successfully", "success");
-        resetForm();
+      const response = await createSubject(values).unwrap(); // Use unwrap() to get the real response
+      console.log("API Response:", response); // Log the response
+      showToast("Subject Created Successfully", "success");
+      resetForm();
     } catch (err) {
       console.error("Failed to send data:", err);
       showToast("Error submitting Subject", "error");
     }
-};
+  };
 
-  
   const handleSubjectEdit = async (id, values) => {
     try {
       const response = await updateSubject({
@@ -59,11 +58,11 @@ function Subject() {
       showToast("Error updating Subject", "error");
     }
   };
-  
+
   const handleSubjectDelete = async (id) => {
     try {
       const response = await deleteSubject(id);
-      if ('data' in response && response.data?.status === 200) {
+      if ("data" in response && response.data?.status === 200) {
         showToast("Subject Deleted Successfully", "success");
       } else {
         throw new Error("Failed to delete subject");
@@ -183,19 +182,19 @@ function Subject() {
                   />
                 </div>
               </div>
-              <div className="table-responsive border-0">
-                {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSubjects.map((subject, index) => (
+              <div className="table-responsive">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubjects?.items?.length > 0 ? (
+                      filteredSubjects?.items?.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>
@@ -224,12 +223,12 @@ function Subject() {
                             </button>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-center">No subjects available.</p>
-                )}
+                      ))
+                    ) : (
+                      <p className="text-center">No subjects available.</p>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
