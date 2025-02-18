@@ -218,13 +218,13 @@ const AdminDashboard = () => {
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
 
+                <Route path='/leave' element={<Leave/>} />
+                <Route path='/admin-leave' element={<Leaveinstitute/>} />
+                <Route path='/Notification-Board' element={<NotificationBoard/>} />
                 <Route path='/NCERT-class' element={<NCERTclass/>} />
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
-                <Route path='/NCRT-class' element={<Class/>} />
-                <Route path='/NCRT-subject' element={<Subjects/>} />
-                <Route path='/NCRT-chapters' element={<Chapters/>} />
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
