@@ -209,7 +209,7 @@ function Holiday() {
 
                         </thead>
                         <tbody id="holidayTableBody" >
-                            {holidays?.items?.map((holiday) => (
+                            {holidays?.map((holiday) => (
                                 <tr key={holiday._id} className='align-text-top'>
                                     <td className='text-center rounded'>{holiday.thumbnail ? <img src={holiday.thumbnail} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '50px' }} /> : <p>No Image</p>}</td>
                                     <td>{holiday.title}</td>

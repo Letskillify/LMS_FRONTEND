@@ -182,19 +182,19 @@ function Subject() {
                   />
                 </div>
               </div>
-              <div className="table-responsive border-0">
-                {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSubjects.map((subject, index) => (
+              <div className="table-responsive">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubjects?.items?.length > 0 ? (
+                      filteredSubjects?.items?.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>
@@ -223,12 +223,12 @@ function Subject() {
                             </button>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-center">No subjects available.</p>
-                )}
+                      ))
+                    ) : (
+                      <p className="text-center">No subjects available.</p>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
