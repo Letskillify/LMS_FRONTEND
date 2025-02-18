@@ -199,7 +199,7 @@ const NoticeBoard = () => {
       </div>
       <hr className="m-0" />
       <motion.div className="notification-grid mt-3">
-        {noticeBoard?.map((noticedata) => (
+        {noticeBoard?.items?.map((noticedata) => (
           <motion.div
             key={noticedata.id}
             className={`notification text-${noticedata.targetAudienceType?.toLowerCase() === 'teachingstaff' ? 'primary' : noticedata.targetAudienceType?.toLowerCase() === 'nonteachingstaff' ? 'success' : noticedata.targetAudienceType?.toLowerCase() === 'studentprofile' ? 'info' : noticedata.targetAudienceType?.toLowerCase() === 'classes' ? 'warning' : noticedata.targetAudienceType?.toLowerCase() === 'courses' ? 'danger' : noticedata.targetAudienceType?.toLowerCase() === 'coursegroup' ? 'dark' : noticedata.targetAudienceType?.toLowerCase() === 'courseboards' ? 'secondary' : ''}`}

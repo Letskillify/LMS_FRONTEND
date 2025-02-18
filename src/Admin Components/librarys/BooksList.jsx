@@ -184,7 +184,7 @@ function BooksList() {
     Qty: item.quantity,
     Available: item.status,
     Price: item.price,
-    "Post Date": item.postDate,
+    "Post Date": item.postDate ? new Date(item.postDate).toLocaleDateString() : "",
   }));
 
   const actions = [

@@ -35,7 +35,7 @@ function ExamType() {
       try {
       const response = await createExamType(examTypeData);
       if (response.data.status === 201) {
-        setExamType([...ExamType, response.data]);
+        // setExamType([...ExamType, response.data]);
         showToast("Data Sent Successfully", "success");
       } else {
         console.log(examTypeData);
@@ -50,7 +50,7 @@ function ExamType() {
     try {
       const response = await deleteExamType(id);
       if (response.data.status === 200) {
-        setExamType(ExamType.filter((item) => item._id !== id));
+        setExamType(ExamType?.items?.filter((item) => item._id !== id));
         showToast("Data Deleted Successfully", "success");
       }
     } catch (error) {
@@ -67,7 +67,7 @@ function ExamType() {
       });
       if (response.data.status === 200) {
         setExamType(
-          ExamType?.map((item) =>
+          ExamType?.items?.map((item) =>
             item._id === selectedExamType._id ? { ...item, ...values } : item
           )
         );
@@ -166,7 +166,7 @@ function ExamType() {
                     </tr>
                   </thead>
                   <tbody>
-                    {ExamType?.map((item, index) => (
+                    {ExamType?.items?.map((item, index) => (
                       <tr key={item.id}>
                         <th scope="row">{index + 1}</th>
                         <td className="text-capitalize">{item.examTypeName}</td>

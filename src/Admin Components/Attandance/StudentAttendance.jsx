@@ -214,7 +214,7 @@ const Calendar = () => {
                 <option disabled value="">
                   Select Course
                 </option>
-                {coursesOptions?.map((course) => (
+                {coursesOptions?.items?.map((course) => (
                   <option key={course._id} value={course._id}>
                     {course.courseName}
                   </option>

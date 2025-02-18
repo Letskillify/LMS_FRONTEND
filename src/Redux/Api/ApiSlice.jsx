@@ -148,14 +148,12 @@ export const apiSlice = createApi({
     "LiveClass",
     "StudyMaterial",
     "NonTeachingStaff",
-<<<<<<< HEAD
     "NCERTClass",
-    "NCERTsubject"
-=======
+    "NCERTsubject",
     "NoticeBoard",
     "NonTeachingStaff",
+    "NCERTBook",
     "AdmissionEnquiry"
->>>>>>> d48587a05b2e58acd65b1dbcd58c8fee280ebadf
   ],
   endpoints: () => ({}),
 });
