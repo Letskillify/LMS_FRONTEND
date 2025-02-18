@@ -36,7 +36,7 @@ function Subject() {
         showToast("Subject Created Successfully", "success");
         resetForm();
     } catch (err) {
-      console.error('Failed to send data:', err);
+      console.error("Failed to send data:", err);
       showToast("Error submitting Subject", "error");
     }
 };
@@ -44,9 +44,12 @@ function Subject() {
   
   const handleSubjectEdit = async (id, values) => {
     try {
-      const response = await updateSubject({ subjectId: id, subjectData: values });
+      const response = await updateSubject({
+        subjectId: id,
+        subjectData: values,
+      });
       if (response.data.status === 200) {
-        showToast("Subject Updated Successfully", "success"); 
+        showToast("Subject Updated Successfully", "success");
         setPopup(false);
       } else {
         throw new Error("Failed to update subject");
@@ -71,7 +74,7 @@ function Subject() {
     }
   };
 
-  const filteredSubjects = Subject?.filter(subject => {
+  const filteredSubjects = Subject?.filter((subject) => {
     return (
       subject?.subjectName?.toLowerCase()?.includes(search?.toLowerCase()) ||
       subject?.subjectType?.toLowerCase()?.includes(search?.toLowerCase())
@@ -180,19 +183,19 @@ function Subject() {
                   />
                 </div>
               </div>
-              <div className="table-responsive">
-                <table className="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
-                      filteredSubjects.map((subject, index) => (
+              <div className="table-responsive border-0">
+                {filteredSubjects?.length > 0 && Subject?.length > 0 ? (
+                  <table className="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSubjects.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>

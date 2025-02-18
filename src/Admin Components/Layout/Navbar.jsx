@@ -1,19 +1,20 @@
 import React, { useContext, useEffect } from 'react'
 // import { MainContext } from '../../Controller/MainProvider'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 import { useDispatch } from 'react-redux';
 import { setGlobalSidebarOpen, setIslogin } from '../../Redux/Slices/MainSlice';
+import GlobalLogOut from '../../GlobalComponents/GlobalLogOut';
 function Navbar() {
     // const { HandleLogOut, setsidebaropen } = useContext(MainContext) // -->> real time karna hai 
     const { userId, Institute, SidebarOpen } = getCommonCredentials();
-    const dispatch = useDispatch();
 
     // for sidebar toggle 
-    const location = useLocation();
+    // const location = useLocation();
     // useEffect(() => {
     //     dispatch(setGlobalSidebarOpen(false));
     // }, [location.pathname]);
+    const HandleLogOut = GlobalLogOut();
     return (
         <>
             <div className=' bg-themprimary'>
@@ -100,10 +101,10 @@ function Navbar() {
                             </li>
 
                             <li>
-                                <Link className="dropdown-item">
+                                <button className="dropdown-item" onClick={HandleLogOut}>
                                     <i className="bx bx-power-off me-2"></i>
                                     <a className="align-middle">Log Out</a>
-                                </Link>
+                                </button>
                             </li>
                             <div class="text-center mx-auto d-lg-none align-items-center row mt-3">
                                 <div class="dropdown col-sm-3 col-6 pe-0">
