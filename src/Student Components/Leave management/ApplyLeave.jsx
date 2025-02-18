@@ -55,7 +55,7 @@ function ApplyLeave() {
             )
             .required("Leave type is required"),
         reason: Yup.string().trim().required("Reason is required"),
-        halfDay: Yup.boolean(),
+        // halfDay: Yup.boolean(),
         multipleDays: Yup.boolean(),
         date: Yup.date().required("Date is required for a single-day leave"),
         attachments: Yup.mixed(),

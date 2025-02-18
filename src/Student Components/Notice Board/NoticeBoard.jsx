@@ -10,8 +10,8 @@ const NoticeBoard = () => {
         skip: !InstituteId,
     })
     useEffect(() => {
-        setNoticeBoard(noticeBoardData)
-    }, [noticeBoardData])
+        setNoticeBoard(noticeBoardData?.items)
+    }, [noticeBoardData?.items])
 
     const handleDownload = (fileUrl) => {
         if (!fileUrl) {
