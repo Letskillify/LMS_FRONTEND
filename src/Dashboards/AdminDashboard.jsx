@@ -217,6 +217,7 @@ const AdminDashboard = () => {
                 <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
+
                 <Route path='/NCERT-class' element={<NCERTclass/>} />
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
