@@ -4,42 +4,87 @@ import axios from "axios";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
-
-// import { showToast } from "../../GlobalHelper/Toast";
-// import { useDeleteExamTypeMutation, useGetExamTypeByInstituteIdQuery } from "../../Redux/Api/ExamTypeApi";
-
+import {
+  useAddNewExamMutation,
+  useDeleteExamMutation,
+  useGetExamByInstituteIdQuery,
+  useUpdateExamByIdMutation,
+} from "../../Redux/Api/examDataSlice";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
 const ExamForm = () => {
-  const { InstituteId, TeacherData, Subject, Class } = getCommonCredentials();
-  const [examTypes, setExamTypes] = useState([]);
+  const {
+    InstituteId,
+    TeacherData,
+    Subject,
+    Class,
+    ExamType,
+    NonTeachingStaffData,
+  } = getCommonCredentials();
+  const showToast = useGlobalToast();
   const [popup, setPopup] = useState(false);
   const [exams, setExams] = useState([]);
-  const [EditData, setEditData] = useState('');
+  const [EditData, setEditData] = useState(null);
   const [Editpopup, setEditpopup] = useState(false);
-    const fetchExam = async () => {
-    if (!InstituteId) return console.error("Error: InstituteId is missing.");
+  const [viewPopup, setViewPopup] = useState(false);
+  // const [EditData, setEditData] = useState(null);
+  const { data: Exam, isLoading } = useGetExamByInstituteIdQuery(InstituteId, {
+    skip: !InstituteId,
+  });
+  const [addNewExam] = useAddNewExamMutation();
+  const [updateExam] = useUpdateExamByIdMutation();
+  const [deleteExam] = useDeleteExamMutation();
+  useEffect(() => {
+    setExams(Exam);
+    console.log("examdata", Exam?.examByInstituteID);
+  }, [Exam]);
+
+  const handleSubmit = async (Exam) => {
+    console.log(Exam, "Exam");
     try {
-      const { data } = await axios.get(
-        `/api/exam/get/institute/${InstituteId}`
-      );
-      setExams(data);
+      const response = await addNewExam(Exam);
+      alert("Exam Added Successfully");
+      // setExams([...exams, response.data]);
+      setPopup(false);
+      // if (response.data.status === 201) {
+      // }else{
+      //   console.log(Exam,"Exam");
+      // }
     } catch (error) {
-      console.error("Error fetching exams:", error.message);
-      alert("Error Fetching Data");
+      console.error("Error submitting exam:", error.message);
+      alert("Error Submitting Data");
     }
   };
+  const editExam = async (values) => {
+    console.log("Submit Value", values);
 
-  useEffect(() => {
-    axios.get("/api/exam-type/get").then((res) => setExamTypes(res.data));
-    axios.get("/api/teacher/get-all").then((res) => setTeacher(res.data));
-    axios.get("/api/subject/get").then((res) => setSubject(res.data));
-    axios.get("/api/class/get").then((res) => setClass(res.data));
-  }, []);
-  useEffect(() => {
-    fetchExam();
-  }, [InstituteId]);
+    if (!EditData || !EditData._id) {
+      alert("No exam selected for editing");
+      return;
+    }
+    try {
+      const response = await updateExam({
+        id: EditData._id,
+        examData: values,
+      });
 
-
-
+      setEditData(response.data); // Update state with new data
+      setEditpopup(true);
+      showToast("Exam updated successfully", "success");
+    } catch (error) {
+      console.error("Error updating exam:", error.message);
+      showToast("Error Updating Data", "error");
+    }
+  };
+  const handledeleteExam = async (exam) => {
+    const response = await deleteExam(exam);
+    if (response.data) {
+      // setExams(exams.filter((item) => item._id !== exam._id));
+      showToast("Exam Deleted Successfully", "success");
+    } else {
+      console.log("Error deleting exam");
+      showToast("Error Deleting Data", "error");
+    }
+  };
   const initialValues = {
     examType: "",
     examName: "",
@@ -56,6 +101,8 @@ const ExamForm = () => {
         endTime: "",
         totalMarks: "",
         passingMarks: "",
+        typeOfStaff: "",
+        incharge: "",
         status: "Scheduled",
       },
     ],
@@ -66,51 +113,56 @@ const ExamForm = () => {
     examMode: "Offline",
     examInstructions: "",
   };
-
   const validationSchema = Yup.object({
+    examType: Yup.string().required("Exam type is required"),
     examName: Yup.string().required("Exam name is required"),
     examCode: Yup.string().required("Exam code is required"),
     startingDate: Yup.date().required("Start date is required"),
-    endingDate: Yup.date().required("End date is required"),
+    endingDate: Yup.date()
+      .required("End date is required")
+      .min(Yup.ref("startingDate"), "End date must be after start date"),
+    instituteId: Yup.string().required("Institute ID is required"),
     class: Yup.array().min(1, "Select at least one class"),
-    subjects: Yup.array().of(
-      Yup.object({
-        subjectName: Yup.string().required("Subject is required"),
-        examDate: Yup.date().required("Exam date is required"),
-        startTime: Yup.string().required("Start time is required"),
-        endTime: Yup.string().required("End time is required"),
-        totalMarks: Yup.number().required("Total marks required"),
-        passingMarks: Yup.number().required("Passing marks required"),
-      })
-    ),
+    subjects: Yup.array()
+      .of(
+        Yup.object({
+          subjectName: Yup.string().required("Subject is required"),
+          examDate: Yup.date().required("Exam date is required"),
+          startTime: Yup.string().required("Start time is required"),
+          endTime: Yup.string().required("End time is required"),
+          totalMarks: Yup.number()
+            .typeError("Total marks must be a number")
+            .required("Total marks required")
+            .positive("Total marks must be positive"),
+          passingMarks: Yup.number()
+            .typeError("Passing marks must be a number")
+            .required("Passing marks required")
+            .positive("Passing marks must be positive")
+            .max(Yup.ref("totalMarks"), "Passing marks cannot be more than total marks"),
+          typeOfStaff: Yup.string().required("Type of staff is required"),
+          incharge: Yup.string().required("Incharge is required"),
+        })
+      )
+      .min(1, "At least one subject is required"),
+    assignedBy: Yup.array().min(1, "At least one person must be assigned"),
+    status: Yup.string()
+      .oneOf(["Upcoming", "Ongoing", "Completed", "Cancelled"], "Invalid status")
+      .required("Status is required"),
+    totalMarks: Yup.number()
+      .typeError("Total marks must be a number")
+      .required("Total marks are required")
+      .positive("Total marks must be positive"),
+    passingMarks: Yup.number()
+      .typeError("Passing marks must be a number")
+      .required("Passing marks are required")
+      .positive("Passing marks must be positive")
+      .max(Yup.ref("totalMarks"), "Passing marks cannot be more than total marks"),
+    examMode: Yup.string()
+      .oneOf(["Offline", "Online"], "Invalid exam mode")
+      .required("Exam mode is required"),
+    examInstructions: Yup.string().nullable(),
   });
-
-  const handleSubmit = async (values) => {
-    try {
-      const response = await axios.post("/api/exam/post", values);
-      if (response.status === 201) {
-        alert("Exam Added Successfully");
-        fetchExam(); // Refresh the list
-      }
-    } catch (error) {
-      console.error("Error submitting exam:", error.message);
-      alert("Error Submitting Data");
-    }
-  };
-  const editExam = async () => {
-    try {
-      const response = await axios.get(`/api/exam/update/${EditData._id}`);
-      if (response.status === 200) {
-        setEditData(response.data);
-        alert("Data Fetched Successfully");
-        setEditpopup(true);
-      }
-    } catch (error) {
-      console.error("Error fetching exam:", error.message);
-      alert("Error Fetching Data");
-    }
-  };
-console.log(EditData, "EditData");
+  
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-4">
@@ -133,23 +185,26 @@ console.log(EditData, "EditData");
             </tr>
           </thead>
           <tbody>
-            {exams?.examByInstituteID?.length >= 0 ? (
-              exams?.examByInstituteID?.map((exam, index) => (
+            {exams?.items?.length >= 0 ? (
+              exams?.items?.map((exam, index) => (
                 <tr key={exam._id}>
                   <td>{index + 1}</td>
-                  <td>{exam.examType || "N/A"}</td>
+                  <td>{exam.examType?.examTypeName || ""}</td>
                   <td>
                     {exam.startingDate
-                      ? new Date(exam.startingDate).toLocaleDateString() ||
-                        "N/A"
-                      : "N/A"}
+                      ? new Date(exam.startingDate).toLocaleDateString() || ""
+                      : ""}
                   </td>
                   <td>
                     {exam.endingDate
-                      ? new Date(exam.endingDate).toLocaleDateString() || "N/A"
-                      : "N/A"}
+                      ? new Date(exam.endingDate).toLocaleDateString() || ""
+                      : ""}
                   </td>
-                  <td>{exam.class?.join(", ") || "N/A"}</td>
+                  <td>
+                    {exam?.class
+                      ?.map((cls) => cls.className || "")
+                      .join(", ") || ""}
+                  </td>
                   <td>
                     <span
                       className={`badge ${
@@ -163,28 +218,35 @@ console.log(EditData, "EditData");
                       {exam.status || "N/A"}
                     </span>
                   </td>
-                  <td className="d-flex justify-content-center gap-2">
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => viewExam(exam._id)}
-                    >
-                      <i class="fa fa-eye" aria-hidden="true"></i>
-                    </button>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => {
-                        setEditData(exam);
-                        setEditpopup(true);
-                      }}
-                    >
-                      <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => deleteExam(exam._id)}
-                    >
-                      <i class="fa fa-trash-o" aria-hidden="true"></i>
-                    </button>
+                  <td>
+                    <span className="d-flex justify-content-center gap-2">
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => {
+                          setViewPopup(true);
+                          setEditData(exam);
+                          // setViewPopup(true), setEditData(exam);
+                        }}
+                      >
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                      </button>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          // console.log("exam data setting in edit", exam)
+                          setEditData(exam);
+                          setEditpopup(true);
+                        }}
+                      >
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handledeleteExam(exam._id)}
+                      >
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                      </button>
+                    </span>
                   </td>
                 </tr>
               ))
@@ -228,14 +290,15 @@ console.log(EditData, "EditData");
                             className="form-select"
                           >
                             <option value="">Select Exam Type</option>
-
-                            {/* {examTypes &&
-                              examTypes?.map((type) => (
+                            {ExamType?.items?.length > 0 ? (
+                              ExamType?.items?.map((type) => (
                                 <option key={type._id} value={type._id}>
                                   {type?.examTypeName}
                                 </option>
-
-                              ))} */}
+                              ))
+                            ) : (
+                              <option value="">No Exam Type Found</option>
+                            )}
                           </Field>
                         </div>
                         <div className="col-6 mb-3">
@@ -249,10 +312,10 @@ console.log(EditData, "EditData");
                                   label: cls?.className,
                                 }))}
                                 name="class"
-                                value={values.class   .map((s) => ({
+                                value={values.class.map((s) => ({
                                   value: s,
                                   label:
-                                    Class   ?.find((cl) => cl._id === s)
+                                    Class?.find((cl) => cl._id === s)
                                       .className || "Unknown",
                                 }))}
                                 onChange={(selected) =>
@@ -312,23 +375,78 @@ console.log(EditData, "EditData");
                             <h5>Subjects</h5>
                             {values.subjects?.map((_, index) => (
                               <div key={index} className="border p-3 mb-3">
-                                <div className="mb-3">
-                                  <label>Subject</label>
-                                  <Field
-                                    name={`subjects[${index}].subjectName`}
-                                    className="form-select"
-                                    as="select"
-                                  >
-                                    <option value="">
-                                      Select Your Subject
-                                    </option>
-                                    {Subject &&
-                                      Subject?.map((sub) => (
-                                        <option key={sub._id} value={sub._id}>
-                                          {sub.subjectName}
-                                        </option>
-                                      ))}
-                                  </Field>
+                                <div className="row">
+                                  <div className="col-12 mb-3">
+                                    <label>Subject</label>
+                                    <Field
+                                      name={`subjects[${index}].subjectName`}
+                                      className="form-select"
+                                      as="select"
+                                    >
+                                      <option value="">
+                                        Select Your Subject
+                                      </option>
+                                      {Subject &&
+                                        Subject?.map((sub) => (
+                                          <option key={sub._id} value={sub._id}>
+                                            {sub.subjectName}
+                                          </option>
+                                        ))}
+                                    </Field>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col-6 mb-3">
+                                    <label>Type Of Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].typeOfStaff`}
+                                      as="select"
+                                      className="form-select"
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      <option value="TeachingStaff">
+                                        Teacher
+                                      </option>
+                                      <option value="NonTeachingStaff">
+                                        Non-Teaching
+                                      </option>
+                                    </Field>
+                                  </div>
+
+                                  <div className="col-6 mb-3">
+                                    <label>Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].incharge`}
+                                      className="form-control"
+                                      as="select"
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "TeachingStaff" &&
+                                        TeacherData?.map((teacher) => (
+                                          <option
+                                            key={teacher._id}
+                                            value={teacher._id}
+                                          >
+                                            {teacher.fullName.firstName +
+                                              " " +
+                                              teacher.fullName.lastName}
+                                          </option>
+                                        ))}
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "NonTeachingStaff" &&
+                                        NonTeachingStaffData?.map((staff) => (
+                                          <option
+                                            key={staff._id}
+                                            value={staff._id}
+                                          >
+                                            {staff.fullName.firstName +
+                                              " " +
+                                              staff.fullName.lastName}
+                                          </option>
+                                        ))}
+                                    </Field>
+                                  </div>
                                 </div>
 
                                 <div className="row">
@@ -429,8 +547,8 @@ console.log(EditData, "EditData");
                                 ).map((id) => ({
                                   value: id,
                                   label:
-                                    TeacherData.find((t) => t._id === id)?.fullName
-                                      ?.firstName +
+                                    TeacherData.find((t) => t._id === id)
+                                      ?.fullName?.firstName +
                                       " " +
                                       TeacherData.find((t) => t._id === id)
                                         ?.fullName?.lastName || "Unknown",
@@ -553,47 +671,91 @@ console.log(EditData, "EditData");
               <div className="modal-body">
                 <Formik
                   initialValues={{
-                    examType: EditData.examType || "-",
-                    examName: EditData.examName || "-",
-                    examCode: EditData.examCode || "-",
-                    startingDate: EditData.startingDate ? new Date(EditData.startingDate).toLocaleDateString() : "-",
-                    endingDate: EditData.endingDate ? new Date(EditData.endingDate).toLocaleDateString() : "-",
+                    examType: EditData?.examType?.items?._id || "-",
+                    examName: EditData?.examName || "-",
+                    examCode: EditData?.examCode || "-",
+                    startingDate: EditData?.startingDate
+                      ? new Date(EditData.startingDate).toLocaleDateString()
+                      : "-",
+                    endingDate: EditData?.endingDate
+                      ? new Date(EditData.endingDate).toLocaleDateString()
+                      : "-",
                     instituteId: InstituteId,
-                    class: EditData.class || [],
-                    subjects: EditData.subjects || [
-                      {
-                        subjectName: "-",
-                        examDate: "-",
-                        startTime: "-",
-                        endTime: "-",
-                        totalMarks: "-",
-                        passingMarks: "-",
-                        status: "Scheduled",
-                      },
-                    ],
-                    assignedBy: EditData.assignedBy || [],
-                    status: EditData.status || "Upcoming",
-                    totalMarks: EditData.totalMarks || "-",
-                    passingMarks: EditData.passingMarks || "-",
-                    examMode: EditData.examMode || "Offline",
-                    examInstructions: EditData.examInstructions || "-",
+                    class: EditData?.class?.map((c) => c._id) || "-",
+                    subjects:
+                      EditData?.subjects?.map((subject) => ({
+                        subjectName: subject?.subjectName?._id || "-",
+                        examDate: subject?.examDate
+                          ? new Date(subject?.examDate).toLocaleDateString()
+                          : "-",
+                        startTime: subject?.startTime || "-",
+                        endTime: subject?.endTime || "-",
+                        totalMarks: subject?.totalMarks,
+                        passingMarks: subject?.passingMarks,
+                        status: subject?.status,
+                        typeOfStaff: subject?.typeOfStaff,
+                        incharge: subject?.incharge?._id,
+                      })) || "-",
+                    assignedBy: EditData?.assignedBy?._id,
+                    status: EditData?.status || "Upcoming",
+                    totalMarks: EditData?.totalMarks || "-",
+                    passingMarks: EditData?.passingMarks || "-",
+                    examMode: EditData?.examMode || "Offline",
+                    examInstructions: EditData?.examInstructions || "-",
                   }}
                   onSubmit={editExam}
                 >
-                  {({ values, setFieldValue }) => (
+                  {({ values, setFieldValue  }) => (
                     <Form>
                       <div className="row">
                         <div className="col-6 mb-3">
                           <label className="form-label">Exam Type</label>
                           <Field
-                            id="examType"
+                            as="select"
                             name="examType"
                             className="form-control"
-                          />
+                          >
+                            {ExamType?.items?.length > 0 ? (
+                              ExamType?.items?.map((type) => (
+                                <option key={type._id} value={type._id}>
+                                  {type?.examTypeName}
+                                </option>
+                              ))
+                            ) : (
+                              <option value="">No Exam Type Found</option>
+                            )}
+                          </Field>
                         </div>
                         <div className="col-6 mb-3">
                           <label className="form-label">Classes</label>
-                          <Field id="class" name="class" className="form-control" />
+                          <Field
+                            id="class"
+                            name="class"
+                            className="form-control"
+                          >
+                            {({ field }) => (
+                              <Select
+                                isMulti
+                                options={Class?.map((cls) => ({
+                                  value: cls?._id,
+                                  label: cls?.className,
+                                }))}
+                                name="class"
+                                value={values.class.map((s) => ({
+                                  value: s,
+                                  label:
+                                    Class?.find((cl) => cl._id === s)
+                                      .className || "Unknown",
+                                }))}
+                                onChange={(selected) =>
+                                  setFieldValue(
+                                    "class",
+                                    selected.map((s) => s.value)
+                                  )
+                                }
+                              />
+                            )}
+                          </Field>
                         </div>
                       </div>
                       <div className="row">
@@ -618,19 +780,11 @@ console.log(EditData, "EditData");
                       <div className="row">
                         <div className="col-6 mb-3">
                           <label className="form-label">Starting Date</label>
-                          <Field
-                            type="date"
-                            name="startingDate"
-                            className="form-control"
-                          />
+                          <Field name="startingDate" className="form-control" />
                         </div>
                         <div className="col-6 mb-3">
                           <label className="form-label">Ending Date</label>
-                          <Field
-                            type="date"
-                            name="endingDate"
-                            className="form-control"
-                          />
+                          <Field name="endingDate" className="form-control" />
                         </div>
                       </div>
                       <FieldArray name="subjects">
@@ -643,8 +797,82 @@ console.log(EditData, "EditData");
                                   <label>Subject</label>
                                   <Field
                                     name={`subjects[${index}].subjectName`}
-                                    className="form-control"
-                                  />
+                                    className="form-select"
+                                    as="select"
+                                  >
+                                    <option value="">
+                                      Select Your Subject
+                                    </option>
+                                    {Subject &&
+                                      Subject?.map((sub) => (
+                                        <option key={sub._id} value={sub._id}>
+                                          {sub.subjectName}
+                                        </option>
+                                      ))}
+                                  </Field>
+                                </div>
+                                <div className="row">
+                                  <div className="col-6 mb-3">
+                                    <label>Type Of Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].typeOfStaff`}
+                                      as="select"
+                                      className="form-select"
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          `subjects[${index}].typeOfStaff`,
+                                          e.target.value
+                                        );
+                                        console.log(
+                                          "Selected Type of Staff:",
+                                          e.target.value
+                                        );
+                                      }}
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      <option value="TeachingStaff">
+                                        Teacher
+                                      </option>
+                                      <option value="NonTeachingStaff">
+                                        Non-Teaching
+                                      </option>
+                                    </Field>
+                                  </div>
+
+                                  <div className="col-6 mb-3">
+                                    <label>Incharge</label>
+                                    <Field
+                                      name={`subjects[${index}].incharge`}
+                                      className="form-control"
+                                      as="select"
+                                    >
+                                      <option value="">Select Incharge</option>
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "TeachingStaff" &&
+                                        TeacherData?.map((teacher) => (
+                                          <option
+                                            key={teacher._id}
+                                            value={teacher._id}
+                                          >
+                                            {teacher.fullName.firstName +
+                                              " " +
+                                              teacher.fullName.lastName}
+                                          </option>
+                                        ))}
+                                      {values.subjects[index]?.typeOfStaff ===
+                                        "NonTeachingStaff" &&
+                                        NonTeachingStaffData?.map((staff) => (
+                                          <option
+                                            key={staff._id}
+                                            value={staff._id}
+                                          >
+                                            {staff.fullName.firstName +
+                                              " " +
+                                              staff.fullName.lastName}
+                                          </option>
+                                        ))}
+                                    </Field>
+                                  </div>
                                 </div>
 
                                 <div className="row">
@@ -724,11 +952,61 @@ console.log(EditData, "EditData");
                       <div className="row">
                         <div className="col-6 mb-3">
                           <label className="form-label">Assigned By</label>
-                          <Field name="assignedBy" id="assignedBy" className="form-control"/>
+                          <Field name="assignedBy" className="form-select">
+                            {({ field, form }) => (
+                              <Select
+                                isMulti
+                                options={(TeacherData || []).map((t) => ({
+                                  value: t._id,
+                                  label:
+                                    t.fullName.firstName +
+                                    " " +
+                                    t.fullName.lastName,
+                                }))}
+                                name="assignedBy"
+                                value={(Array.isArray(field.value)
+                                  ? field.value
+                                  : []
+                                ).map((id) => ({
+                                  value: id,
+                                  label:
+                                    TeacherData.find((t) => t._id === id)
+                                      ?.fullName?.firstName +
+                                      " " +
+                                      TeacherData.find((t) => t._id === id)
+                                        ?.fullName?.lastName || "Unknown",
+                                }))}
+                                onChange={(selected) =>
+                                  form.setFieldValue(
+                                    "assignedBy",
+                                    selected.map((s) => s.value)
+                                  )
+                                }
+                                placeholder="Select Teacher"
+                                styles={{
+                                  multiValue: (base) => ({
+                                    ...base,
+                                    backgroundColor: "#e0f7fa",
+                                    borderRadius: "5px",
+                                    padding: "1px",
+                                  }),
+                                }}
+                              />
+                            )}
+                          </Field>
                         </div>
                         <div className="col-6 mb-3">
                           <label className="form-label">Status</label>
-                          <Field name="status" className="form-control"></Field>
+                          <Field
+                            as="select"
+                            name="status"
+                            className="form-control"
+                          >
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </Field>
                         </div>
                       </div>
                       <div className="row">
@@ -764,18 +1042,16 @@ console.log(EditData, "EditData");
                           </Field>
                         </div>
                       </div>
-                        <div className="col-12 mb-3">
-                          <label className="form-label">
-                            Exam Instructions
-                          </label>
-                          <Field
-                            as="textarea"
-                            rows="3"
-                            name="examInstructions"
-                            className="form-control"
-                            placeholder="Enter Exam Instructions"
-                          />
-                        </div>
+                      <div className="col-12 mb-3">
+                        <label className="form-label">Exam Instructions</label>
+                        <Field
+                          as="textarea"
+                          rows="3"
+                          name="examInstructions"
+                          className="form-control"
+                          placeholder="Enter Exam Instructions"
+                        />
+                      </div>
                       <div className="modal-footer">
                         <button
                           type="button"
@@ -796,8 +1072,268 @@ console.log(EditData, "EditData");
           </div>
         </div>
       )}
+      {viewPopup && EditData && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title">Edit Exam Details</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setViewPopup(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body">
+                <form>
+                  {/* Exam Type */}
+                  <div className="row">
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Exam Type</label>
+                      <input
+                        name="examType"
+                        id="examType"
+                        className="form-control"
+                        placeholder="Enter Exam Type"
+                        value={EditData?.examType?.examTypeName || ""}
+                        readOnly
+                      />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Classes</label>
+                      <input
+                        name="classes"
+                        id="classes"
+                        className="form-control"
+                        placeholder="Enter Classes"
+                        value={
+                          EditData?.class
+                            ? EditData?.class
+                                .map((item) => item.className)
+                                .join(", ")
+                            : "-"
+                        }
+                        readOnly
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    {/* Exam Name */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Exam Name</label>
+                      <input
+                        id="examName"
+                        name="examName"
+                        className="form-control"
+                        placeholder="Enter Exam Name"
+                        value={EditData?.examName || "-"}
+                        readOnly
+                      />
+                    </div>
+
+                    {/* Exam Code */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Exam Code</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Exam Code"
+                        value={EditData?.examCode || "-"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Starting Date</label>
+                      <input
+                        className="form-control"
+                        value={
+                          EditData?.startingDate
+                            ? new Date(
+                                EditData.startingDate
+                              ).toLocaleDateString()
+                            : "-"
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Ending Date</label>
+                      <input
+                        className="form-control"
+                        value={
+                          EditData?.endingDate
+                            ? new Date(EditData.endingDate).toLocaleDateString()
+                            : "-"
+                        }
+                        readOnly
+                      />
+                    </div>
+                  </div>
+
+                  <div className="">
+                    <h4>Subject</h4>
+                    {/* subject section */}
+                    {EditData?.subjects?.map((subject, index) => (
+                      <div className="border p-3 mt-2 mb-3" key={index}>
+                        <div className="col-12 mb-3">
+                          <label className="form-label">Subject</label>
+                          <input
+                            className="form-control"
+                            value={subject.subjectName.subjectName || "-"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="row">
+                          <div className="col-4 mb-3">
+                            <label className="form-label">Exam Date</label>
+                            <input
+                              className="form-control"
+                              value={
+                                new Date(
+                                  subject.examDate
+                                ).toLocaleDateString() || "-"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-4 mb-3">
+                            <label className="form-label">Start Time</label>
+                            <input
+                              className="form-control"
+                              value={subject.startTime || "-"}
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-4 mb-3">
+                            <label className="form-label">End Time</label>
+                            <input
+                              className="form-control"
+                              value={subject.endTime || "-"}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-6 mb-3">
+                            <label className="form-label">Total Marks</label>
+                            <input
+                              className="form-control"
+                              value={subject.totalMarks || "-"}
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-6 mb-3">
+                            <label className="form-label">Passing Marks</label>
+                            <input
+                              className="form-control"
+                              value={subject.passingMarks || "-"}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )) || "-"}
+                  </div>
+                  <div className="row">
+                    {/* assigned by */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Assigned By</label>
+                      <input
+                        className="form-control"
+                        value={
+                          EditData?.assignedBy?.fullName
+                            ? `${EditData?.assignedBy?.fullName?.firstName} ${EditData?.assignedBy?.fullName?.lastName}`
+                            : "-"
+                        }
+                        readOnly
+                      />
+                    </div>
+                    {/* Satatus */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Exam Status</label>
+                      <input
+                        className="form-control"
+                        value={EditData?.status || "Upcoming"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    {/* total marks */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">Total Marks</label>
+                      <input
+                        className="form-control"
+                        value={EditData?.totalMarks || "-"}
+                        readOnly
+                      />
+                    </div>
+                    {/* passing marks */}
+                    <div className="col-6 mb-3">
+                      <label className="form-label">passing Marks</label>
+                      <input
+                        className="form-control"
+                        value={EditData?.passingMarks || "-"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  {/* exam mode */}
+                  <div className="row">
+                    <div className="mb-3">
+                      <label className="form-label">Exam Mode</label>
+                      <input
+                        className="form-control"
+                        value={EditData?.examMode || "Offline"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  {/* Exam Instructions */}
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Exam Instructions</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      placeholder="Enter Exam Instructions"
+                      value={EditData?.examInstructions || "-"}
+                      readOnly
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setViewPopup(false)}
+                >
+                  Cancel
+                </button>
+                <button type="button" className="btn btn-success">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 export default ExamForm;
