@@ -207,7 +207,7 @@ const Purchase = () => {
                                     <option disabled value="">
                                         Select Purchased by
                                     </option>
-                                    {companyNames.map((company, i) => (
+                                    {companyNames?.map((company, i) => (
                                         <option key={i} value={company._id}>
                                             {company.name || "Unnamed Company"}
                                         </option>

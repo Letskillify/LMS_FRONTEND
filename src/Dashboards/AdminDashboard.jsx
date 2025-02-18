@@ -100,8 +100,15 @@ import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
 import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 import { getCommonCredentials } from '../GlobalHelper/CommonCredentials.jsx'
 import { useFetchInstituteData } from '../Controller/useFetchAllQueries.jsx'
+<<<<<<< HEAD
+import ExpenseGetReceipt from '../Admin Components/Vouchars/ExpenseGetReceipt.jsx'
+import NCERTclass from '../Admin Components/NCRT/NCERTclass.jsx'
+import NCERTsubject from '../Admin Components/NCRT/NCERTsubject.jsx'
+// import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
+=======
 import NoticeBoard from '../Admin Components/Notice Board/NoticeBoard.jsx'
 import LeaveManagement from '../Admin Components/LeaveManagement.jsx'
+>>>>>>> d48587a05b2e58acd65b1dbcd58c8fee280ebadf
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -181,7 +188,7 @@ const AdminDashboard = () => {
                 <Route path="/adminhomework" element={<AdminHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
                 <Route path="/adminexam" element={<ExamForm />}></Route>
-                <Route path="/teacherexam" element={<ExamType />}></Route>
+                <Route path="/teacherexam" element={<ExamType/>}></Route>
                 {/* <Route path="/studentexam" element={<StudentExam />}></Route> */}
                 <Route path="/studymaterial" element={<StudyMaterial />}></Route>
                 {/* <Route path="/addsections" element={<AddSections />}></Route> */}
@@ -195,6 +202,7 @@ const AdminDashboard = () => {
                 {/* <Route path="/classgroup" element={<ClassGroup />}></Route> */}
                 <Route path="/Voucher-purchase" element={<Purchase />}></Route>
                 <Route path="/Vourchar-expense" element={<ExpenseForm />}></Route>
+                <Route path="/Vourchar-expense-get" element={<ExpenseGetReceipt />}></Route>
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
                 <Route path="/course" element={<Course />}></Route>
@@ -205,12 +213,21 @@ const AdminDashboard = () => {
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="settings" element={<Settings />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
+<<<<<<< HEAD
+                <Route path='/leave' element={<Leave/>} />
+                <Route path='/admin-leave' element={<Leaveinstitute/>} />
+                <Route path='/Notification-Board' element={<NotificationBoard/>} />
+                <Route path='/NCERT-class' element={<NCERTclass/>} />
+                <Route path='/NCERT-subject' element={<NCERTsubject/>} />
+=======
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
+>>>>>>> d48587a05b2e58acd65b1dbcd58c8fee280ebadf
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
+              
             </Routes>
             <Footer />
             <div className="content-backdrop fade"></div>
