@@ -111,7 +111,6 @@ import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Class from '../Admin Components/NCRT/NCERTclass.jsx'
 import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
 
-
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
     getCommonCredentials();

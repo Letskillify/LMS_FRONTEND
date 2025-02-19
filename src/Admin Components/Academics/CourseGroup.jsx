@@ -51,6 +51,8 @@ function CourseGroup() {
     const handleDelete = async (id) => {
         try {
             const response = await deleteCourseGroup(id);
+            console.log(response);
+            
             if (response.data.status === 200) {
                 showToast("CourseGroup Deleted Successfully", "success");
             }

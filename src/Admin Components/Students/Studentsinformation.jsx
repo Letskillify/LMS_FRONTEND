@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Profile from "../../assets/img/avatars/Profile.webp";
 import { MainContext } from "../../Controller/MainProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -6,6 +6,32 @@ import { toJpeg } from "html-to-image";
 import { DeleteApi } from "../../Custom Hooks/CustomeHook";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import StudentInformationTable from "./components/StudentInformationTable";
+
+const styles = `
+  .modal-body .card {
+    transition: transform 0.2s;
+  }
+  
+  .modal-body .card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .list-unstyled li {
+    transition: background-color 0.2s;
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  .list-unstyled li:hover {
+    background-color: rgba(0,0,0,0.02);
+  }
+  
+  .badge {
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+`;
+
 const Studentsinformation = () => {
   const { StudentData: studentData, Class, Section } = getCommonCredentials();
 
@@ -27,6 +53,30 @@ const Studentsinformation = () => {
   const closePopup = () => {
     setPopupData(false);
   };
+
+  const formatAddress = (address) => {
+    if (!address) return '-';
+    if (typeof address === 'string') return address;
+    
+    const {
+      houseNo = '',
+      streetName = '',
+      city = '',
+      pincode = '',
+      state = '',
+      country = ''
+    } = address;
+
+    return [
+      houseNo,
+      streetName,
+      city,
+      state,
+      country,
+      pincode
+    ].filter(Boolean).join(', ') || '-';
+  };
+
   const filterFunction = () => {
     const filteredData = studentData.filter((student) => {
       const campusMatch = mainCampus === "" || student.campus === mainCampus;
@@ -59,14 +109,14 @@ const Studentsinformation = () => {
   // edit Data of Student
 
   const [editedData, setEditedData] = useState({});
-  const handleEdit = (studentId, student, path) => {
-    setEditedData({
-      ...editedData,
-      [studentId]: {
-        ...student,
-      },
+  const handleEdit = (studentId, student) => {
+    Navigate("/editstudents", { 
+      state: { 
+        studentId, 
+        student, 
+        path: window.location.pathname 
+      } 
     });
-    Navigate("/editstudents", { state: { studentId, student, path } });
   };
 
   const handleDeleteAll = async () => {
@@ -81,17 +131,49 @@ const Studentsinformation = () => {
       "Student Deleted successfully"
     );
   };
-  const handleDownload = async (Data) => {
-    const response = await fetch(Data);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = Data.split("/").pop();
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const handleDownload = async (profilePhotoUrl) => {
+    if (!profilePhotoUrl) {
+      alert("No profile photo available to download");
+      return;
+    }
+
+    try {
+      const response = await fetch(profilePhotoUrl);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `profile-photo-${Date.now()}.${blob.type.split('/')[1]}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading profile photo:', error);
+      alert("Failed to download profile photo");
+    }
   };
 
+  const handleViewProfile = (student) => {
+    if (student) {
+      setPopupData(true);
+      setPopupImg(student);
+    }
+  };
+
+  useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
+
+  console.log(popupImg);
+  
   return (
     <>
       <div className="layout-wrapper layout-content-navbar">
@@ -242,9 +324,11 @@ const Studentsinformation = () => {
                 <div className="card">
                   <h5 className="card-header">Students Information</h5>
                   <StudentInformationTable
-                    StudentData={studentData}
-                    // handleViewProfile={handleViewProfile}
-                    // handleApproveRequest={handleApproveRequest}
+                    StudentData={filtereData || studentData}
+                    handleViewProfile={handleViewProfile}
+                    handleEdit={handleEdit}
+                    handleDeleteone={handleDeleteone}
+                    handleDownload={handleDownload}
                   />
                 </div>
               </div>
@@ -254,6 +338,190 @@ const Studentsinformation = () => {
         </div>
         <div className="layout-overlay layout-menu-toggle"></div>
       </div>
+
+      {/* Enhanced responsive profile view modal */}
+      {popupData && (
+        <>
+          <div className="modal-backdrop fade show"></div>
+          <div className="modal show" style={{ display: 'block' }}>
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content">
+                <div className="modal-header text-white">
+                  <h5 className="modal-title ">Student Profile </h5>
+                  <button type="button" className="btn-close " onClick={closePopup}></button>
+                </div>
+                <hr />
+                <div className="modal-body p-4">
+                  {/* Profile Header */}
+                  <div className="row align-items-center mb-4">
+                    <div className="col-lg-3 col-md-4 text-center mb-3 mb-md-0">
+                      <div className="position-relative d-inline-block">
+                        <img 
+                          src={popupImg?.personalDetails?.profilePhoto || "/image/defaultImg.png"} 
+                          alt="Profile" 
+                          className="img-fluid rounded-circle border border-primary"
+                          style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                          onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
+                        />
+                        <span className="position-absolute bottom-0 end-0 p-2 bg-primary rounded-circle">
+                          <i className="bx bxs-user-circle text-white"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-lg-9 col-md-8">
+                      <h3 className="mb-1 text-dark mb-3">
+                        {popupImg?.personalDetails?.firstName} {popupImg?.personalDetails?.lastName}
+                      </h3>
+                      <div className="d-flex flex-wrap gap-3 mb-3">
+                        <span className="badge bg-primary">Roll ID: {popupImg?.secondaryId}</span>
+                        <span className="badge bg-info">Class: {popupImg?.enrollmentDetails?.class?.className || '-'}</span>
+                        <span className="badge bg-success">Status: {popupImg?.enrollmentDetails?.admissionType || 'Regular'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Information Cards */}
+                  <div className="row g-3">
+                    {/* Personal Details Card */}
+                    <div className="col-md-6">
+                      <div className="card h-100 border-0 shadow-sm">
+                        <div className="card-header bg-light">
+                          <h5 className="card-title mb-0">
+                            <i className="bx bxs-user-detail me-2 text-primary"></i>
+                            Personal Details
+                          </h5>
+                        </div>
+                        <div className="card-body">
+                          <ul className="list-unstyled mb-0">
+                            <li className="mb-2">
+                              <i className="bx bxs-calendar me-2 text-muted"></i>
+                              <strong>Date of Birth:</strong> {popupImg?.personalDetails?.dateOfBirth ? 
+                                new Date(popupImg.personalDetails.dateOfBirth).toLocaleDateString() : '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bx-male-female me-2 text-muted"></i>
+                              <strong>Gender:</strong> {popupImg?.personalDetails?.gender || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bx-droplet me-2 text-muted"></i>
+                              <strong>Blood Group:</strong> {popupImg?.personalDetails?.bloodGroup || '-'}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Information Card */}
+                    <div className="col-md-6">
+                      <div className="card h-100 border-0 shadow-sm">
+                        <div className="card-header bg-light">
+                          <h5 className="card-title mb-0">
+                            <i className="bx bxs-contact me-2 text-primary"></i>
+                            Contact Information
+                          </h5>
+                        </div>
+                        <div className="card-body">
+                          <ul className="list-unstyled mb-0">
+                            <li className="mb-2">
+                              <i className="bx bxs-envelope me-2 text-muted"></i>
+                              <strong>Email:</strong> {popupImg?.contactInfo?.email || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-phone me-2 text-muted"></i>
+                              <strong>Phone:</strong> {popupImg?.contactInfo?.phone || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-map me-2 text-muted"></i>
+                              <strong>Address:</strong> {formatAddress(popupImg?.contactInfo?.address)}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Parent Details Card */}
+                    <div className="col-md-6">
+                      <div className="card h-100 border-0 shadow-sm">
+                        <div className="card-header bg-light">
+                          <h5 className="card-title mb-0">
+                            <i className="bx bxs-family me-2 text-primary"></i>
+                            Parent Details
+                          </h5>
+                        </div>
+                        <div className="card-body">
+                          <ul className="list-unstyled mb-0">
+                            <li className="mb-2">
+                              <i className="bx bx-male me-2 text-muted"></i>
+                              <strong>Father's Name:</strong> {popupImg?.parentDetails?.Father?.name || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-phone me-2 text-muted"></i>
+                              <strong>Father's Contact:</strong> {popupImg?.parentDetails?.Father?.contactNumber || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bx-female me-2 text-muted"></i>
+                              <strong>Mother's Name:</strong> {popupImg?.parentDetails?.Mother?.name || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-phone me-2 text-muted"></i>
+                              <strong>Mother's Contact:</strong> {popupImg?.parentDetails?.Mother?.contactNumber || '-'}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Academic Details Card */}
+                    <div className="col-md-6">
+                      <div className="card h-100 border-0 shadow-sm">
+                        <div className="card-header bg-light">
+                          <h5 className="card-title mb-0">
+                            <i className="bx bxs-graduation me-2 text-primary"></i>
+                            Academic Details
+                          </h5>
+                        </div>
+                        <div className="card-body">
+                          <ul className="list-unstyled mb-0">
+                            <li className="mb-2">
+                              <i className="bx bxs-school me-2 text-muted"></i>
+                              <strong>Class:</strong> {popupImg?.className || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-category me-2 text-muted"></i>
+                              <strong>Section:</strong> {popupImg?.section || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-buildings me-2 text-muted"></i>
+                              <strong>Campus:</strong> {popupImg?.campus || '-'}
+                            </li>
+                            <li className="mb-2">
+                              <i className="bx bxs-user-badge me-2 text-muted"></i>
+                              <strong>Status:</strong> {popupImg?.enrollmentDetails?.admissionType || 'Regular'}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="modal-footer border-top">
+                  <button type="button" className="btn btn-danger" onClick={closePopup}>
+                    <i className="bx bx-x me-1"></i>Close
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    onClick={() => handleEdit(popupImg._id, popupImg)}
+                  >
+                    <i className="bx bx-edit me-1"></i>Edit Profile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };
