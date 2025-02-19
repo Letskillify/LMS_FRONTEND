@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import GlobalTable from "../../../GlobalComponents/GlobalTable";
 
 const StudentTable = ({ StudentData, StudentDataShow, handleEdit, handleDeleteone }) => {
+  console.log(StudentData, "StudentDataShow");
+  
   const headers = [
     "Roll ID",
     "Profile",

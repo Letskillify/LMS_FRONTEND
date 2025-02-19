@@ -177,18 +177,13 @@ const validationSchema = Yup.object({
         .min(8, "Password must be at least 8 characters"),
 });
 
-
-
 const AdmitStudents = () => {
     const showToast = useGlobalToast();
     const [step, setStep] = useState(1);
     const [message, setmessage] = useState('');
     const [StudentDataShow, setStudentDataShow] = useState(10)
     const Navigate = useNavigate();
-
-
     const { userId, Institute, Class, StudentData } = getCommonCredentials(); 
-
     const [addStudent] = useAddStudentMutation();
     const [addAllStudentsToTrash] = useAddAllStudentsToTrashMutation();
     
@@ -257,12 +252,8 @@ const AdmitStudents = () => {
                 console.error("Error uploading file:", error);
             });
     };
-
-
-
     const handleNext = () => setStep((prev) => prev + 1);
     const handlePrevious = () => setStep((prev) => prev - 1);
-
     const initialValues = {
         instituteId: userId,
         personalDetails: {
@@ -394,14 +385,6 @@ const AdmitStudents = () => {
         },
         loginPassword: "",
     };
-
-
-
-
-
-
-
-
     const handleSubmit = async (values) => {
         const data = {
             ...values,
@@ -436,19 +419,15 @@ const AdmitStudents = () => {
             }
         }
     };
-
     // Delete ALL Data function
     const handleDeleteAll = async () => {
         await addAllStudentsToTrash({ instituteId: userId });
     };
-
     const handleDeleteone = async (id) => {
         await DeleteApi(`/api/student/add-trash/${id}`, 'Student Deleted successfully');
         // fetchStudentData();
         // fetchTrashData();
     };
-
-
     const [editedData, setEditedData] = useState({});
     const handleEdit = (studentId, student) => {
         setEditedData({
@@ -459,8 +438,6 @@ const AdmitStudents = () => {
         });
         Navigate("/editstudents", { state: { studentId, student } });
     };
-
-
     return (
         <>
             <div>
@@ -536,7 +513,7 @@ const AdmitStudents = () => {
                         <div className="modal-body">
                             <div className="nav-align-top mb-4">
 
-                                <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
+                                <Formik initialValues={initialValues} onSubmit={handleSubmit} >
                                     {({ values, handleChange, handleBlur, errors, touched }) => (
                                         <Form className="border p-4 shadow rounded bg-white">
                                             {step === 1 && (
@@ -550,8 +527,8 @@ const AdmitStudents = () => {
                                                                 <option value="General">General</option>
                                                                 <option value="Sports">Sports</option>
                                                                 <option value="Management">Management</option>
-                                                                <option value="Sports">Regular</option>
-                                                                <option value="Management">Non Regular</option>
+                                                                <option value="Regular">Regular</option>
+                                                                <option value="NonRegular">Non Regular</option>
                                                             </Field>
                                                             {touched?.enrollmentDetails?.admissionType && errors?.enrollmentDetails?.admissionType && <div className="text-danger">{errors?.enrollmentDetails?.admissionType}</div>}
                                                         </div>
