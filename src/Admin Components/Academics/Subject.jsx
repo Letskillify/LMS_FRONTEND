@@ -226,8 +226,8 @@ function Subject() {
                     ) : (
                       <p className="text-center">No subjects available.</p>
                     )}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
               </div>
             </div>
           </div>

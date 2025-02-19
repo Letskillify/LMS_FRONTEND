@@ -38,8 +38,6 @@ const ClassHomeWork = () => {
   //   const [deleteHomework] = useDeleteHomeworkMutation();
 
   console.log("AssignedHomework", AssignedHomework);
-
-
   useEffect(() => {
     if (AssignedHomework) {
       setAllData(AssignedHomework);
@@ -453,6 +451,7 @@ const ClassHomeWork = () => {
                           >
                             <i className="fa fa-trash-o" aria-hidden="true"></i>
                           </button>
+
                         </span>
                       </td>
                     </tr>
