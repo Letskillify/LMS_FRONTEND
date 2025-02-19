@@ -20,14 +20,14 @@ const Classes = () => {
     const [updateClass] = useUpdateClassMutation();
     const [deleteClass] = useDeleteClassMutation();
     const initialValues = {
-        courses: null,
-        board: null,
-        courseGroup: null,
-        medium: null,
-        section: null,
-        semester: null,
-        shift: null,
-        stream: null,
+        courses: '',
+        board: '',
+        courseGroup: '',
+        medium: '',
+        section: '',    
+        semester: '',
+        shift: '',
+        stream: '',
         subject: [],
         instituteId: InstituteId,
     };

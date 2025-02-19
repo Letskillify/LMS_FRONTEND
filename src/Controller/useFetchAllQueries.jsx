@@ -115,7 +115,7 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
 
   // Separate useEffect for teacher data
   useEffect(() => {
-    if (teacherQuery.data) {
+    if (teacherQuery?.data) {
       dispatch(setGlobalTeacherData(teacherQuery.data));
     }
   }, [dispatch, teacherQuery.data]);
@@ -142,7 +142,7 @@ export const useFetchInstituteData = (userId, isLogin, token, designation) => {
     if (mediumQuery.data) {
       dispatch(setGlobalMedium(mediumQuery.data));
     }
-  }, [dispatch, mediumQuery.data]);
+  }, [dispatch, mediumQuery?.data]);
 
   useEffect(() => {
     if (sectionQuery.data) {

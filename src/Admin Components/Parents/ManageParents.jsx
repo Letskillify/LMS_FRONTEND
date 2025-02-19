@@ -165,7 +165,7 @@ const ManageParents = () => {
                         <th>Phone</th>
                         {/* <th>ID Card Number</th> */}
                         <th>Qualification</th>
-                        <th>Reset Passwords</th>
+                        <th>Details</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
