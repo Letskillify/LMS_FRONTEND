@@ -10,6 +10,7 @@ import { Bounce, toast } from 'react-toastify';
 import { useGetAllDefaultHolidaysQuery } from '../../Redux/Api/defaultHolidaySlice';
 import { useCreateInstituteHolidayMutation, useDeleteInstituteHolidayMutation, useGetAllInstituteHolidaysQuery, useUpdateInstituteHolidayMutation } from '../../Redux/Api/holidaySlice';
 import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import GlobalTable from '../../GlobalComponents/GlobalTable';
 
 function Holiday() {
 
@@ -109,7 +110,86 @@ function Holiday() {
         }
     };
 
+    const getTableActions = () => [
+        {
+            icon: "fa fa-pencil-square-o",
+            className: "btn-secondary",
+            onClick: (holiday) => { 
+                setPopup(true); 
+                setEdit(holiday.originalData)
+            },
+            label: "Edit Holiday"
+        },
+        {
+            icon: "fa fa-trash",
+            className: "btn-danger",
+            onClick: (holiday) => handleDelete(holiday._id),
+            label: "Delete Holiday"
+        }
+    ];
 
+    const formatTableData = (holidays) => {
+        return holidays?.map(holiday => ({
+            Thumbnail: holiday.thumbnail ? 
+                <img src={holiday.thumbnail} 
+                    onError={(e) => { e.target.src = "/image/defaultImg.png"; }} 
+                    alt="Thumbnail" 
+                    className="img-fluid" 
+                    style={{ maxWidth: '50px' }} 
+                /> : 
+                'No Image',
+            "Holiday Title": holiday.title,
+            "Start Date": holiday.startingDate ? 
+                new Date(holiday.startingDate).toLocaleDateString() : 
+                (holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'),
+            "End Date": holiday.endingDate ? 
+                new Date(holiday.endingDate).toLocaleDateString() : 
+                (holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'),
+            Status: holiday.status || '-',
+            Description: holiday.description,
+            _id: holiday._id,
+            originalData: holiday
+        }));
+    };
+
+    const getDefaultTableActions = () => [
+        {
+            icon: "fa fa-edit",
+            className: "btn-info",
+            onClick: (holiday) => { 
+                setAddHoliday(holiday.originalData); 
+                setDefaultShow(false); 
+            },
+            label: "Use this holiday"
+        }
+    ];
+
+    const formatDefaultTableData = (holidays) => {
+        return holidays?.filter((holiday) => {
+            const search = searchTerm.toLowerCase();
+            return holiday?.title?.toLowerCase()?.includes(search) ||
+                holiday?.description?.toLowerCase()?.includes(search);
+        }).map(holiday => ({
+            Thumbnail: holiday.thumbnail ? 
+                <img src={holiday.thumbnail} 
+                    alt="Thumbnail" 
+                    className="img-fluid" 
+                    style={{ maxWidth: '100px' }} 
+                /> : 
+                '-',
+            "Holiday Title": holiday.title,
+            "Start Date": holiday.startingDate ? 
+                new Date(holiday.startingDate).toLocaleDateString() : 
+                (holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'),
+            "End Date": holiday.endingDate ? 
+                new Date(holiday.endingDate).toLocaleDateString() : 
+                (holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'),
+            Status: holiday.status || '-',
+            Description: holiday.description,
+            originalData: holiday
+        }));
+    };
+console.log(edit);
 
     return (
         <>
@@ -163,12 +243,27 @@ function Holiday() {
                                     </>
                                 )}
                                 <div className={`col-md-6 d-flex align-items-center ${uploadedData?.thumbnail || addHoliday?.thumbnail ? 'mt-4' : ''}`}>
-                                    {(addHoliday?.thumbnail || uploadedData?.thumbnail) && <div className="me-3">
-                                        <img src={uploadedData?.thumbnail || addHoliday?.thumbnail} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '100px' }} />
-                                    </div>}
                                     <div className='w-100'>
                                         <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
-                                        <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleFileUpload(e, "thumbnail")} />
+                                        <div className="d-flex gap-2 align-items-center">
+                                            {(addHoliday?.thumbnail || uploadedData?.thumbnail) && (
+                                                <img 
+                                                    src={uploadedData?.thumbnail || addHoliday?.thumbnail} 
+                                                    onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
+                                                    alt="Thumbnail" 
+                                                    className="img-fluid" 
+                                                    style={{ height: '38px', objectFit: 'contain' }} 
+                                                />
+                                            )}
+                                            <input 
+                                                type="file" 
+                                                className="form-control" 
+                                                id="thumbnail" 
+                                                name="thumbnail" 
+                                                accept="image/*" 
+                                                onChange={(e) => handleFileUpload(e, "thumbnail")} 
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="col-6">
@@ -194,39 +289,15 @@ function Holiday() {
                     </Formik>
                 </div>
                 {/* <!-- Holiday Table --> */}
-                <div className="card p-4 table-responsive">
+                <div className="card p-4">
                     <h4>All Holidays</h4>
-                    <table className="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                                <th className='text-center'>Thumbnail</th>
-                                <th>Holiday Title</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Description</th>
-                                <th>Action</th>
-                            </tr>
-
-                        </thead>
-                        <tbody id="holidayTableBody" >
-                            {holidays?.map((holiday) => (
-                                <tr key={holiday._id} className='align-text-top'>
-                                    <td className='text-center rounded'>{holiday.thumbnail ? <img src={holiday.thumbnail} onError={(e) => { e.target.src = "/image/defaultImg.png"; }} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '50px' }} /> : <p>No Image</p>}</td>
-                                    <td>{holiday.title}</td>
-                                    <td>{holiday.startingDate ? new Date(holiday.startingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                    <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                    <td>{holiday.description}</td>
-                                    <td className="d-flex gap-2">
-                                        <button className="btn btn-secondary" onClick={() => { setPopup(true); setEdit(holiday) }}><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                                        <button className="btn btn-danger" onClick={() => handleDelete(holiday._id)}><i className="fa fa-trash" aria-hidden="true"></i></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {holidays?.length === 0 && isLoading && <div className="d-flex mt-5 justify-content-center align-items-center">
-                        <Spinner animation="border" variant="primary" />
-                    </div>}
+                    <GlobalTable 
+                        headers={["Thumbnail", "Holiday Title", "Start Date", "End Date", "Status", "Description"]}
+                        data={formatTableData(holidays)}
+                        actions={getTableActions()}
+                        loading={isLoading}
+                        noDataMessage="No holidays found"
+                    />
                 </div>
                 {defaultShow && (
                     <Modal show={defaultShow} onHide={() => setDefaultShow(false)} size="xl" aria-labelledby="contained-modal-title-vcenter" centered>
@@ -240,38 +311,13 @@ function Holiday() {
                                     <input type="text" className="form-control" placeholder="Search by title or description" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                 </div>
                             </div>
-                            <table className="table table-striped mt-3">
-                                <thead>
-                                    <tr>
-                                        <th>Thumbnail</th>
-                                        <th>Holiday Title</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="holidayTableBody" >
-                                    {defaultHolidays?.filter((holiday) => {
-                                        const search = searchTerm ? searchTerm.toLowerCase() : '';
-                                        return holiday?.title?.toLowerCase()?.includes(search) ||
-                                            holiday?.description?.toLowerCase()?.includes(search);
-                                    })?.map((holiday) => (
-                                        <tr key={holiday._id} className='align-text-top'>
-                                            <td>{holiday.thumbnail ? <img src={holiday.thumbnail} alt="Thumbnail" className="img-fluid" style={{ maxWidth: '100px' }} /> : '-'}</td>
-                                            <td>{holiday.title}</td>
-                                            <td>{holiday.startingDate ? new Date(holiday.startingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                            <td>{holiday.endingDate ? new Date(holiday.endingDate).toLocaleDateString() : '-' || holiday.date ? new Date(holiday.date).toLocaleDateString() : '-'}</td>
-                                            <td>{holiday.description}</td>
-                                            <td onClick={() => { setAddHoliday(holiday); setDefaultShow(false); }} className="fs-4" style={{ cursor: 'pointer' }}>
-                                                <i className="fa fa-edit text-info" aria-hidden="true"></i>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {defaultHolidays.length === 0 && <div className="d-flex mt-5 justify-content-center align-items-center">
-                                <Spinner animation="border" variant="primary" />
-                            </div>}
+                            <GlobalTable 
+                                headers={["Thumbnail", "Holiday Title", "Start Date", "End Date", "Status", "Description"]}
+                                data={formatDefaultTableData(defaultHolidays)}
+                                actions={getDefaultTableActions()}
+                                loading={defaultHolidays.length === 0}
+                                noDataMessage="No default holidays found"
+                            />
                         </Modal.Body>
                     </Modal>
                 )}
@@ -283,65 +329,75 @@ function Holiday() {
                             </div>
                             <Formik
                                 initialValues={{
-                                    institute: userId || '',
-                                    startingDate: edit?.startingDate ? new Date(edit?.startingDate).toISOString().split('T')[0] : '' || '',
-                                    endingDate: edit?.endingDate ? new Date(edit?.endingDate).toISOString().split('T')[0] : '' || '',
-                                    thumbnail: edit?.thumbnail,
-                                    multipleDays: edit?.multipleDays,
-                                    date: edit?.date ? new Date(edit?.date).toISOString().split('T')[0] : '' || '',
-                                    title: edit?.title || '',
-                                    description: edit?.description || '',
-                                    status: edit?.status || '',
+                                    instituteId: userId,
+                                    startingDate: formatDate(edit?.startingDate) || "",
+                                    endingDate: formatDate(edit?.endingDate) || "",
+                                    date: formatDate(edit?.date) || "",
+                                    thumbnail: edit?.thumbnail || "",
+                                    multipleDays: edit?.multipleDays || false,
+                                    title: edit?.title || "",
+                                    description: edit?.description || "",
+                                    status: edit?.status || ""
                                 }}
                                 onSubmit={(values) => handleEdit(values)}
-
-
-                            // validationSchema={{
-                            //     startingDate: Yup.string().required('Starting date is required'),
-                            //     endingDate: Yup.string().required('Ending date is required'),
-                            //     thumbnail: Yup.string().required('Thumbnail is required'),
-                            //     title: Yup.string().required('Title is required'),
-                            //     description: Yup.string().required('Description is required'),
-                            // }}
+                                enableReinitialize={true}
                             >
-                                {({ values }) => (
-                                    <Form action="/api/holidays/add" method="POST" className="row g-3">
+                                {({ values, setFieldValue }) => (
+                                    <Form className="row g-3">
+                                        <div className="col-md-6">
+                                            <label htmlFor="title" className="form-label">Holiday Title</label>
+                                            <Field type="text" className="form-control" id="title" name="title" />
+                                        </div>
                                         <div className="col-md-6">
                                             <label htmlFor="multipleDays" className="form-label">Multiple Days</label>
-                                            <Field as="select" className="form-select" id="multipleDays" name="multipleDays" values={edit?.multipleDays}>
+                                            <Field as="select" className="form-select" id="multipleDays" name="multipleDays">
                                                 <option value={false}>No</option>
                                                 <option value={true}>Yes</option>
                                             </Field>
                                         </div>
-                                        {values?.multipleDays == true || values?.multipleDays == "true" ? (
+                                        {values.multipleDays === true || values.multipleDays === "true" ? (
                                             <>
                                                 <div className="col-md-6">
-                                                    <label for="startingDate" className="form-label">Starting Date</label>
-                                                    <Field className="form-control" type="date" id="startingDate" name="startingDate" values={edit?.startingDate} />
+                                                    <label htmlFor="startingDate" className="form-label">Starting Date</label>
+                                                    <Field type="date" className="form-control" id="startingDate" name="startingDate" />
                                                 </div>
                                                 <div className="col-md-6">
-                                                    <label for="endingDate" className="form-label">Ending Date</label>
-                                                    <Field className="form-control" type="date" id="endingDate" name="endingDate" values={edit?.endingDate} />
+                                                    <label htmlFor="endingDate" className="form-label">Ending Date</label>
+                                                    <Field type="date" className="form-control" id="endingDate" name="endingDate" />
                                                 </div>
                                             </>
                                         ) : (
-                                            <>
-                                                <div className="col-md-6">
-                                                    <label for="date" className="form-label">Date</label>
-                                                    <Field className="form-control" type="date" id="date" name="date" values={edit?.date} />
-                                                </div>
-                                            </>
+                                            <div className="col-md-6">
+                                                <label htmlFor="date" className="form-label">Date</label>
+                                                <Field type="date" className="form-control" id="date" name="date" />
+                                            </div>
                                         )}
-                                        <div className="col-md-6">
-                                            <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
-                                            <input type="file" className="form-control" id="thumbnail" name="thumbnail" accept="image/*" onChange={(e) => handleFileUpload(e, "thumbnail")} />
+                                        <div className={`col-md-6 d-flex align-items-center ${uploadedData?.thumbnail || edit?.thumbnail ? 'mt-4' : ''}`}>
+                                            <div className='w-100'>
+                                                <label htmlFor="thumbnail" className="form-label">Thumbnail (Upload)</label>
+                                                <div className="d-flex gap-2 align-items-center">
+                                                    {(edit?.thumbnail || uploadedData?.thumbnail) && (
+                                                        <img 
+                                                            src={uploadedData?.thumbnail || edit?.thumbnail} 
+                                                            onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
+                                                            alt="Thumbnail" 
+                                                            className="img-fluid" 
+                                                            style={{ height: '38px', objectFit: 'contain' }} 
+                                                        />
+                                                    )}
+                                                    <input 
+                                                        type="file" 
+                                                        className="form-control" 
+                                                        id="thumbnail" 
+                                                        name="thumbnail" 
+                                                        accept="image/*" 
+                                                        onChange={(e) => handleFileUpload(e, "thumbnail")} 
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label for="title" className="form-label">Holiday Title</label>
-                                            <Field className="form-control" id="title" name="title" placeholder="Enter title" values={edit?.title} />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label for="status" className="form-label">Status</label>
+                                            <label htmlFor="status" className="form-label">Status</label>
                                             <Field as="select" className="form-select" id="status" name="status">
                                                 <option value="">Select Status</option>
                                                 <option value="Holiday">Holiday</option>
@@ -352,20 +408,25 @@ function Holiday() {
                                             </Field>
                                         </div>
                                         <div className="col-12">
-                                            <label for="description" className="form-label">Description</label>
-                                            <Field as="textarea" className="form-control" id="description" name="description" rows="3" placeholder="Enter description" values={edit?.description} ></Field>
+                                            <label htmlFor="description" className="form-label">Description</label>
+                                            <Field 
+                                                as="textarea" 
+                                                className="form-control" 
+                                                id="description" 
+                                                name="description" 
+                                                rows="3" 
+                                                placeholder="Enter description"
+                                            />
                                         </div>
                                         <div className="col-12">
-                                            <button type="submit" className='btn btn-secondary'>submit</button>
+                                            <button type="submit" className="btn btn-secondary">Update Holiday</button>
                                         </div>
                                     </Form>
                                 )}
                             </Formik>
-
                         </div>
                     </div>
-                )
-                }
+                )}
             </div>
         </>
     )

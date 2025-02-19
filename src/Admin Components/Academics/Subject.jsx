@@ -23,7 +23,6 @@ function Subject() {
   const [popup, setPopup] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedSubject, setSelectedSubject] = useState(null);
-
   const [createSubject] = useCreateSubjectMutation();
   const [updateSubject] = useUpdateSubjectMutation();
   const [deleteSubject] = useDeleteSubjectMutation();
@@ -37,7 +36,7 @@ function Subject() {
       resetForm();
     } catch (err) {
       console.error("Failed to send data:", err);
-      showToast("Error submitting Subject", "error");
+      showToast(err?.data?.message || "Error submitting Subject", "error");
     }
   };
 
@@ -65,11 +64,11 @@ function Subject() {
       if ("data" in response && response.data?.status === 200) {
         showToast("Subject Deleted Successfully", "success");
       } else {
-        throw new Error("Failed to delete subject");
+        showToast(response?.error?.data?.message || "Error deleting Subject", "error");
       }
     } catch (err) {
+      showToast(err?.data?.message || "Error deleting Subject", "error");
       console.error("Failed to delete data:", err);
-      showToast("Error deleting Subject", "error");
     }
   };
 
@@ -193,8 +192,8 @@ function Subject() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSubjects?.items?.length > 0 ? (
-                      filteredSubjects?.items?.map((subject, index) => (
+                    {filteredSubjects?.length >= 0 ? (
+                      filteredSubjects?.map((subject, index) => (
                         <tr key={subject._id}>
                           <td>{index + 1}</td>
                           <td>{subject.subjectName}</td>

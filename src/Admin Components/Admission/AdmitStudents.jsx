@@ -485,7 +485,7 @@ const AdmitStudents = () => {
                 <div className="card m-4">
                     <div className="d-flex justify-content-between text-center">
                         <h5 className="card-header">Students Information</h5>
-                        <p className="btn btn-success m-3" data-bs-toggle="modal" data-bs-target="#modalCenter1">
+                        <p className="btn btn-success m-3 p-2" data-bs-toggle="modal" data-bs-target="#modalCenter1">
                             <i className="tf-icons bx bx-pencil me-1" ></i>
                             Add Student
                         </p>
