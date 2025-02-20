@@ -22,7 +22,7 @@ function BooksList() {
   const [SearchData, setSearchData] = useState([]);
   const [BookLists, setBookLists] = useState([]);
   const { userId, InstituteId } = getCommonCredentials();
-  const { uploadedData, handleImageUpload } = useFileUploader();
+  const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
 
   const validations = Yup.object({
     bookName: Yup.string().required("Book Name is required"),
@@ -100,26 +100,25 @@ function BooksList() {
     availability: "",
     price: "",
     postDate: "",
-    action: "",
-    edition: "",
-    publicationYear: "",
-    genre: "",
-    language: "",
-    description: "",
     coverImageURL: uploadedData?.coverImageURL,
-    issuedCount: "",
-    lastIssuedDate: "",
-    updatedAt: "",
   });
 
   const [popup, setpopup] = useState(false);
+  const [editPopup, setEditPopup] = useState(false);
+  const [editData, setEditData] = useState(initialvalue);
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
 
   const handlepost = async (v, { resetForm }) => {
     const data = { ...v, coverImageURL: uploadedData?.coverImageURL };
     try {
       const response = await addBook(data);
       if (response.data.status === 201) {
-        showToast("Book Added Successfully", "success");
+        showToast(response.data.message || "Book Added Successfully", "success");
         resetForm();
         // fetchData();
         setpopup(false);
@@ -143,18 +142,25 @@ function BooksList() {
       showToast(`Error deleting the book ${error}`, "error");
     }
   };
-  // Handle Form Submit for Update
-  const handleUpdate = async (values, id) => {
+
+  const handleUpdate = async (values) => {
+    console.log("values", values._id);
+
     const data = { ...values, coverImageURL: uploadedData?.coverImageURL };
     try {
-      const response = await updateBookById({ bookId: id, bookData: data });
+      const response = await updateBookById({
+        id: values?._id,
+        bookData: data
+      });
       if (response.data.status === 200) {
-        showToast("Book Updated Successfully", "success");
-        setpopup(false);
+        showToast(response.data.message || "Book Updated Successfully", "success");
+        setEditPopup(false);
+        setUploadedData(null);
+        setEditData(initialvalue);
       }
     } catch (error) {
       console.error("Error updating book:", error);
-      showToast(`Error updating book ${error}`, "error");
+      showToast(`Error updating book ${error}` || "Error updating book", "error");
     }
   };
 
@@ -175,6 +181,7 @@ function BooksList() {
   const tableData = BookLists?.map((item) => ({
     _id: item._id,
     ID: item.secondaryId,
+    Data: item,
     "Book Name": item.bookName,
     "Book No": item.bookNumber,
     Publisher: item.publisher,
@@ -192,7 +199,13 @@ function BooksList() {
       label: "Edit",
       className: "btn-primary",
       icon: "fa fa-edit",
-      onClick: (row) => handlerecoverid(row._id),
+      onClick: (row) => {
+        setEditData({
+          ...row.Data,
+          postDate: formatDateForInput(row.Data.postDate)
+        });
+        setEditPopup(true);
+      },
     },
     {
       label: "Move To Trash",
@@ -346,7 +359,10 @@ function BooksList() {
                 <button
                   type="button"
                   className="btn-close custom-btn-close"
-                  onClick={() => setpopup(false)}
+                  onClick={() => {
+                    setpopup(false);
+                    setUploadedData(null);
+                  }}
                 >
                   <i className="ti ti-box"></i>
                 </button>
@@ -383,8 +399,9 @@ function BooksList() {
                               type="file"
                               className="form-control"
                               name="coverImageURL"
+                              accept="image/*"
                               onChange={(e) =>
-                                handleImageUpload(e, "coverImageURL")
+                                handleFileUpload(e, "coverImageURL")
                               }
                               placeholder="Enter Cover Image URL"
                             />
@@ -545,6 +562,231 @@ function BooksList() {
           </div>
         </div>
         {/* <!-- Add Book --> */}
+
+        {/* Edit Book Modal */}
+        <div
+          className={`modal fade ${editPopup ? "show d-block" : "d-none"}`}
+          style={{ background: "#0000007d" }}
+        >
+          <div className="m-5 p-5 d-flex justify-content-center align-items-center modal-dialog-centered">
+            <div className="modal-content w-75 p-3">
+              <div className="modal-header">
+                <h4 className="modal-title">Edit Book</h4>
+                <button
+                  type="button"
+                  className="btn-close custom-btn-close"
+                  onClick={() => {
+                    setEditPopup(false);
+                    setUploadedData(null);
+                    setEditData(initialvalue);
+                  }}
+                >
+                  <i className="ti ti-box"></i>
+                </button>
+              </div>
+
+              <Formik
+                initialValues={editData}
+                onSubmit={handleUpdate}
+                validationSchema={validations}
+                enableReinitialize={true}
+              >
+                {({ errors, resetForm }) => (
+                  <Form>
+                    <div className="modal-body">
+                      <div className="row">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Book Name</label>
+                            <Field
+                              type="text"
+                              name="bookName"
+                              className="form-control"
+                              placeholder="Enter Book Name"
+                            />
+                            <div className="text-danger">{errors?.bookName}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Cover Image</label>
+                            <div className="d-flex align-items-center gap-3">
+                              {editData.coverImageURL && (
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src={uploadedData?.coverImageURL || editData.coverImageURL}
+                                    alt="Book Cover"
+                                    style={{
+                                      height: "70px",
+                                      width: "55px",
+                                      objectFit: "cover",
+                                      borderRadius: "4px"
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              <div className="flex-grow-1">
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  accept="image/*"
+                                  onChange={(e) => handleFileUpload(e, "coverImageURL")}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Book Number</label>
+                            <Field
+                              type="number"
+                              name="bookNumber"
+                              className="form-control"
+                              placeholder="Enter Book Number"
+                            />
+                            <div className="text-danger">{errors?.bookNumber}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Publisher</label>
+                            <Field
+                              type="text"
+                              name="publisher"
+                              className="form-control"
+                              placeholder="Enter Publisher"
+                            />
+                            <div className="text-danger">{errors?.publisher}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Author</label>
+                            <Field
+                              type="text"
+                              name="author"
+                              className="form-control"
+                              placeholder="Enter Author"
+                            />
+                            <div className="text-danger">{errors?.author}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Subject</label>
+                            <Field
+                              type="text"
+                              name="subject"
+                              className="form-control"
+                              placeholder="Enter Subject"
+                            />
+                            <div className="text-danger">{errors?.subject}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Rack No</label>
+                            <Field
+                              type="number"
+                              name="rackNo"
+                              className="form-control"
+                              placeholder="Enter Rack No"
+                            />
+                            <div className="text-danger">{errors?.rackNo}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Quantity</label>
+                            <Field
+                              type="number"
+                              name="quantity"
+                              className="form-control"
+                              placeholder="Enter Quantity"
+                            />
+                            <div className="text-danger">{errors?.quantity}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Availability</label>
+                            <Field
+                              as="select"
+                              name="availability"
+                              className="form-control"
+                            >
+                              <option value="">Select</option>
+                              <option value="true">Yes</option>
+                              <option value="false">No</option>
+                            </Field>
+                            <div className="text-danger">{errors?.availability}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Price</label>
+                            <Field
+                              type="number"
+                              name="price"
+                              className="form-control"
+                              placeholder="Enter Price"
+                            />
+                            <div className="text-danger">{errors?.price}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Post Date</label>
+                            <Field
+                              type="date"
+                              name="postDate"
+                              className="form-control"
+                              value={formatDateForInput(editData.postDate)}
+                              readOnly={true}
+                              disabled={true}
+                              style={{ backgroundColor: '#e9ecef' }}
+                            />
+                            <div className="text-danger">{errors?.postDate}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end m-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          resetForm();
+                          setEditPopup(false);
+                          setUploadedData(null);
+                          setEditData(initialvalue);
+                        }}
+                        className="btn btn-transparent border-primary me-3"
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" className="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+          </div>
+        </div>
+
       </div>
       {/* <!-- /Main Wrapper --> */}
     </>

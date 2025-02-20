@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import GlobalTable from "../../../GlobalComponents/GlobalTable";
 
 const StudentTable = ({ StudentData, StudentDataShow, handleEdit, handleDeleteone }) => {
+  console.log(StudentData, "StudentDataShow");
+  
   const headers = [
     "Roll ID",
     "Profile",
@@ -16,8 +18,10 @@ const StudentTable = ({ StudentData, StudentDataShow, handleEdit, handleDeleteon
   ];
 
   const data = StudentData?.slice(0, StudentDataShow)?.map((student) => ({
+    _id: student._id,
+    data: student,
     "Roll ID": (
-      <Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link>
+      <Link to={`/studentdetail/${student?.secondaryId}`}>{student?.secondaryId}</Link>
     ),
     Profile: (
       <img
@@ -44,13 +48,13 @@ const StudentTable = ({ StudentData, StudentDataShow, handleEdit, handleDeleteon
       label: "Edit",
       icon: "bx bx-edit",
       className: "btn btn-success btn-icon rounded-pill me-1",
-      onClick: (row) => handleEdit(row["_id"], row),
+      onClick: (row) => handleEdit(row._id, row.data),
     },
     {
       label: "Delete",
       icon: "bx bx-trash",
       className: "btn btn-danger btn-icon rounded-pill",
-      onClick: (row) => handleDeleteone(row["_id"]),
+      onClick: (row) => handleDeleteone(row?._id),
     },
   ];
 

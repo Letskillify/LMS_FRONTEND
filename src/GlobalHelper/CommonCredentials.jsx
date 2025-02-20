@@ -17,9 +17,10 @@ export const getCommonCredentials = () => {
     const userId = decryptValue(encryptedUserId);
     const designation = decryptValue(encryptedDesignation);
     const Islogin = decryptValue(encryptedIslogin);
-
+    
     return { token, userId, designation, Islogin };
   };
+  // console.log("State", state.globalInstitute);
   const decryptedData = getDecryptedValues();
   return {
     Designation: state.designation || decryptedData.designation,
@@ -27,7 +28,7 @@ export const getCommonCredentials = () => {
     Token: state.globalToken || decryptedData.token,
     userId: state.globalUserId || decryptedData.userId,
     StudentTrash: state.globalStudentTrash,
-    StudentData: state.globalStudentData?.items,
+    StudentData: state.globalStudentData,
     Institute: state.globalInstitute,
     Student: state.globalStudent,
     Teacher: state.globalTeacher,

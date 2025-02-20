@@ -106,11 +106,10 @@ import NCERTsubject from '../Admin Components/NCRT/NCERTsubject.jsx'
 // import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
 import NoticeBoard from '../Admin Components/Notice Board/NoticeBoard.jsx'
 import LeaveManagement from '../Admin Components/LeaveManagement.jsx'
-import Class from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
 import Subjects from '../Admin Components/NCRT/NCRTbooks/Subjects.jsx'
 import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
-import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
-import ApplyLeave from '../Student Components/Leave management/ApplyLeave.jsx'
+import Class from '../Admin Components/NCRT/NCERTclass.jsx'
+import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -217,9 +216,9 @@ const AdminDashboard = () => {
                 <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
                 <Route path="employe-role" element={<EmployeRole/>}></Route>
-                <Route path='/leave' element={<ApplyLeave/>} />
-                <Route path='/admin-leave' element={<LeaveManagement/>} />
-                <Route path='/Notification-Board' element={<NoticeBoard />} />
+                {/* <Route path='/leave' element={<Leave/>} /> */}
+                {/* <Route path='/admin-leave' element={<Leaveinstitute/>} /> */}
+                {/* <Route path='/Notification-Board' element={<NotificationBoard/>} /> */}
                 <Route path='/NCERT-class' element={<NCERTclass/>} />
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />

@@ -12,23 +12,18 @@ import useGlobalToast from "../../GlobalComponents/GlobalToast";
 
 function Medium() {
   const showToast = useGlobalToast();
-  const { userId, Medium, InstituteId } = getCommonCredentials();
-  console.log("userId", InstituteId);
-  
+  const { userId, Medium, InstituteId,StudentData } = getCommonCredentials();
   const [medium, setMedium] = useState([]);
+  console.log("medium", StudentData);  
   const [popup, setPopup] = useState(false);
   const [selectedMedium, setSelectedMedium] = useState(null);
-
   const [createMedium] = useCreateMediumMutation();
   const [updateMedium] = useUpdateMediumMutation();
   const [deleteMedium] = useDeleteMediumMutation();
-
-
-  
   
   useEffect(() => {
     if (Medium) {
-      setMedium(Medium);
+      setMedium(Medium.items);
     }
   }, [Medium]);
 
@@ -39,10 +34,9 @@ function Medium() {
         showToast("Medium Created Successfully", "success");
       }
     } catch (error) {
-      console.error("Error submitting medium:", error);
+      showToast(error.data?.message || "Failed to create medium", "error");
     }
   };
-
   const handleMediumDelete = async (id) => {
     try {
       const response = await deleteMedium(id);
@@ -62,11 +56,6 @@ function Medium() {
       });
       if (response.data.status === 200) {
         showToast("Medium Updated Successfully", "success");
-        // setMedium(
-        //   medium.map((item) =>
-        //     item._id === selectedMedium._id ? { ...item, ...values } : item
-        //   )
-        // );
         setPopup(false);
       }
     } catch (error) {
@@ -162,7 +151,7 @@ function Medium() {
                   </thead>
                   <tbody>
                     {medium?.map((item, index) => (
-                      <tr key={item.id}>
+                      <tr key={item._id}>
                         <th scope="row">{index + 1}</th>
                         <td className="text-capitalize">{item.mediumName}</td>
                         <td>
@@ -212,7 +201,7 @@ function Medium() {
               <div className="modal-body">
                 <Formik
                   initialValues={{
-                    mediumName: selectedMedium.mediumName || "",
+                    mediumName: selectedMedium.mediuamName || "",
                   }}
                   onSubmit={handleMediumEdit}
                 >
@@ -242,3 +231,4 @@ function Medium() {
 }
 
 export default Medium;
+

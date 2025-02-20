@@ -154,7 +154,8 @@ export const apiSlice = createApi({
     "NonTeachingStaff",
     "NCERTBook",
     "AdmissionEnquiry",
-    "Download"
+    "Download",
+    "AssignedHomework",
   ],
   endpoints: () => ({}),
 });
