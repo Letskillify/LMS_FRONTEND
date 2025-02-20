@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const Loader = ({ size = 50, color = "#003467", speed = 0.8 }) => {
+const Loader = ({ size = 30, color = "#003467", speed = 0.8 }) => {
   return (
       <motion.div
         animate={{ rotate: 360 }}

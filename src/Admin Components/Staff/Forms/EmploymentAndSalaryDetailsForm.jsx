@@ -25,11 +25,11 @@ const EmploymentAndSalaryDetailsForm = ({
       const calculatedNetSalary =
         Number(formData.salaryDetails.baseSalary || 0) +
         formData.salaryDetails.allowances.reduce(
-          (acc, curr) => acc + Number(curr.value || 0),
+          (acc, curr) => acc + Number(curr.amount || 0),
           0
         ) -
         formData.salaryDetails.deductions.reduce(
-          (acc, curr) => acc + Number(curr.value || 0),
+          (acc, curr) => acc + Number(curr.amount || 0),
           0
         );
 

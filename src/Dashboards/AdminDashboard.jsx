@@ -226,6 +226,9 @@ const AdminDashboard = () => {
                 <Route path='/NCRT-classes' element={<ClassList/>} />
                 <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} />
+                <Route path='/NCRT-class' element={<Class/>} />
+                {/* <Route path='/NCRT-subject' element={<Subjects/>} />
+                <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
