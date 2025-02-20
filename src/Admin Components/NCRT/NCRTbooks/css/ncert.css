@@ -30,6 +30,7 @@
 
 .main-card-hover:hover {
     background-color: #01376d;
+    scale: 1.05;
 }
 
 
@@ -40,6 +41,11 @@
 
 .subject-card img:hover {
     transform: scale(1.1);
+}
+
+.subject-card:hover{
+    scale: 1.05;
+    transition: all 0.3s ease-in-out;
 }
 
 .book-name {
