@@ -60,7 +60,6 @@ import TeachingStaff from '../Admin Components/Staff/TeachingStaff.jsx'
 import BookListTrash from '../Admin Components/librarys/BookListTrash.jsx'
 import BooksList from '../Admin Components/librarys/BooksList.jsx'
 import Hostel from '../Admin Components/Hostel Management/Hostel.jsx'
-import AdminHomeWork from '../Admin Components/HomeWork Management/AdminHomeWork.jsx'
 import TeacherHomeWork from '../Admin Components/HomeWork Management/TeacherHomeWork.jsx'
 import ExamForm from '../Admin Components/Exam Management/ExamForm.jsx'
 // import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
@@ -110,6 +109,7 @@ import Subjects from '../Admin Components/NCRT/NCRTbooks/Subjects.jsx'
 import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Class from '../Admin Components/NCRT/NCERTclass.jsx'
 import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
+import StudentHomeWork from '../Admin Components/HomeWork Management/StudentHomeWork.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -186,7 +186,7 @@ const AdminDashboard = () => {
                 <Route path="/non-teaching-staff" element={<NonTeachingStaff />}></Route>
                 <Route path="/teaching-staff" element={<TeachingStaff />}></Route>
                 <Route path="/hostelmanage" element={<Hostel />}></Route>
-                <Route path="/adminhomework" element={<AdminHomeWork />}></Route>
+                <Route path="/Student-homework" element={<StudentHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
                 <Route path="/adminexam" element={<ExamForm />}></Route>
                 <Route path="/teacherexam" element={<ExamType/>}></Route>

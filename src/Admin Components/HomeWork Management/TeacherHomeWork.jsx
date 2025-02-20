@@ -6,38 +6,29 @@ import * as Yup from "yup";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import {
   useCreateHomeworkMutation,
-  useGetAllHomeworkQuery,
+  useDeleteHomeworkMutation,
   useGetHomeworkByInstituteQuery,
 } from "../../Redux/Api/HomeworkSlice";
 import { useFileUploader } from "../../Custom Hooks/CustomeHook";
-import { toast } from "react-toastify";
 import html2pdf from 'html2pdf.js';
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import { toast } from "react-toastify";
 
 const ClassHomeWork = () => {
+  const showToast = useGlobalToast();
   const { Class, TeacherData, Course, Subject, InstituteId } =
     getCommonCredentials();
   console.log(InstituteId, "InstituteId");
   const [allData, setAllData] = useState({});
   console.log("allData", allData);
-  const [editingHomework, setEditingHomework] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const { uploadedData, handleFileUpload, isLoading, setUploadedData } = useFileUploader();
-
-  const formatDateForInput = (isoDate) => {
-    const date = new Date(isoDate);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
   const { data: AssignedHomework } = useGetHomeworkByInstituteQuery(InstituteId, {
     skip: !InstituteId,
   });
   const [createHomework] = useCreateHomeworkMutation();
-  //   const [deleteHomework] = useDeleteHomeworkMutation();
-
-  console.log("AssignedHomework", AssignedHomework);
+    const [deleteHomework] =  useDeleteHomeworkMutation();
   useEffect(() => {
     if (AssignedHomework) {
       setAllData(AssignedHomework);
@@ -46,10 +37,9 @@ const ClassHomeWork = () => {
 
   const handleDeleteOne = async (id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:5500/api/homework/add-trash/${id}`
-      );
+      const response = await deleteHomework(id)
       if (response.status === 200) {
+        showToast("Data Delete Successfully", "success");
         setAllData((prevClasses) =>
           prevClasses.filter((item) => item._id !== id)
         );
@@ -57,6 +47,7 @@ const ClassHomeWork = () => {
         console.error("Failed to delete homework:", response.data);
       }
     } catch (error) {
+      showToast("Data Deleting Failed", "error");
       console.error(
         "Error deleting homework:",
         error.response?.data || error.message
@@ -108,7 +99,7 @@ const ClassHomeWork = () => {
     setFieldValue("attachments", updatedAttachments);
   };
 
-  const handleSubmitHomework = async (values, { resetForm }) => {
+  const handleSubmitHomework = async (values, { resetForm }) => { 
     try {
       if (isLoading) {
         toast.warning("Please wait while files are uploading...");
@@ -138,8 +129,6 @@ const ClassHomeWork = () => {
         })
       };
 
-      console.log("Submitting homework with attachments:", homeworkData.attachments);
-
       const response = await createHomework(homeworkData);
       
       if (response.error) {
@@ -158,57 +147,6 @@ const ClassHomeWork = () => {
     } catch (error) {
       console.error("Error adding homework:", error);
       toast.error(error.response?.data?.message || 'Error creating homework');
-    }
-  };
-
-  const handleEditClick = (homework) => {
-    setEditingHomework({
-      ...homework,
-      dueDate: formatDateForInput(homework.dueDate),
-    });
-
-    const editModal = new bootstrap.Modal(
-      document.getElementById("edit_homework_modal")
-    );
-    editModal.show();
-  };
-
-  const handleUpdateHomework = async (values, { resetForm }) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:5500/api/homework/update/${values._id}`,
-        values
-      );
-
-      const updatedHomework = response.data;
-      console.log("Updated Homework:", updatedHomework);
-
-      const fetchHomework = async () => {
-        try {
-          const homeworkResponse = await axios.get(
-            "http://localhost:5500/api/homework/get"
-          );
-          setAllData(homeworkResponse.data);
-        } catch (error) {
-          console.error(
-            "Error fetching updated homework:",
-            error.response?.data || error.message
-          );
-        }
-      };
-
-      fetchHomework();
-
-      resetForm();
-      setEditingHomework(null);
-      const editModal = document.getElementById("edit_homework_modal");
-      const modal = bootstrap.Modal.getInstance(editModal);
-      modal.hide();
-    } catch (error) {
-      console.error(
-        "Error updating homework:",
-        error.response?.data || error.message
-      );
     }
   };
 
@@ -289,7 +227,7 @@ const ClassHomeWork = () => {
       margin: [0.5, 0.5],
       filename: `homework_${homework.title.replace(/\s+/g, '_').toLowerCase()}.pdf`,
       image: { 
-        type: 'jpeg', 
+        type: 'jpeg/png', 
         quality: 0.98
       },
       html2canvas: { 
@@ -438,12 +376,6 @@ const ClassHomeWork = () => {
                             title="Download PDF"
                           >
                             <i className="fa fa-download" aria-hidden="true"></i>
-                          </button>
-                          <button
-                            className="btn btn-warning mx-2"
-                            onClick={() => handleEditClick(item)}
-                          >
-                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
                           </button>
                           <button
                             className="btn btn-danger mx-2"
@@ -798,136 +730,7 @@ const ClassHomeWork = () => {
           </div>
         </div>
       </div>
-
-      {/* <div
-        className="modal fade mt-5 pt-5"
-        id="edit_homework_modal"
-        tabIndex="-1"
-        aria-labelledby="editHomeworkModal"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="editHomeworkModal">
-                Edit Homework
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              {editingHomework && (
-                <Formik
-                  enableReinitialize
-                  initialValues={editingHomework}
-                  // validationSchema={validationSchema}
-                  onSubmit={handleUpdateHomework}
-                >
-                  {({ errors, touched }) => (
-                    <Form>
-                      <div className="row">
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="class" className="form-label">
-                            Class
-                          </label>
-                          <Field
-                            name="assignedTo.class"
-                            className="form-control"
-                          />
-                          {errors.assignedTo?.class &&
-                            touched.assignedTo?.class && (
-                              <div className="text-danger">
-                                {errors.assignedTo.class}
-                              </div>
-                            )}
-                        </div>
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="section" className="form-label">
-                            Section
-                          </label>
-                          <Field
-                            name="assignedTo.section"
-                            className="form-control"
-                          />
-                          {errors.assignedTo?.section &&
-                            touched.assignedTo?.section && (
-                              <div className="text-danger">
-                                {errors.assignedTo.section}
-                              </div>
-                            )}
-                        </div>
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="subject" className="form-label">
-                            Subject
-                          </label>
-                          <Field name="subject" className="form-control" />
-                          {errors.subject && touched.subject && (
-                            <div className="text-danger">{errors.subject}</div>
-                          )}
-                        </div>
-
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="title" className="form-label">
-                            Title
-                          </label>
-                          <Field name="title" className="form-control" />
-                          {errors.title && touched.title && (
-                            <div className="text-danger">{errors.title}</div>
-                          )}
-                        </div>
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="description" className="form-label">
-                            Description
-                          </label>
-                          <Field
-                            as="textarea"
-                            name="description"
-                            className="form-control"
-                          />
-                          {errors.description && touched.description && (
-                            <div className="text-danger">
-                              {errors.description}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mb-3 col-md-6">
-                          <label htmlFor="dueDate" className="form-label">
-                            Due Date
-                          </label>
-                          <Field
-                            name="dueDate"
-                            type="date"
-                            className="form-control"
-                          />
-                          {errors.dueDate && touched.dueDate && (
-                            <div className="text-danger">{errors.dueDate}</div>
-                          )}
-                        </div>
-                      </div>
-                      <button type="submit" className="btn btn-success mx-2">
-                        Update
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger mx-2"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                      >
-                        Close
-                      </button>
-                    </Form>
-                  )}
-                </Formik>
-              )}
-            </div>
-          </div>
-        </div>
-      </div> */}
-    </div>
+     </div>
   );
 };
 
