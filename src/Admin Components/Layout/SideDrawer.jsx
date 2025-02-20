@@ -46,6 +46,9 @@ function SideDrawer() {
     const TimeTableManagement = () => {
         setOpenToggle(OpenToggle === "timetables" ? '' : 'timetables')
     }
+    const TestManagement = () => {
+        setOpenToggle(OpenToggle === "tests" ? '' : 'tests')
+    }
     const handlefeemanagement = () => {
         setOpenToggle(OpenToggle === "feemanagement" ? '' : 'feemanagement')
     }
@@ -66,6 +69,9 @@ function SideDrawer() {
     }
     const time_Table = [
         '/addtimetable'
+    ]
+    const test = [
+        '/addtest'
     ]
     const activeRoutes = [
         '/student-info',
@@ -170,6 +176,7 @@ function SideDrawer() {
     const Vouchers = Voucher_Stock.includes(location.pathname);
     const studentReport = attendance_report.includes(location.pathname);
     const timetable = time_Table.includes(location.pathname);
+    const tests = test.includes(location.pathname);
     const feemanagement = fee_management.includes(location.pathname);
     const Homework = Home_work.includes(location.pathname);
     const Exam = Exam_management.includes(location.pathname);
@@ -579,6 +586,70 @@ function SideDrawer() {
                                 <NavLink activeclassname="active" className="menu-item" to="/addtimetable">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Manage Timetable</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
+
+                        </li>
+                        <li className={`menu-item ${tests ? 'active' : ''} ${OpenToggle == 'tests' ? 'open' : ''}`} id='test' >
+                            <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={TestManagement}>
+                            <i className='menu-icon tf-icons bx bx-clipboard'></i>
+                            <div>Test Management</div>
+                            </a>
+                            <ul className="menu-sub">
+                                {/* <NavLink activeclassname="active" className="menu-item" to="/">
+                                <a href="javascript:void(0);" className="menu-link">
+                                    <div>Add Timetable</div>
+                                </a>
+                            </NavLink> */}
+                                <NavLink activeclassname="active" className="menu-item" to="/testlist">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test List</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Assign Grads</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Mark Entry</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Teacher Remarke</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test Shuedule</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Tabulation Sheet</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Position Holders</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Send Marks By SMS</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Print Marksheet</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test Reports</div>
                                     </a>
                                 </NavLink>
                             </ul>
