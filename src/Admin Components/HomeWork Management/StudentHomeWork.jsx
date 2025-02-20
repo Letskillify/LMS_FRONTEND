@@ -3,14 +3,15 @@ import { useGetHomeworkByInstituteQuery } from "../../Redux/Api/HomeworkSlice";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import { toast } from "react-toastify";
 import html2pdf from "html2pdf.js";
-import { ErrorMessage, Field, Formik, Form } from "formik";
-import * as Yup from "yup";
 import {
   useAddSubmissionMutation,
   useGetSubmissionsByInstituteIdQuery,
 } from "../../Redux/Api/StudentHomeworkSlice";
 import useGlobalToast from "../../GlobalComponents/GlobalToast";
 import { useFileUploader } from "../../Custom Hooks/CustomeHook";
+import GlobalTable from "../../GlobalComponents/GlobalTable";
+import ShowHomework from "./components/ShowHomework";
+import PosthomeWork from "./components/PosthomeWork";
 
 function StudentHomeWork() {
   const showToast = useGlobalToast();
@@ -20,31 +21,27 @@ function StudentHomeWork() {
   const [selectedHomework, setSelectedHomework] = useState(null);
   const { InstituteId, userId } = getCommonCredentials();
   const [popupData, setPopupData] = useState(null);
-  const { data: AssignedHomework } = useGetHomeworkByInstituteQuery(
-    InstituteId,
-    { skip: !InstituteId }
-  );
-  const { data: StudentSubmission } = useGetSubmissionsByInstituteIdQuery(
-    InstituteId,
-    { skip: !InstituteId }
-  );
+  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =
+    useGetHomeworkByInstituteQuery(InstituteId, { skip: !InstituteId });
+  const { data: StudentSubmission, isLoading: isStudentSubmissionLoading } =
+    useGetSubmissionsByInstituteIdQuery(InstituteId, { skip: !InstituteId });
   const [addSubmission] = useAddSubmissionMutation();
   const [viewSubmissionsModal, setViewSubmissionsModal] = useState(false);
-  const [showImagesModal, setShowImagesModal] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState(null);
   useEffect(() => {
     if (StudentSubmission) {
-      setSubmitData(StudentSubmission);
+      setSubmitData(StudentSubmission?.items);
     }
   }, [StudentSubmission]);
   useEffect(() => {
     if (AssignedHomework) {
-      setHomeworks(AssignedHomework);
+      setHomeworks(AssignedHomework?.items);
     }
   }, [AssignedHomework]);
 
   const handleStudenthomework = async (value) => {
     const data = { ...value, fileUrl: uploadedData?.fileUrl };
+    console.log(data);
+    
     try {
       const response = await addSubmission(data);
       if (response.data.status === 201) {
@@ -173,16 +170,47 @@ function StudentHomeWork() {
         toast.error("Error loading images");
       });
   };
-
-const getFileType = (url) => {
+  const getFileType = (url) => {
     if (!url) return null;
-    const extension = url.split('.').pop().toLowerCase();
-    if (extension === 'pdf') return 'pdf';
-    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) return 'image';
-    return 'other';
+    const extension = url.split(".").pop().toLowerCase();
+    if (extension === "pdf") return "pdf";
+    if (["jpg", "jpeg", "png", "gif"].includes(extension)) return "image";
+    return "other";
   };
 
-  return (
+  const headerTable1 = ["Title", "Assigned", "Class", "Date", "Description"];
+  const tableData1 = homeworks?.map((homework) => ({
+    homework: homework,
+    Title: homework.title,
+    Assigned:
+      homework?.assignedBy?.fullName?.firstName +
+        " " +
+        homework?.assignedBy?.fullName?.lastName || "N/A",
+    Class:
+      homework?.assignedTo?.className?.map((c) => c.className).join(", ") ||
+      "N/A",
+    Date: new Date(homework?.dueDate).toLocaleDateString() || "N/A",
+    Description: homework?.assignedTaskdescription || "N/A",
+  }));
+  const actions1 = [
+    {
+      label: "Submit",
+      name: "Submit",
+      className: "btn btn-info mx-2",
+      onClick: (row) => {
+        setPopupData(true);
+        setSelectedHomework(row.homework);
+      },
+    },
+    {
+      label: "Download",
+      className: "btn btn-primary mx-2",
+      icon: "fa fa-download",
+      onClick: (row) => handleDownloadPDF(row.homework),
+    },
+  ];
+
+   return (
     <>
       <div className="page-wrapper container pt-5">
         <div className="content">
@@ -208,305 +236,37 @@ const getFileType = (url) => {
                 className="btn btn-primary"
                 onClick={() => setViewSubmissionsModal(true)}
               >
-                View ubmissions
+                View Submissions
               </button>
             </div>
             <div className="card-body">
-              <div style={{ overflowX: "auto" }}>
-                <table className="table">
-                  <thead>
-                    <tr className="text-center">
-                      <th>Title</th>
-                      <th>Assigned By</th>
-                      <th>Class</th>
-                      <th>Date</th>
-                      <th>Discripton</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {homeworks?.items?.map((item) => (
-                      <tr key={item?._id} className="text-center">
-                        <td>{item?.title || "N/A"}</td>
-                        <td>
-                          {item?.assignedBy?.fullName?.firstName +
-                            " " +
-                            item?.assignedBy?.fullName?.lastName || "N/A"}
-                        </td>
-                        <td>
-                          {item?.assignedTo?.className
-                            ?.map((c) => c.className)
-                            .join(", ") || "N/A"}
-                        </td>
-                        <td>
-                          {new Date(item?.dueDate).toLocaleDateString() ||
-                            "N/A"}
-                        </td>
-                        <td>{item?.assignedTaskdescription || "N/A"}</td>
-                        <td>
-                          <span className="d-flex justify-content-center">
-                            <button
-                              className="btn btn-info mx-2"
-                              onClick={() => {
-                                setPopupData(true);
-                                setSelectedHomework(item);
-                              }}
-                            >
-                              Submit
-                            </button>
-
-                            <button
-                              className="btn btn-primary mx-2"
-                              onClick={() => handleDownloadPDF(item)}
-                              title="Download PDF"
-                            >
-                              <i
-                                className="fa fa-download"
-                                aria-hidden="true"
-                              ></i>
-                            </button>
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <GlobalTable
+                headers={headerTable1}
+                actions={actions1}
+                data={tableData1}
+                loading={
+                  isAssignedHomeworkLoading || isStudentSubmissionLoading
+                }
+                noDataMessage={"No data available"}
+              />
             </div>
           </div>
         </div>
-
-        {popupData && (
-          <div className="modal show d-block" tabIndex="-1">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Submit Homework</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setPopupData(false)}
-                  ></button>
-                </div>
-
-                <Formik
-                  initialValues={{
-                    instituteId: InstituteId,
-                    homeworkId: selectedHomework?._id,
-                    studentId: userId,
-                    fileUrl: "",
-                    feedback: "",
-                  }}
-                  onSubmit={(value) => handleStudenthomework(value)}
-                >
-                  {({}) => (
-                    <Form className="modal-body">
-                      <div className="mb-3">
-                        <label className="form-label">File URL</label>
-                        <input
-                          type="file"
-                          name="fileUrl"
-                          className="form-control"
-                          onChange={(e) => {
-                            handleFileUpload(e, "fileUrl");
-                          }}
-                        />
-                        <ErrorMessage
-                          name="fileUrl"
-                          component="div"
-                          className="text-danger"
-                        />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Feedback</label>
-                        <Field
-                          component="textarea"
-                          name="feedback"
-                          className="form-control"
-                        />
-                        <ErrorMessage
-                          name="feedback"
-                          component="div"
-                          className="text-danger"
-                        />
-                      </div>
-
-                      <div className="modal-footer">
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setPopupData(false)}
-                        >
-                          Close
-                        </button>
-                        <button type="submit" className="btn btn-primary">
-                          Submit
-                        </button>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {viewSubmissionsModal && SubmitData?.items?.length > 0 && (
-          <div className="modal show d-block" tabIndex="-1">
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">My Homework Submissions</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setViewSubmissionsModal(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="table-responsive">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>File</th>
-                          <th>Submission Date</th>
-                          <th>Feedback</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {SubmitData?.items?.map((submission) => (
-                          <tr key={submission._id}>
-                            <td>
-                              <div className="d-flex align-items-center justify-content-between">
-                                <div 
-                                  className="position-relative cursor-pointer"
-                                  onClick={() => {
-                                    setSelectedSubmission(submission);
-                                    setShowImagesModal(true);
-                                  }}
-                                >
-                                  {submission.fileUrl && (
-                                    getFileType(submission.fileUrl) === 'pdf' ? (
-                                      <div className="d-flex align-items-center">
-                                        <i className="fa fa-file-pdf-o fa-2x text-danger"></i>
-                                        <span className="ms-2">View PDF</span>
-                                      </div>
-                                    ) : (
-                                      <div className="d-flex align-items-center">
-                                        <img 
-                                          src={submission.fileUrl || '-'}
-                                          alt="submission preview" 
-                                          style={{ 
-                                            width: '50px', 
-                                            height: '50px', 
-                                            objectFit: 'cover',
-                                            borderRadius: '4px'
-                                          }}
-                                        />
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                                </div>
-                            </td>
-                            <td>{new Date(submission.submissionDate).toLocaleDateString()}</td>
-                            <td>{submission.feedback || "No feedback"}</td>
-                            <td>
-                              <span className="badge bg-success">Submitted</span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setViewSubmissionsModal(false)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showImagesModal && selectedSubmission && (
-          <div className="modal show d-block" tabIndex="-1">
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    {getFileType(selectedSubmission.fileUrl) === 'pdf' 
-                      ? 'PDF Document' 
-                      : 'Submitted Image'
-                    }
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => {
-                      setShowImagesModal(false);
-                      setSelectedSubmission(null);
-                    }}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  {getFileType(selectedSubmission.fileUrl) === 'pdf' ? (
-                    <div className="ratio ratio-16x9" style={{ height: '80vh' }}>
-                      <iframe
-                        src={selectedSubmission.fileUrl}
-                        title="PDF Viewer"
-                        width="100%"
-                        height="100%"
-                        style={{ border: 'none' }}
-                      ></iframe>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <img
-                        src={selectedSubmission.fileUrl}
-                        alt="submission"
-                        className="img-fluid rounded"
-                        style={{
-                          maxHeight: '70vh',
-                          objectFit: 'contain'
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="modal-footer">
-                  <a 
-                    href={selectedSubmission.fileUrl}
-                    download
-                    className="btn btn-primary"
-                  >
-                    <i className="fa fa-download me-2"></i>
-                    Download {getFileType(selectedSubmission.fileUrl) === 'pdf' ? 'PDF' : 'Image'}
-                  </a>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setShowImagesModal(false);
-                      setSelectedSubmission(null);
-                    }}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <PosthomeWork
+        popupData={popupData}
+        setPopupData={setPopupData}
+        selectedHomework={selectedHomework}
+        handleStudenthomework={handleStudenthomework}
+        handleFileUpload={handleFileUpload}
+        />
+        <ShowHomework
+          viewSubmissionsModal={viewSubmissionsModal}
+          SubmitData={SubmitData}
+          setViewSubmissionsModal={setViewSubmissionsModal}
+          getFileType={getFileType}
+        />
       </div>
     </>
   );
 }
-
 export default StudentHomeWork;
