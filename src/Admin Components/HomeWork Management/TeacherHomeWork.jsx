@@ -8,23 +8,16 @@ import {
   useGetHomeworkByInstituteQuery,
 } from "../../Redux/Api/HomeworkSlice";
 import { useFileUploader } from "../../Custom Hooks/CustomeHook";
-import html2pdf from "html2pdf.js";
 import useGlobalToast from "../../GlobalComponents/GlobalToast";
-import { toast } from "react-toastify";
-import PostTeacherHomework from "./components/PostTeacherhomework";
-import GlobalTable from "../../GlobalComponents/GlobalTable";
+import html2pdf from 'html2pdf.js';
 
 const ClassHomeWork = () => {
-  const showToast = useGlobalToast();
   const { InstituteId } = getCommonCredentials() || {};
   console.log(InstituteId, "InstituteId");
   const [allData, setAllData] = useState({});
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
-  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =
-    useGetHomeworkByInstituteQuery(InstituteId, {
-      skip: !InstituteId,
-    });
+  const { uploadedData, handleFileUpload, isLoading, setUploadedData } = useFileUploader();
+  const showToast = useGlobalToast();
 
   const [createHomework] = useCreateHomeworkMutation();
   const [deleteHomework] = useDeleteHomeworkMutation();
@@ -43,8 +36,9 @@ const ClassHomeWork = () => {
         setAllData((prevClasses) =>
           prevClasses.filter((item) => item._id !== id)
         );
+        showToast("Homework deleted successfully!", "success");
       } else {
-        console.error("Failed to delete homework:", response.data);
+        showToast("Failed to delete homework", "error");
       }
     } catch (error) {
       showToast("Data Deleting Failed", "error");
@@ -52,6 +46,7 @@ const ClassHomeWork = () => {
         "Error deleting homework:",
         error.response?.data || error.message
       );
+      showToast("Error deleting homework", "error");
     }
   };
 
@@ -113,7 +108,7 @@ const ClassHomeWork = () => {
   const handleSubmitHomework = async (values, { resetForm }) => {
     try {
       if (isLoading) {
-        toast.warning("Please wait while files are uploading...");
+        showToast("Please wait while files are uploading...", "warning");
         return;
       }
 
@@ -145,11 +140,11 @@ const ClassHomeWork = () => {
       const response = await createHomework(homeworkData);
 
       if (response.error) {
-        toast.error(response.error.message || "Error creating homework");
+        showToast(response.error.message || 'Error creating homework', "error");
         return;
       }
 
-      toast.success("Homework created successfully!");
+      showToast('Homework created successfully!', "success");
       resetForm();
       setSelectedFiles([]);
       // Clear the uploaded data
@@ -159,12 +154,55 @@ const ClassHomeWork = () => {
       modal.hide();
     } catch (error) {
       console.error("Error adding homework:", error);
-      toast.error(error.response?.data?.message || "Error creating homework");
+      showToast(error.response?.data?.message || 'Error creating homework', "error");
+    }
+  };
+
+  const handleEditClick = (homework) => {
+    setEditingHomework({
+      ...homework,
+      dueDate: formatDateForInput(homework.dueDate),
+    });
+
+    const editModal = new bootstrap.Modal(
+      document.getElementById("edit_homework_modal")
+    );
+    editModal.show();
+  };
+
+  const handleUpdateHomework = async (values, { resetForm }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5500/api/homework/update/${values._id}`,
+        values
+      );
+
+      if (response.data) {
+        const homeworkResponse = await axios.get(
+          "http://localhost:5500/api/homework/get"
+        );
+        setAllData(homeworkResponse.data);
+        showToast("Homework updated successfully!", "success");
+
+        resetForm();
+        setEditingHomework(null);
+        const editModal = document.getElementById("edit_homework_modal");
+        const modal = bootstrap.Modal.getInstance(editModal);
+        modal.hide();
+      }
+    } catch (error) {
+      console.error(
+        "Error updating homework:",
+        error.response?.data || error.message
+      );
+      showToast("Error updating homework", "error");
     }
   };
 
   const handleDownloadPDF = (homework) => {
-    const content = document.createElement("div");
+    showToast("Generating PDF...", "info");
+    
+    const content = document.createElement('div');
     content.innerHTML = `
       <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #003467; padding-bottom: 20px;">
@@ -298,12 +336,6 @@ const ClassHomeWork = () => {
       },
     };
 
-    // Generate PDF with loading indicator
-    toast.info("Generating PDF...", {
-      autoClose: false,
-      toastId: "pdfGeneration",
-    });
-
     // Wait for images to load before generating PDF
     const images = content.getElementsByTagName("img");
     const imagePromises = Array.from(images).map((img) => {
@@ -324,19 +356,16 @@ const ClassHomeWork = () => {
           .set(options)
           .save()
           .then(() => {
-            toast.dismiss("pdfGeneration");
-            toast.success("PDF downloaded successfully!");
+            showToast('PDF downloaded successfully!', "success");
           })
-          .catch((error) => {
-            toast.dismiss("pdfGeneration");
-            console.error("Error generating PDF:", error);
-            toast.error("Error downloading PDF");
+          .catch(error => {
+            console.error('Error generating PDF:', error);
+            showToast('Error generating PDF', "error");
           });
       })
-      .catch((error) => {
-        toast.dismiss("pdfGeneration");
-        console.error("Error loading images:", error);
-        toast.error("Error loading images");
+      .catch(error => {
+        console.error('Error loading images:', error);
+        showToast('Error loading images', "error");
       });
   };
 
