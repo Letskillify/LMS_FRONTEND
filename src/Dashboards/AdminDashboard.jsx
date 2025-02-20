@@ -113,6 +113,7 @@ import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
 import TestList from '../Admin Components/TestManagement/TestList.jsx'
 import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
 import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
+import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -226,7 +227,7 @@ const AdminDashboard = () => {
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
-                <Route path='/NCRT-class' element={<Class/>} />
+                <Route path='/NCRT-class' element={<Book/>} />
                 {/* <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
               </Route>

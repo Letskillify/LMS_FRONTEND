@@ -22,23 +22,27 @@ export default function ClassList({
 
   return (
     <div className="container pb-5">
-      <h4 className="fs-1 fw-bold mt-3 text-center">Classes</h4>
+      <h4 style={{ color: "#01376d" }} className="fs-1 fw-bold mt-3 text-center">Classes</h4>
       <div className="row">
         {classes?.map((cls) => (
-          <div
-            key={cls.id}
-            className="col-lg-4 col-md-6 col-sm-12 p-3 cursor-pointer"
-            onClick={() => handleSubject(cls)}
-          >
-            <div className="border border-gray-200 rounded-lg p-4 flex justify-between items-center shadow-sm hover:shadow-md transition">
-              <div>
-                <h2 className="text-blue-600 font-semibold text-lg">
+          <div key={cls.id} className="col-lg-4 col-md-6 col-sm-12 p-3 ">
+            <div
+              style={{ borderRadius: "1rem" }}
+              className="rounded-lg card px-4 position-relative py-4 main-card-hover transition hover:border-gray-500 cursor-pointer"
+              onClick={() => handleSubject(cls)}
+            >
+              <div className="position-relative">
+                <h4 className="text-blue-600 main-card-text mb-0 font-semibold text-lg">
                   {cls.classname}
-                </h2>
-                <p className="text-gray-600 text-sm">
+                </h4>
+                <p className="text-gray-600 main-card-text mb-0 text-sm">
                   Access all subjects and chapters
                 </p>
               </div>
+              <i
+                style={{ fontSize: "30px" }}
+                className="fa fa-arrow-circle-right right-accordion-icon position-absolute p-2 text-white"
+              />
             </div>
           </div>
         ))}
