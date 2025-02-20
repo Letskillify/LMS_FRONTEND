@@ -607,7 +607,7 @@ function SideDrawer() {
                                         <div>Test List</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="/assigngrade">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Assign Grads</div>
                                     </a>

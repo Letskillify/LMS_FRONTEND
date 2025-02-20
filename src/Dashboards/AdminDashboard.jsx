@@ -110,9 +110,10 @@ import Subjects from '../Admin Components/NCRT/NCRTbooks/Subjects.jsx'
 import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Class from '../Admin Components/NCRT/NCERTclass.jsx'
 import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
-import TestList from '../Admin Components/TestManagement/TestList.jsx'
-import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
-import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
+import TestList from '../Admin Components/TestManagement/TestListModule/TestList.jsx'
+import AssignGrade from '../Admin Components/TestManagement/AssignGradeModule/AssignGrade.jsx'
+
+
 
 
 const AdminDashboard = () => {
@@ -235,6 +236,8 @@ const AdminDashboard = () => {
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
               <Route path='/testlist' element={<TestList/>} />
+              <Route path='/assigngrade' element={<AssignGrade/>} />
+             
               
             </Routes>
             <Footer />

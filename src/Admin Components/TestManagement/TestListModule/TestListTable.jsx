@@ -71,7 +71,7 @@ export const TestListTable = ({TestList  ,handleTest ,handleTestEdit}) => {
   ];
 
   const tabledata =
-    TestList?.map((test) => ({
+    TestListData?.map((test) => ({
       "Test Id": test?.testId,
       "Test Name": test?.testName,
       "For Class": test?.class,
