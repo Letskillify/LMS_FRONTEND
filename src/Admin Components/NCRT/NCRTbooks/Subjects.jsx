@@ -25,13 +25,13 @@ const SubjectCard = ({ item, handleClick }) => (
     </div>
     <OverlayTrigger
       placement="top"
-      overlay={<Tooltip>{item?.bookName}</Tooltip>}
+      overlay={<Tooltip>{item?.bookTitle}</Tooltip>}
     >
       <h5
         className="mt-2 book-name text-center text-truncate"
         style={{ width: "200px" }}
       >
-        {item?.bookName}
+        {item?.bookTitle}
       </h5>
     </OverlayTrigger>
   </div>
