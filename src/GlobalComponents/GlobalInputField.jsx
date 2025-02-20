@@ -1,6 +1,7 @@
 import { ErrorMessage, Field } from "formik";
 import React from "react";
 
+
 const InputFieldComponet = ({
   lableName,
   type,
@@ -29,13 +30,16 @@ const InputFieldComponet = ({
               />
             ) : type === "file" ? (
               <>
+
                 <Field
                   onChange={onChange}
                   type={type}
                   id={name}
+                  placeholder={placeholder}
                   name={name}
                   placeholder={placeHolder}
                   className="form-control"
+                  onChange={onChange}
                 />
               </>
             ) : (
