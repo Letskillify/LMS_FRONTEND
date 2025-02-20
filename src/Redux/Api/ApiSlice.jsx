@@ -156,6 +156,7 @@ export const apiSlice = createApi({
     "AdmissionEnquiry",
     "Download",
     "AssignedHomework",
+    "StudentSubmission",
   ],
   endpoints: () => ({}),
 });

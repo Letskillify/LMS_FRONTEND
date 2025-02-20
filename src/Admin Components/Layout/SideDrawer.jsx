@@ -141,7 +141,7 @@ function SideDrawer() {
         '/feecollection'
     ]
     const Home_work = [
-        '/adminhomework',
+        '/Student-homework',
         '/studenthomework',
         '/teacherhomework'
     ]
@@ -381,9 +381,9 @@ function SideDrawer() {
                                 <div>Home Work</div>
                             </a>
                             <ul className="menu-sub">
-                                <NavLink activeclassname="active" className="menu-item" to="/adminhomework">
+                                <NavLink activeclassname="active" className="menu-item" to="/Student-homework">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Admin homeWork</div>
+                                        <div>Student homeWork</div>
                                     </a>
                                 </NavLink>
                                 <NavLink activeclassname="active" className="menu-item" to="/teacherhomework">
