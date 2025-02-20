@@ -1,7 +1,37 @@
-/* .subject-card:hover {
-    transform: scale(1.1);
-    transition: transform 0.3s ease-in-out;
-  } */
+.main-card-hover {
+    /* border: 1px solid #01376d; */
+    transition: all 0.3s ease-in-out;
+}
+
+.main-card-text {
+    color: #01376d;
+}
+
+.main-card-hover {
+    position: relative;
+    overflow: hidden;
+}
+
+.right-accordion-icon {
+    position: absolute;
+    right: -10%;
+    opacity: 0;
+    transition: right 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.main-card-hover:hover .right-accordion-icon {
+    right: 10px;
+    opacity: 1;
+}
+
+.main-card-hover:hover .main-card-text {
+    color: #fff;
+}
+
+.main-card-hover:hover {
+    background-color: #01376d;
+}
+
 
 .subject-card img {
     transition: transform 0.3s ease-in-out;

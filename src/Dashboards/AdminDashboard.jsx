@@ -113,6 +113,7 @@ import StudentHomeWork from '../Admin Components/HomeWork Management/StudentHome
 import TestList from '../Admin Components/TestManagement/TestList.jsx'
 import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
 import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
+import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
 
 
 const AdminDashboard = () => {
@@ -231,6 +232,7 @@ const AdminDashboard = () => {
                 <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} />
                 <Route path='/NCRT-class' element={<Class/>} />
+                <Route path='/NCRT-class' element={<Book/>} />
                 {/* <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
               </Route>
