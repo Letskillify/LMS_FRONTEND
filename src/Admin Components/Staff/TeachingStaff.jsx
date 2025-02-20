@@ -28,7 +28,7 @@ const base_url = import.meta.env.VITE_BASE_URL;
 
 function TeachingStaff() {
   const { InstituteId, userId, TeacherData } = getCommonCredentials();
-
+  console.log("TeacherData", TeacherData);
   const showToast = useGlobalToast();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -115,6 +115,7 @@ function TeachingStaff() {
       ofClass: "",
     },
   });
+  console.log("formData", formData);
   const resetFormData = () => {
     setFormData({
       instituteId: InstituteId,

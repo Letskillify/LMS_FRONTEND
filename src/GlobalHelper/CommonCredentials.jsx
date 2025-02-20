@@ -31,7 +31,7 @@ export const getCommonCredentials = () => {
     Institute: state.globalInstitute,
     Student: state.globalStudent,
     Teacher: state.globalTeacher,
-    TeacherData: state?.globalTeacherData?.items,
+    TeacherData: state?.globalTeacherData,
     NonTeachingStaffData: state?.globalNonTeachingStaffData?.items,
     InstituteId: state.globalInstituteId,
     SidebarOpen: state.globalSidebarOpen,

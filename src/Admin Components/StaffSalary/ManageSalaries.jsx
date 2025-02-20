@@ -22,6 +22,7 @@ const ManageSalaries = () => {
   const {InstituteId: instituteId} = getCommonCredentials();
   const showToast = useGlobalToast();
   const [salaryData, setSalaryData] = useState([]);
+  console.log("salaryData", salaryData);
   const [editMode, setEditMode] = useState(false);
   const [staffToEdit, setStaffToEdit] = useState({});
   const [staffData, setStaffData] = useState([]);
