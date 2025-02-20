@@ -1,7 +1,7 @@
 import { ErrorMessage, Field } from "formik";
 import React from "react";
 
-  const InputFieldComponet = ({ lableName, type, name, options, disabled }) => {
+  const InputFieldComponet = ({ lableName, type, name, options, disabled, placeholder, onChange }) => {
     return (
       <>
         {
@@ -14,8 +14,10 @@ import React from "react";
                 <Field
                   type={type}
                   id={name}
+                  placeholder={placeholder}
                   name={name}
                   className="form-control"
+                  onChange={onChange}
                 />
               ) : (
                 <Field as={type} id={name} name={name} className="form-control">
