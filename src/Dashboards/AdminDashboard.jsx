@@ -110,6 +110,9 @@ import Subjects from '../Admin Components/NCRT/NCRTbooks/Subjects.jsx'
 import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Class from '../Admin Components/NCRT/NCERTclass.jsx'
 import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
+import TestList from '../Admin Components/TestManagement/TestList.jsx'
+import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
+import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -230,6 +233,7 @@ const AdminDashboard = () => {
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
+              <Route path='/testlist' element={<TestList/>} />
               
             </Routes>
             <Footer />
