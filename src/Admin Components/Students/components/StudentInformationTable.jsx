@@ -7,7 +7,6 @@ const StudentInformationTable = ({
   handleViewProfile, 
   handleEdit, 
   handleDeleteone,
-  handleDownload 
 }) => {
   const headers = [
     "Roll ID",
@@ -26,7 +25,7 @@ const StudentInformationTable = ({
     
     return {
       "Roll ID": (
-        <Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link>
+        <Link to={`/studentdetail/${student?.secondaryId}`}>{student?.secondaryId}</Link>
       ),
       "Profile Photo": (
         <img
@@ -72,18 +71,6 @@ const StudentInformationTable = ({
       className: "btn-danger btn-sm me-1",
       onClick: (row) => handleDeleteone(row._id),
     },
-    {
-      label: "Download",
-      icon: "bx bx-download",
-      className: "btn-success btn-sm",
-      onClick: (row) => {
-        if (row._profilePhoto && row._profilePhoto !== "/image/defaultImg.png") {
-          handleDownload(row._profilePhoto);
-        } else {
-          alert("No profile photo available to download");
-        }
-      },
-    }
   ];
 
   return (

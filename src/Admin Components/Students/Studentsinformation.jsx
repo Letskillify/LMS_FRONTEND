@@ -1,40 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
-import Profile from "../../assets/img/avatars/Profile.webp";
-import { MainContext } from "../../Controller/MainProvider";
+import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { toJpeg } from "html-to-image";
 import { DeleteApi } from "../../Custom Hooks/CustomeHook";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 import StudentInformationTable from "./components/StudentInformationTable";
 
-const styles = `
-  .modal-body .card {
-    transition: transform 0.2s;
-  }
-  
-  .modal-body .card:hover {
-    transform: translateY(-2px);
-  }
-  
-  .list-unstyled li {
-    transition: background-color 0.2s;
-    padding: 8px;
-    border-radius: 4px;
-  }
-  
-  .list-unstyled li:hover {
-    background-color: rgba(0,0,0,0.02);
-  }
-  
-  .badge {
-    font-size: 0.9em;
-    font-weight: 500;
-  }
-`;
-
 const Studentsinformation = () => {
   const { StudentData: studentData, Class, Section } = getCommonCredentials();
-
   const Navigate = useNavigate();
   const [mainCampus, setMainCampus] = React.useState("");
   const [className, setClassName] = React.useState("");
@@ -43,12 +14,6 @@ const Studentsinformation = () => {
   const [filtereData, setFiltereData] = useState();
   const [popupData, setPopupData] = useState(false);
   const [popupImg, setPopupImg] = useState();
-
-  const openPopup = (document) => {
-    setPopupData(true);
-    setPopupImg(document);
-    console.log(popupData);
-  };
 
   const closePopup = () => {
     setPopupData(false);
@@ -131,31 +96,7 @@ const Studentsinformation = () => {
       "Student Deleted successfully"
     );
   };
-  const handleDownload = async (profilePhotoUrl) => {
-    if (!profilePhotoUrl) {
-      alert("No profile photo available to download");
-      return;
-    }
-
-    try {
-      const response = await fetch(profilePhotoUrl);
-      if (!response.ok) throw new Error('Failed to fetch image');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `profile-photo-${Date.now()}.${blob.type.split('/')[1]}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading profile photo:', error);
-      alert("Failed to download profile photo");
-    }
-  };
-
+  
   const handleViewProfile = (student) => {
     if (student) {
       setPopupData(true);
@@ -163,16 +104,7 @@ const Studentsinformation = () => {
     }
   };
 
-  useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
-    return () => {
-      document.head.removeChild(styleSheet);
-    };
-  }, []);
-
-  console.log(popupImg);
+console.log(popupImg);
   
   return (
     <>
@@ -328,7 +260,6 @@ const Studentsinformation = () => {
                     handleViewProfile={handleViewProfile}
                     handleEdit={handleEdit}
                     handleDeleteone={handleDeleteone}
-                    handleDownload={handleDownload}
                   />
                 </div>
               </div>
@@ -363,9 +294,6 @@ const Studentsinformation = () => {
                           style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                           onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
                         />
-                        <span className="position-absolute bottom-0 end-0 p-2 bg-primary rounded-circle">
-                          <i className="bx bxs-user-circle text-white"></i>
-                        </span>
                       </div>
                     </div>
                     <div className="col-lg-9 col-md-8">
@@ -399,7 +327,7 @@ const Studentsinformation = () => {
                                 new Date(popupImg.personalDetails.dateOfBirth).toLocaleDateString() : '-'}
                             </li>
                             <li className="mb-2">
-                              <i className="bx bx-male-female me-2 text-muted"></i>
+                              <i className={`bx ${popupImg?.personalDetails?.gender === 'Male' ? 'bx-male' : popupImg?.personalDetails?.gender === 'Female' ? 'bx-female' : 'bx-male-female'} me-2 text-muted`}></i>
                               <strong>Gender:</strong> {popupImg?.personalDetails?.gender || '-'}
                             </li>
                             <li className="mb-2">
@@ -484,15 +412,15 @@ const Studentsinformation = () => {
                           <ul className="list-unstyled mb-0">
                             <li className="mb-2">
                               <i className="bx bxs-school me-2 text-muted"></i>
-                              <strong>Class:</strong> {popupImg?.className || '-'}
+                              <strong>Class:</strong> {popupImg?.enrollmentDetails?.class?.className || '-'}
                             </li>
                             <li className="mb-2">
-                              <i className="bx bxs-category me-2 text-muted"></i>
-                              <strong>Section:</strong> {popupImg?.section || '-'}
+                              <i className="bx bxs-user-check me-2 text-muted"></i>
+                              <strong>Enrollment Status:</strong> {popupImg?.enrollmentDetails?.enrollmentStatus || '-'}
                             </li>
                             <li className="mb-2">
-                              <i className="bx bxs-buildings me-2 text-muted"></i>
-                              <strong>Campus:</strong> {popupImg?.campus || '-'}
+                              <i className="bx bx-calendar me-2 text-muted"></i>
+                              <strong>Admission Date:</strong> {popupImg?.enrollmentDetails?.admissionDate ? new Date(popupImg.enrollmentDetails.admissionDate).toLocaleDateString() : '-'}
                             </li>
                             <li className="mb-2">
                               <i className="bx bxs-user-badge me-2 text-muted"></i>

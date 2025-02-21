@@ -16,12 +16,6 @@ const StudentDetail = () => {
     }
   }, [StudentData, id]);
 
-
-  { console.log(data) }
-
-
-
-
   const handleDownload = async (Data) => {
     const response = await fetch(Data);
     const blob = await response.blob();

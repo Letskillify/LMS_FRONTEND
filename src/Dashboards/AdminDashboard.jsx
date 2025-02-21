@@ -61,9 +61,7 @@ import BookListTrash from '../Admin Components/librarys/BookListTrash.jsx'
 import BooksList from '../Admin Components/librarys/BooksList.jsx'
 import Hostel from '../Admin Components/Hostel Management/Hostel.jsx'
 import TeacherHomeWork from '../Admin Components/HomeWork Management/TeacherHomeWork.jsx'
-import ExamForm from '../Admin Components/Exam Management/ExamForm.jsx'
 // import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
-// import TeacherExam from '../Admin Components/Exam Management/TeacherExam.jsx'
 import StudyMaterial from '../Admin Components/Study Materials/StudyMaterial.jsx'
 import VideoUploaderComponent from '../Admin Components/Test files/VideoUploaderComponent .jsx'
 import FileUploader from '../Admin Components/Test files/FileUploader.jsx'
@@ -114,6 +112,10 @@ import TestList from '../Admin Components/TestManagement/TestList.jsx'
 import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
 import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
 import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
+import AssignExam from '../Admin Components/Exam Management/AssignExam.jsx'
+import ExamDetails from '../Admin Components/Exam Management/ExamDetails.jsx'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -192,9 +194,9 @@ const AdminDashboard = () => {
                 <Route path="/hostelmanage" element={<Hostel />}></Route>
                 <Route path="/Student-homework" element={<StudentHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
-                <Route path="/adminexam" element={<ExamForm />}></Route>
-                <Route path="/teacherexam" element={<ExamType/>}></Route>
-                {/* <Route path="/studentexam" element={<StudentExam />}></Route> */}
+                <Route path="/assignexam" element={<AssignExam />}></Route>
+                <Route path="/examdetails" element={<ExamDetails />}></Route>
+                <Route path="/examtype" element={<ExamType/>}></Route>
                 <Route path="/studymaterial" element={<StudyMaterial />}></Route>
                 {/* <Route path="/addsections" element={<AddSections />}></Route> */}
                 <Route path="/semesters" element={<CreateSemester />}></Route>
@@ -227,6 +229,10 @@ const AdminDashboard = () => {
                 <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
+                <Route path='/NCRT-classes' element={<ClassList/>} />
+                <Route path='/NCRT-subject' element={<Subjects/>} />
+                <Route path='/NCRT-chapters' element={<Chapters/>} />
+                <Route path='/NCRT-class' element={<Class/>} />
                 <Route path='/NCRT-class' element={<Book/>} />
                 {/* <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
@@ -243,6 +249,17 @@ const AdminDashboard = () => {
         </div>
       </div>
       <div className="layout-overlay layout-menu-toggle"></div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   )
 }

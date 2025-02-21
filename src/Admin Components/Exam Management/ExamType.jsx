@@ -27,7 +27,7 @@ function ExamType() {
   const [deleteExamType] = useDeleteExamTypeMutation();
 
   useEffect(() => {
-    setExamType(examTypeData?.items);
+    setExamType(examTypeData);
   }, [examTypeData]);
 
  

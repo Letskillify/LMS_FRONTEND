@@ -146,9 +146,9 @@ function SideDrawer() {
         '/teacherhomework'
     ]
     const Exam_management = [
-        '/adminexam',
-        '/studentexam',
-        '/teacherexam'
+        '/assignexam',
+        '/examdetails',
+        '/examtype'
     ]
     const Academics = [
         '/semesters',
@@ -504,19 +504,19 @@ function SideDrawer() {
                                 <div>Exam Management</div>
                             </a>
                             <ul className="menu-sub">
-                                <NavLink activeclassname="active" className="menu-item" to="/adminexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/assignexam">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Admin Exam</div>
+                                        <div>Assign Exam</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/teacherexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/examtype">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Teacher Exam</div>
+                                        <div>Exam Type</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/studentexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/examdetails">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Student Exam</div>
+                                        <div>Exam Details</div>
                                     </a>
                                 </NavLink>
                             </ul>
