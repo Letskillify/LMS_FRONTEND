@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useDeleteAdmissionEnquiryMutation, useGetAdmissionEnquiriesByInstituteIdQuery, useUpdateAdmissionEnquiryMutation } from "../../Redux/Api/admissionEnquiry";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import EnquiryTable from "./components/AdmissionEnquiryTable";
 
 function AdmissionEnquiry() {
+    const showToast = useGlobalToast();
+    const {InstituteId} = getCommonCredentials();
     const [enquiries, setEnquiries] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [viewEnquiry, setViewEnquiry] = useState(null);
     const [rejectReason, setRejectReason] = useState("");
     const [rejectingEnquiry, setRejectingEnquiry] = useState(null);
 
-    const fetchAdmission = async () => {
-        try {
-            const response = await axios.get('http://localhost:5500/api/admission-enquiry/get');
-            setEnquiries(response.data);
-        } catch (error) {
-            console.error("Error fetching enquiries:", error);
+
+    const {data} = useGetAdmissionEnquiriesByInstituteIdQuery(InstituteId, {
+        skip: !InstituteId,
+    })
+
+    const [updateEnquiry] = useUpdateAdmissionEnquiryMutation();
+    const [deleteAdmissionEnquiry] = useDeleteAdmissionEnquiryMutation();
+
+    useEffect(() => {
+        if (data) {
+            setEnquiries(data?.items);
         }
-    };
+    }, [data]);
 
     const handleAccept = async (enquiry) => {
         try {
-            await axios.post('http://localhost:5500/api/admission-enquiry/accept', { id: enquiry._id });
-            await sendSms(enquiry.phoneNo, `Dear ${enquiry.name}, your admission has been accepted!`);
-            alert(`Accepted and SMS sent to ${enquiry.name}`);
+            const response = await updateEnquiry({ id: enquiry._id, enquiryData: { ...enquiry, status: "approved" } });
+
+            if (response.data.status === 200) {
+                showToast("Enquiry accepted successfully", "success");
+            }
         } catch (error) {
             console.error("Error accepting enquiry:", error);
         }
@@ -29,55 +42,34 @@ function AdmissionEnquiry() {
 
     const handleReject = async () => {
         if (!rejectReason) {
-            alert("Please provide a reason for rejection.");
+            showToast("Please enter a reason for rejection", "error");
             return;
         }
 
         try {
-            await axios.post('http://localhost:5500/api/admission-enquiry/reject', {
-                id: rejectingEnquiry._id,
-                reason: rejectReason,
-            });
-            await sendSms(rejectingEnquiry.phoneNo, `Dear ${rejectingEnquiry.name}, your admission has been rejected. Reason: ${rejectReason}`);
-            alert(`Rejected and SMS sent to ${rejectingEnquiry.name}`);
-            setRejectingEnquiry(null);
-            setRejectReason("");
+            const response = await updateEnquiry({ id: rejectingEnquiry._id, enquiryData: { ...rejectingEnquiry, status: "rejected", rejectReason } });
+
+            if (response.data.status === 200) {
+                showToast("Enquiry rejected successfully", "success");
+            }
         } catch (error) {
             console.error("Error rejecting enquiry:", error);
         }
     };
 
-    const sendSms = async (phoneNumber, message) => {
-        try {
-            await axios.post('http://localhost:5500/api/send-sms', {
-                phoneNumber,
-                message,
-            });
-        } catch (error) {
-            console.error("Error sending SMS:", error);
-        }
-    };
     const handleDeleteEnquiry = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:5500/api/admission-enquiry/delete/${id}`, {
-                headers: { 'Content-Type': 'application/json' },
-            });
+            const response = await deleteAdmissionEnquiry(id);
 
-            if (response.status === 200) {
-                setEnquiries((prevEnquiries) => prevEnquiries.filter((item) => item._id !== id));
-            } else {
-                console.error("Failed to delete enquiry:", response.data);
+            if (response?.data?.status === 200) {
+                showToast("Enquiry deleted successfully", "success");
             }
         } catch (error) {
             console.error("Error deleting enquiry:", error);
         }
     };
 
-    useEffect(() => {
-        fetchAdmission();
-    }, []);
-
-    const filteredEnquiries = enquiries.filter((enquiry) => {
+    const filteredEnquiries = enquiries?.filter((enquiry) => {
         const term = searchTerm.toLowerCase();
         return (
             enquiry.name.toLowerCase().includes(term) ||
@@ -121,50 +113,13 @@ function AdmissionEnquiry() {
                             />
                         </div>
                     </div>
-                    <div className="table-responsive">
-                        <table className="table table-striped table-bordered">
-                            <thead>
-                                <tr className="text-center">
-                                    <th>Name</th>
-                                    <th>Phone No</th>
-                                    <th>Email</th>
-                                    <th>Gender</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredEnquiries.map((enquiry) => (
-                                    <tr key={enquiry._id} className="text-center">
-                                        <td>{enquiry.name}</td>
-                                        <td>{enquiry.phoneNo}</td>
-                                        <td>{enquiry.email}</td>
-                                        <td>{enquiry.gender}</td>
-                                        <td>{enquiry.status}</td>
-                                        <td className="d-flex justify-content-center">
-                                            <button
-                                                className="btn btn-primary btn-sm"
-                                                onClick={() => setViewEnquiry(enquiry)}
-                                            >
-                                                View
-                                            </button>
-                                            <button
-                                                className="btn btn-danger btn-sm mx-2"
-                                                onClick={() => handleDeleteEnquiry(enquiry._id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {filteredEnquiries.length === 0 && (
-                                    <tr>
-                                        <td colSpan="8" className="text-center">No results found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    <div className="card m-4">
+                        <EnquiryTable
+                            filteredEnquiries={filteredEnquiries}
+                            setViewEnquiry={setViewEnquiry}
+                            handleDeleteEnquiry={handleDeleteEnquiry}
+                        />
+                        </div>
                     {viewEnquiry && (
                         <div className="modal show d-block" >
                             <div className="modal-dialog">

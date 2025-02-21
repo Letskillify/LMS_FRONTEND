@@ -3,16 +3,9 @@ import Profile from "../../assets/img/avatars/Profile.webp";
 import { MainContext } from "../../Controller/MainProvider";
 import { Link, useNavigate } from "react-router-dom";
 import { DeleteApi } from "../../Custom Hooks/CustomeHook";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const ManageParents = () => {
-  const {
-    studentData,
-    fetchStudentData,
-    fetchTrashData,
-    handlePrint,
-    printPDF,
-    exportToExcel,
-    handleExportCSV,
-  } = useContext(MainContext);
+  const { StudentData } = getCommonCredentials();
   const [selectedParentDetails, setSelectedParentDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("father");
   const [ParentDataShow, setParentDataShow] = useState(10);
@@ -20,7 +13,7 @@ const ManageParents = () => {
 
   const [search, setSearch] = useState("");
 
-  const filteredData = studentData.filter((student) => {
+  const filteredData = StudentData.filter((student) => {
     const studentName = student?.name?.toLowerCase();
     const parentEmail =
       student?.parentDetails?.Father?.email?.toLowerCase() ||
@@ -53,8 +46,6 @@ const ManageParents = () => {
       `/api/student/add-trash/${id}`,
       "Student Deleted successfully"
     );
-    fetchStudentData();
-    fetchTrashData();
     modalRef.current.style.display = "none";
   };
   const handleViewMore = (parentDetails) => {
@@ -73,8 +64,6 @@ const ManageParents = () => {
       "/api/student/add-all-trash",
       "All students Deleted successfully"
     );
-    fetchStudentData();
-    fetchTrashData();
   };
   return (
     <div className="layout-wrapper layout-content-navbar">
@@ -95,7 +84,7 @@ const ManageParents = () => {
                         onChange={(e) => {
                           const value =
                             e.target.value === ""
-                              ? studentData.length
+                              ? StudentData.length
                               : Number(e.target.value); // Handle "All" option
                           setParentDataShow(value);
                         }}
@@ -138,7 +127,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-success"
-                          onClick={exportToExcel}
                         >
                           <i className="tf-icons bx bxs-file me-1"></i>
                           Excel
@@ -146,7 +134,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-warning"
-                          onClick={handleExportCSV}
                         >
                           <i className="tf-icons bx bxs-file-doc me-1"></i>
                           CSV
@@ -154,7 +141,6 @@ const ManageParents = () => {
                         <button
                           type="button"
                           className="btn btn-info"
-                          onClick={handlePrint}
                         >
                           <i className="tf-icons bx bxs-printer me-1"></i>
                           Print
@@ -179,14 +165,14 @@ const ManageParents = () => {
                         <th>Phone</th>
                         {/* <th>ID Card Number</th> */}
                         <th>Qualification</th>
-                        <th>Reset Passwords</th>
+                        <th>Details</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody className="table-border-bottom-0">
-                      {studentData ? (
+                      {StudentData ? (
                         <>
-                          {(filteredData || studentData)
+                          {(filteredData || StudentData)
                             ?.slice(0, ParentDataShow || [])
                             .map((student) => (
                               <>
@@ -207,7 +193,7 @@ const ManageParents = () => {
                                     {student?.parentDetails?.Father
                                       ?.contactNumber
                                       ? student?.parentDetails?.Father
-                                          ?.contactNumber
+                                        ?.contactNumber
                                       : "No Phone"}
                                   </td>
                                   {/* <td>1367</td> */}
@@ -215,7 +201,7 @@ const ManageParents = () => {
                                     {student?.parentDetails?.Father
                                       ?.qualification
                                       ? student?.parentDetails?.Father
-                                          ?.qualification
+                                        ?.qualification
                                       : "No Qualification"}
                                   </td>
                                   <td>
@@ -355,7 +341,13 @@ const ManageParents = () => {
                                                 />
                                                 <div>
                                                   <h5 className="fw-bold border-bottom pb-2">
-                                                    Connect Student
+                                                    {selectedParentDetails
+                                                      ?.personalDetails
+                                                      ?.firstName +
+                                                      " " +
+                                                      selectedParentDetails
+                                                        ?.personalDetails
+                                                        ?.lastName}
                                                   </h5>
                                                   <div className="text-start overflow-auto">
                                                     <p>
@@ -384,13 +376,13 @@ const ManageParents = () => {
                                                     <p>
                                                       <strong>Gender:</strong>{" "}
                                                       {selectedParentDetails
-                                                        ?.contactInfo?.gender ||
+                                                        ?.personalDetails?.gender ||
                                                         "Not Provided"}
                                                     </p>
                                                     <p>
                                                       <strong>Category:</strong>{" "}
                                                       {selectedParentDetails
-                                                        ?.contactInfo
+                                                        ?.personalDetails
                                                         ?.category ||
                                                         "Not Provided"}
                                                     </p>
@@ -411,11 +403,10 @@ const ManageParents = () => {
                                                 >
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "father"
+                                                      className={`nav-link ${activeTab === "father"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick("father")
                                                       }
@@ -425,11 +416,10 @@ const ManageParents = () => {
                                                   </li>
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "mother"
+                                                      className={`nav-link ${activeTab === "mother"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick("mother")
                                                       }
@@ -439,11 +429,10 @@ const ManageParents = () => {
                                                   </li>
                                                   <li className="nav-item border">
                                                     <button
-                                                      className={`nav-link ${
-                                                        activeTab === "guardian"
+                                                      className={`nav-link ${activeTab === "guardian"
                                                           ? "active"
                                                           : ""
-                                                      }`}
+                                                        }`}
                                                       onClick={() =>
                                                         handleTabClick(
                                                           "guardian"

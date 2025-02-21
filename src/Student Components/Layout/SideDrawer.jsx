@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import black from "../../assets/img/logo_black.svg";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { MainContext } from "../../Controller/MainProvider";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 function SideDrawer() {
   const location = useLocation();
   const [OpenToggle, setOpenToggle] = useState();
   const [SubopenToggle, setSubopenToggle] = useState();
 
-  const { sidebaropen } = useContext(MainContext);
+  const { SidebarOpen } = getCommonCredentials();
   const stutoggle = () => {
     setOpenToggle(OpenToggle === "stuinfo" ? "" : "stuinfo");
   };
@@ -117,7 +117,7 @@ function SideDrawer() {
           height: "100vh",
           width: "auto",
           scrollbarWidth: "thin",
-          transform: sidebaropen ? "none" : "",
+          transform: SidebarOpen ? "none" : "",
         }}
       >
         <div className="bg-themprimary">
@@ -127,9 +127,9 @@ function SideDrawer() {
               <Link to={"/"} className="">
                 <span className="">
                   {/* <img src={black} alt="" style={{ maxHeight: "50px" }} /> */}
-                  <h3 className="fw-bold border border-2 rounded p-3 text-white">
+                  <h3 className="fw-bold border rounded p-3 text-white">
                     School Logo{" "}
-                    <h6 className="mb-0  fw-bold border border-2 rounded-sm mt-2 p-1 text-white">
+                    <h6 className="mb-0  fw-bold border rounded-sm mt-2 p-1 text-white">
                       Student Dashboard
                     </h6>
                   </h3>
@@ -172,14 +172,37 @@ function SideDrawer() {
             <NavLink
               activeclassname="active"
               className="menu-item"
+              to="/noticeboard"
+            >
+              <a href="javascript:void(0);" className="menu-link">
+                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
+                <div>Notice board</div>
+              </a>
+            </NavLink>
+            <NavLink
+              activeclassname="active"
+              className="menu-item"
+              to="/holidays"
+            >
+              <a href="javascript:void(0);" className="menu-link">
+                <i className="menu-icon tf-icons bx bx-calendar" aria-hidden="true"></i>
+                <div>Holiday</div>
+              </a>
+            </NavLink>
+            <NavLink
+              activeclassname="active"
+              className="menu-item"
               to="/studenttransfer"
             >
               <a href="javascript:void(0);" className="menu-link">
-                <i
-                  className="menu-icon  fa fa-video-camera"
-                  aria-hidden="true"
-                ></i>
+                <i className="menu-icon  fa fa-arrow-right" aria-hidden="true"></i>
                 <div>Student Transfer</div>
+              </a>
+            </NavLink>
+            <NavLink className="menu-item" to={'/applyleave'}>
+              <a className="menu-link" href='javascript:void(0);'>
+                <i className='menu-icon tf-icons bx bx-book-reader'></i>
+                <div>Leave Management</div>
               </a>
             </NavLink>
             <NavLink
@@ -189,16 +212,15 @@ function SideDrawer() {
             >
               <a href="javascript:void(0);" className="menu-link">
                 <i
-                  className="menu-icon  fa fa-video-camera"
+                  className="menu-icon  fa fa-book"
                   aria-hidden="true"
                 ></i>
                 <div>Study Material</div>
               </a>
             </NavLink>
             <li
-              className={`menu-item ${Homework ? "active" : ""} ${
-                OpenToggle == "Homework" ? "open" : ""
-              }`}
+              className={`menu-item ${Homework ? "active" : ""} ${OpenToggle == "Homework" ? "open" : ""
+                }`}
               id="timetables"
             >
               <a
@@ -231,9 +253,8 @@ function SideDrawer() {
               </ul>
             </li>
             <li
-              className={`menu-item ${librarypaths ? "active" : ""} ${
-                OpenToggle == "Library" ? "open" : ""
-              }`}
+              className={`menu-item ${librarypaths ? "active" : ""} ${OpenToggle == "Library" ? "open" : ""
+                }`}
               id="Library"
             >
               <a

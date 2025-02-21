@@ -4,183 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from "yup"
 import { EditApi } from '../../Custom Hooks/CustomeHook';
 import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useUpdateStudentByIdMutation } from '../../Redux/Api/studentSlice';
 
-
-const validationSchema = Yup.object({
-    personalDetails: Yup.object({
-        profilePhoto: Yup.mixed().nullable(),
-        firstName: Yup.string().nullable(),
-        lastName: Yup.string().nullable(),
-        dateOfBirth: Yup.date()
-            .nullable()
-            .max(new Date(), "Date of birth cannot be in the future"),
-        gender: Yup.string().nullable(),
-        bloodGroup: Yup.string().nullable(),
-        aadharNo: Yup.string()
-            .nullable()
-            .matches(/^\d{12}$/, "Aadhar number must be 12 digits"),
-        maritalStatus: Yup.string().nullable(),
-        nationality: Yup.string().nullable(),
-        religion: Yup.string().nullable(),
-        category: Yup.string().nullable(),
-        caste: Yup.string().nullable(),
-    }),
-    contactInfo: Yup.object({
-        email: Yup.string()
-            .nullable()
-            .email("Invalid email address"),
-        mobile: Yup.string()
-            .nullable()
-            .matches(/^\d{10}$/, "Mobile number must be 10 digits"),
-        whatsapp: Yup.string()
-            .nullable()
-            .matches(/^\d{10}$/, "WhatsApp number must be 10 digits"),
-        alternateContact: Yup.string().nullable(),
-        address: Yup.object({
-            houseNo: Yup.string().nullable(),
-            streetName: Yup.string().nullable(),
-            city: Yup.string().nullable(),
-            pincode: Yup.string()
-                .nullable()
-                .matches(/^\d{6}$/, "Pincode must be 6 digits"),
-            state: Yup.string().nullable(),
-            country: Yup.string().nullable(),
-        }),
-    }),
-    parentDetails: Yup.object({
-        Father: Yup.object({
-            name: Yup.string().nullable(),
-            qualification: Yup.string().nullable(),
-            residentialAddress: Yup.string().nullable(),
-            occupation: Yup.string().nullable(),
-            officialAddress: Yup.string().nullable(),
-            annualIncome: Yup.string().nullable(),
-            contactNumber: Yup.string()
-                .nullable()
-                .matches(/^\d{10}$/, "Contact number must be 10 digits"),
-            email: Yup.string()
-                .nullable()
-                .email("Invalid email address"),
-        }),
-        Mother: Yup.object({
-            name: Yup.string().nullable(),
-            qualification: Yup.string().nullable(),
-            residentialAddress: Yup.string().nullable(),
-            occupation: Yup.string().nullable(),
-            officialAddress: Yup.string().nullable(),
-            annualIncome: Yup.string().nullable(),
-            contactNumber: Yup.string()
-                .nullable()
-                .matches(/^\d{10}$/, "Contact number must be 10 digits"),
-            email: Yup.string()
-                .nullable()
-                .email("Invalid email address"),
-        }),
-        Guardian: Yup.object({
-            name: Yup.string().nullable(),
-            qualification: Yup.string().nullable(),
-            residentialAddress: Yup.string().nullable(),
-            occupation: Yup.string().nullable(),
-            officialAddress: Yup.string().nullable(),
-            annualIncome: Yup.string().nullable(),
-            contactNumber: Yup.string()
-                .nullable()
-                .matches(/^\d{10}$/, "Contact number must be 10 digits"),
-            email: Yup.string()
-                .nullable()
-                .email("Invalid email address"),
-            relation: Yup.string().nullable(),
-        }),
-    }),
-    academicDetails: Yup.object({
-        previous: Yup.object({
-            rollNo: Yup.string().nullable(),
-            class: Yup.string().nullable(),
-            section: Yup.string().nullable(),
-            stream: Yup.string().nullable(),
-            session: Yup.string().nullable(),
-            schoolName: Yup.string().nullable(),
-            location: Yup.string().nullable(),
-            affilatedTo: Yup.string().nullable(),
-            dropout: Yup.string().nullable(),
-            medium: Yup.string().nullable(),
-            TCno: Yup.string().nullable(),
-            TCissueDate: Yup.date().nullable(),
-            passOutYear: Yup.string()
-                .nullable()
-                .matches(/^\d{4}$/, "Invalid year format"),
-            enrollmentNo: Yup.string().nullable(),
-            percentage: Yup.string()
-                .nullable()
-                .matches(/^\d+(\.\d+)?$/, "Percentage must be a valid number"),
-            marks: Yup.string().nullable(),
-            subjects: Yup.string().nullable(),
-        }),
-    }),
-    enrollmentDetails: Yup.object({
-        admissionType: Yup.string().nullable(),
-        admissionCategory: Yup.string().nullable(),
-        admissionDate: Yup.date().nullable(),
-        enrollmentNO: Yup.string().nullable(),
-        rollNo: Yup.string().nullable(),
-        course: Yup.string().nullable(),
-        courseStream: Yup.string().nullable(),
-        section: Yup.string().nullable(),
-        instituteType: Yup.string().nullable(),
-        instituteName: Yup.string().nullable(),
-        instituteLocation: Yup.string().nullable(),
-        instituteMedium: Yup.string().nullable(),
-        instituteSession: Yup.string().nullable(),
-        boardName: Yup.string().nullable(),
-        location: Yup.string().nullable(),
-        enrollmentStatus: Yup.string().nullable(),
-        admissionNO: Yup.string().nullable(),
-    }),
-    scholarDetails: Yup.object({
-        scholarID: Yup.string().nullable(),
-        scholarshipType: Yup.string().nullable(),
-        scholarpassword: Yup.string()
-            .nullable()
-            .min(8, "Password must be at least 8 characters"),
-        amountApprovalDate: Yup.date().nullable(),
-        govermentStudentPortalID: Yup.string().nullable(),
-        govermentFamilyPortalID: Yup.string().nullable(),
-    }),
-    bankDetails: Yup.object({
-        accountHolderName: Yup.string().nullable(),
-        bankName: Yup.string().nullable(),
-        branchName: Yup.string().nullable(),
-        accountNumber: Yup.string().nullable(),
-        ifscCode: Yup.string()
-            .nullable()
-            .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code"),
-        upiID: Yup.string().nullable(),
-        panNo: Yup.string()
-            .nullable()
-            .matches(/^[A-Z]{5}\d{4}[A-Z]$/, "Invalid PAN number"),
-    }),
-    documents: Yup.object({
-        marksheet: Yup.mixed().nullable(),
-        transferCertificate: Yup.mixed().nullable(),
-        migrationCertificate: Yup.mixed().nullable(),
-        aadharCard: Yup.object({
-            front: Yup.mixed().nullable(),
-            back: Yup.mixed().nullable(),
-        }),
-        PANcard: Yup.object({
-            front: Yup.mixed().nullable(),
-            back: Yup.mixed().nullable(),
-        }),
-        birthCertificate: Yup.mixed().nullable(),
-        scholarship: Yup.mixed().nullable(),
-        casteCertificate: Yup.mixed().nullable(),
-        bankPassbook: Yup.mixed().nullable(),
-        otherCertificate: Yup.array().nullable(),
-    }),
-    loginPassword: Yup.string()
-        .nullable()
-        .min(8, "Password must be at least 8 characters"),
-});
 
 
 const EditStudentData = () => {
@@ -193,8 +19,11 @@ const EditStudentData = () => {
         return <div>No student data available</div>;
     }
 
+    // const { fetchStudentData } = useContext(MainContext)  -->> real time karna hai 
+    const { Class, Institute } = getCommonCredentials();
 
-    const { fetchStudentData } = useContext(MainContext)
+    const [updateStudentById] = useUpdateStudentByIdMutation();
+
 
     const initialValues = {
         personalDetails: {
@@ -288,16 +117,8 @@ const EditStudentData = () => {
                 : '',
             enrollmentNO: student?.enrollmentDetails?.enrollmentNO,
             rollNo: student?.enrollmentDetails?.rollNo,
-            course: student?.enrollmentDetails?.course,
-            courseStream: student?.enrollmentDetails?.courseStream,
-            section: student?.enrollmentDetails?.section,
             instituteType: student?.enrollmentDetails?.instituteType,
-            instituteName: student?.enrollmentDetails?.instituteName,
-            instituteLocation: student?.enrollmentDetails?.instituteLocation,
-            instituteMedium: student?.enrollmentDetails?.instituteMedium,
-            instituteSession: student?.enrollmentDetails?.instituteSession,
-            boardName: student?.enrollmentDetails?.boardName,
-            location: student?.enrollmentDetails?.location,
+            class: student?.enrollmentDetails?.class,
             enrollmentStatus: student?.enrollmentDetails?.enrollmentStatus,
             admissionNO: student?.enrollmentDetails?.admissionNO,
         },
@@ -336,12 +157,12 @@ const EditStudentData = () => {
             bankPassbook: null,
             otherCertificate: null,
         },
-        loginPassword: student?.loginPassword,
     };
 
 
 
     // image upload
+    console.log(initialValues);
 
 
     const [dataImg, setDataImg] = useState({
@@ -425,9 +246,8 @@ const EditStudentData = () => {
                 profilePhoto: dataImg?.personalDetails?.profilePhoto
             }
         };
-        await EditApi("/api/student/update/" + studentId, data, "Student updated successfully");
+        await updateStudentById({ studentId : studentId, studentData: data });
         Navigate(path == "student-info" ? "/student-info" : "/admit-students");
-        fetchStudentData();
         window.scrollTo({ top: 200, behavior: 'smooth' })
     }
 
@@ -436,7 +256,7 @@ const EditStudentData = () => {
         <>
             <div className="modal-body">
                 <div className="nav-align-top mb-4">
-                    <Formik initialValues={initialValues} onSubmit={handleEditdata} validationSchema={validationSchema} >
+                    <Formik initialValues={initialValues} onSubmit={handleEditdata} >
                         {({ values, handleChange, handleBlur, errors, touched }) => (
                             <Form className="border p-4 shadow rounded bg-white container">
 
@@ -482,17 +302,8 @@ const EditStudentData = () => {
                                             <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
                                             {touched?.enrollmentDetails?.admissionDate && errors?.enrollmentDetails?.admissionDate && <div className="text-danger">{errors?.enrollmentDetails?.admissionDate}</div>}
                                         </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Institute typ</label>
-                                            <Field as="select" name="enrollmentDetails.instituteType" className="form-control">
-                                                <option value={values?.enrollmentDetails?.instituteType}>{values?.enrollmentDetails?.instituteType}</option>
-                                                <option value="Institute">Institute</option>
-                                                <option value="College">College</option>
-                                                <option value="School">School</option>
-                                            </Field>
-                                            {touched?.enrollmentDetails?.instituteType && errors?.enrollmentDetails?.instituteType && <div className="text-danger">{errors?.enrollmentDetails?.instituteType}</div>}
-                                        </div>
-                                        {values.enrollmentDetails.instituteType === "College" ? (
+                                        {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                             <>
                                                 <div className="col-md-4 mb-3">
                                                     <label>Enrollment No.</label>
@@ -507,53 +318,16 @@ const EditStudentData = () => {
                                                     <Field name="enrollmentDetails.rollNo" type="text" placeholder="Enter roll no." className="form-control" />
                                                     {touched?.enrollmentDetails?.rollNo && errors?.enrollmentDetails?.rollNo && <div className="text-danger">{errors?.enrollmentDetails?.rollNo}</div>}
                                                 </div>
-                                                <div className="col-md-4 mb-3">
-                                                    <label>Section</label>
-                                                    <Field name="enrollmentDetails.section" type="text" placeholder="Enter Your Section." className="form-control" />
-                                                    {touched?.enrollmentDetails?.section && errors?.enrollmentDetails?.section && <div className="text-danger">{errors?.enrollmentDetails?.section}</div>}
-                                                </div>
                                             </>
 
                                         )}
                                         <div className="col-md-4 mb-3">
-                                            <label>Course/Class/Degree</label>
-                                            <Field name="enrollmentDetails.course" type="text" placeholder="Enter Course/Class/Degree " className="form-control" />
-                                            {touched?.enrollmentDetails?.course && errors?.enrollmentDetails?.course && <div className="text-danger">{errors?.enrollmentDetails?.course}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Institute Name</label>
-                                            <Field name="enrollmentDetails.instituteName" type="text" placeholder="Enter instituteName" className="form-control" />
-                                            {touched?.enrollmentDetails?.instituteName && errors?.enrollmentDetails?.instituteName && <div className="text-danger">{errors?.enrollmentDetails?.instituteName}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Intituite Location</label>
-                                            <Field name="enrollmentDetails.instituteLocation" type="text" placeholder="Enter institute Location" className="form-control" />
-                                            {touched?.enrollmentDetails?.instituteLocation && errors?.enrollmentDetails?.instituteLocation && <div className="text-danger">{errors?.enrollmentDetails?.instituteLocation}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Institute Medium</label>
-                                            <Field name="enrollmentDetails.instituteMedium" as="select" className="form-select">
-                                                <option value={values?.enrollmentDetails?.instituteMedium}>{values?.enrollmentDetails?.instituteMedium}</option>
-                                                <option value="English">English</option>
-                                                <option value="Hindi">Hindi</option>
-                                                <option value="Other">Other</option>
+                                            <label>Class<span className='text-danger'>*</span></label>
+                                            <Field name="enrollmentDetails.class" as="select" value={values?.enrollmentDetails?.class?.className} className="form-select">
+                                                <option >{values?.enrollmentDetails?.class?.className}</option>
+                                                {Class?.map((cls, index) => <option key={index} value={cls._id}>{cls.className}</option>)}
                                             </Field>
-                                            {touched?.enrollmentDetails?.instituteMedium && errors?.enrollmentDetails?.instituteMedium && <div className="text-danger">{errors?.enrollmentDetails?.instituteMedium}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>School/College/Intituite Session</label>
-                                            <Field name="enrollmentDetails.instituteSession" type="text" placeholder="Enter institute Session" className="form-control" />
-                                            {touched?.enrollmentDetails?.instituteSession && errors?.enrollmentDetails?.instituteSession && <div className="text-danger">{errors?.enrollmentDetails?.instituteSession}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Board/University Name</label>
-                                            <Field name="enrollmentDetails.boardName" type="text" placeholder="Enter institute board Name" className="form-control" />
-                                            {touched?.enrollmentDetails?.boardName && errors?.enrollmentDetails?.boardName && <div className="text-danger">{errors?.enrollmentDetails?.boardName}</div>}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Course Stream</label>
-                                            <Field name="enrollmentDetails.courseStream" type="text" placeholder="Enter institute course Stream" className="form-control" />
-                                            {touched?.enrollmentDetails?.courseStream && errors?.enrollmentDetails?.courseStream && <div className="text-danger">{errors?.enrollmentDetails?.courseStream}</div>}
+                                            {touched?.enrollmentDetails?.class && errors?.enrollmentDetails?.class && <div className="text-danger">{errors?.enrollmentDetails?.class}</div>}
                                         </div>
                                         <div className="col-md-4 mb-3">
                                             <label>Enrollment Status</label>
@@ -1492,19 +1266,19 @@ const EditStudentData = () => {
                                                     <th>Contact No.</th>
                                                     <td>
                                                         <div className="d-grid">
-                                                            <Field type="number" className="form-control" name="parentDetails.Mother.contactNumber" />
+                                                            <Field type="number" className="form-control" name="parentDetails.Mother.contactNumber" placeholder="Enter mother's contact number" />
                                                             {errors?.parentDetails?.Mother?.contactNumber && touched?.parentDetails?.Mother?.contactNumber && <div className="text-danger">{errors?.parentDetails?.Mother?.contactNumber}</div>}
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className="d-grid">
-                                                            <Field type="number" className="form-control" name="parentDetails.Father.contactNumber" />
+                                                            <Field type="number" className="form-control" name="parentDetails.Father.contactNumber" placeholder="Enter father's contact number" />
                                                             {errors?.parentDetails?.Father?.contactNumber && touched?.parentDetails?.Father?.contactNumber && <div className="text-danger">{errors?.parentDetails?.Father?.contactNumber}</div>}
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div className="d-grid">
-                                                            <Field type="number" className="form-control" name="parentDetails.Guardian.contactNumber" />
+                                                            <Field type="number" className="form-control" name="parentDetails.Guardian.contactNumber" placeholder="Enter guardian's contact number" />
                                                             {errors?.parentDetails?.Guardian?.contactNumber && touched?.parentDetails?.Guardian?.contactNumber && <div className="text-danger">{errors?.parentDetails?.Guardian?.contactNumber}</div>}
                                                         </div>
                                                     </td>
@@ -2126,11 +1900,6 @@ const EditStudentData = () => {
                                                     )}
                                                 </>
                                             )}
-                                        </div>
-                                        <div className="col-md-4 mb-3">
-                                            <label>Login Password</label>
-                                            <Field name="loginPassword" type="password" placeholder="Enter login password" className="form-control" />
-                                            {errors.loginPassword && touched.loginPassword && <div className="text-danger">{errors.loginPassword}</div>}
                                         </div>
                                     </div>
                                 </div>

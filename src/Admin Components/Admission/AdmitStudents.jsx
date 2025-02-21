@@ -4,10 +4,12 @@ import { Formik, Form, Field, useFormikContext } from 'formik';
 // import * as Yup from 'yup';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 // import LMSTable from '../Students/LMSTable';
-import { MainContext } from '../../Controller/MainProvider';
 import * as Yup from "yup";
 import { DeleteApi, PutApi } from '../../Custom Hooks/CustomeHook';
-
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useAddAllStudentsToTrashMutation, useAddStudentMutation } from '../../Redux/Api/studentSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import StudentTable from './components/AdmitStudentTable';
 const validationSchema = Yup.object({
     personalDetails: Yup.object({
         profilePhoto: Yup.mixed().nullable(),
@@ -120,23 +122,14 @@ const validationSchema = Yup.object({
         }),
     }),
     enrollmentDetails: Yup.object({
-        admissionType: Yup.string().required("Admission type is required"),
+            ssionType: Yup.string().required("Admission type is required"),
         admissionCategory: Yup.string().required("Admission category is required"),
         admissionDate: Yup.date().required("Admission date is required"),
         enrollmentNO: Yup.string().nullable(),
-        rollNo: Yup.string().nullable(),
-        course: Yup.string().required("Course/Class/Degree is required"),
-        courseStream: Yup.string().required("Course stream is required"),
-        section: Yup.string().nullable(),
-        instituteType: Yup.string().required("Institute type is required"),
-        instituteName: Yup.string().required("Institute name is required"),
-        instituteLocation: Yup.string().required("Institute location is required"),
-        instituteMedium: Yup.string().required("Institute medium is required"),
-        instituteSession: Yup.string().nullable(),
-        boardName: Yup.string().required("Board name is required"),
-        location: Yup.string().nullable(),
         enrollmentStatus: Yup.string().required("Enrollment status is required"),
         admissionNO: Yup.string().required("Admission number is required"),
+        class: Yup.string().required("Class is required"),
+        rollNo: Yup.string().nullable(),
     }),
     scholarDetails: Yup.object({
         scholarID: Yup.string().nullable(),
@@ -184,21 +177,16 @@ const validationSchema = Yup.object({
         .min(8, "Password must be at least 8 characters"),
 });
 
-
-
 const AdmitStudents = () => {
-
-
-    const [step, setStep] = useState(1); // Step tracker
+    const showToast = useGlobalToast();
+    const [step, setStep] = useState(1);
     const [message, setmessage] = useState('');
     const [StudentDataShow, setStudentDataShow] = useState(10)
     const Navigate = useNavigate();
-
-    // ALL DATA PROVIDER
-    const { userId, fetchTrashData, fetchStudentData, studentData, setStudentData, handlePrint, printPDF, exportToExcel, handleExportCSV } = useContext(MainContext)
-
-
-    //set image functionality 
+    const { userId, Institute, Class, StudentData } = getCommonCredentials(); 
+    const [addStudent] = useAddStudentMutation();
+    const [addAllStudentsToTrash] = useAddAllStudentsToTrashMutation();
+    
     const [dataImg, setDataImg] = useState({
         documents: {
             marksheet: null,
@@ -264,12 +252,8 @@ const AdmitStudents = () => {
                 console.error("Error uploading file:", error);
             });
     };
-
-
-
     const handleNext = () => setStep((prev) => prev + 1);
     const handlePrevious = () => setStep((prev) => prev - 1);
-
     const initialValues = {
         instituteId: userId,
         personalDetails: {
@@ -360,16 +344,7 @@ const AdmitStudents = () => {
             admissionDate: "",
             enrollmentNO: null,
             rollNo: null,
-            course: null,
-            courseStream: null,
-            section: null,
-            instituteType: null,
-            instituteName: null,
-            instituteLocation: null,
-            instituteMedium: null,
-            instituteSession: null,
-            boardName: null,
-            location: null,
+            class: null,
             enrollmentStatus: null,
             admissionNO: null,
         },
@@ -410,14 +385,6 @@ const AdmitStudents = () => {
         },
         loginPassword: "",
     };
-
-
-
-
-
-
-
-
     const handleSubmit = async (values) => {
         const data = {
             ...values,
@@ -429,47 +396,38 @@ const AdmitStudents = () => {
         };
         console.log(data);
 
-        // PostApi("/api/student/post", "Student added successfully", data);
         try {
-            const response = await axios.post('/api/student/post', data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 200 && response.status < 300) {
-                console.log('Form data submitted:', response.data);
-                setmessage(<span className="text-success">Form submitted successfully!</span>);
-                alert('Form submitted successfully!');
+            const response = await addStudent(data);
+            if (response.data.status === 200 && response.data.status === 201) {
+                showToast("Student Added Successfully", "success");
+                const modal = document.getElementById("modalCenter1");
+                if (modal) {
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                }
+
             }
         } catch (error) {
             if (error.response) {
                 console.error('Error response:', error.response.data);
-                setmessage(
-                    <div className="text-danger">
-                        Error: {error.response.data.message || 'Submission failed'}
-                    </div>
-                );
+                showToast(error.response.data.message, "error");
             } else {
                 console.error('Error:', error.message);
-                alert('An unexpected error occurred');
+                showToast(error.message, "error");
             }
         }
     };
-
     // Delete ALL Data function
     const handleDeleteAll = async () => {
-        await DeleteApi('/api/student/add-all-trash', 'All students Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
+        await addAllStudentsToTrash({ instituteId: userId });
     };
-
     const handleDeleteone = async (id) => {
         await DeleteApi(`/api/student/add-trash/${id}`, 'Student Deleted successfully');
-        fetchStudentData();
-        fetchTrashData();
+        // fetchStudentData();
+        // fetchTrashData();
     };
-
-
     const [editedData, setEditedData] = useState({});
     const handleEdit = (studentId, student) => {
         setEditedData({
@@ -480,8 +438,6 @@ const AdmitStudents = () => {
         });
         Navigate("/editstudents", { state: { studentId, student } });
     };
-
-
     return (
         <>
             <div>
@@ -505,15 +461,15 @@ const AdmitStudents = () => {
                                         <i className='tf-icons bx bx-trash me-1'></i>
                                         Delete All
                                     </button>
-                                    <button type="button" className="btn btn-success" onClick={exportToExcel}>
+                                    <button type="button" className="btn btn-success">
                                         <i className='tf-icons bx bxs-file me-1'></i>
                                         Excel
                                     </button>
-                                    <button type="button" className="btn btn-warning" onClick={handleExportCSV}>
+                                    <button type="button" className="btn btn-warning">
                                         <i className='tf-icons bx bxs-file-doc me-1'></i>
                                         CSV
                                     </button>
-                                    <button type="button" className="btn btn-info" onClick={handlePrint}>
+                                    <button type="button" className="btn btn-info" >
                                         <i className='tf-icons bx bxs-printer me-1'></i>
                                         Print
                                     </button>
@@ -529,96 +485,17 @@ const AdmitStudents = () => {
                 <div className="card m-4">
                     <div className="d-flex justify-content-between text-center">
                         <h5 className="card-header">Students Information</h5>
-                        <p className="btn btn-success m-3" data-bs-toggle="modal" data-bs-target="#modalCenter1">
+                        <p className="btn btn-success m-3 p-2" data-bs-toggle="modal" data-bs-target="#modalCenter1">
                             <i className="tf-icons bx bx-pencil me-1" ></i>
                             Add Student
                         </p>
                     </div>
-                    <div className="table-responsive text-nowrap">
-                        <table className="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Roll ID</th>
-                                    <th>profile</th>
-                                    <th>Name</th>
-                                    <th>DOB</th>
-                                    <th>Parents Name</th>
-                                    <th>Parents Number</th>
-                                    <th>Gender</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="table-border-bottom-0">
-                                {studentData?.slice(0, StudentDataShow)?.map((student) => (
-                                    <tr key={student._id}>
-                                        <td><Link to={`/studentdetail/${student?.StuID}`}>{student?.StuID}</Link></td>
-                                        <td>
-                                            <span className="d-flex align-items-center fw-bold">
-                                                <span className="me-2">
-                                                    <img
-                                                        src={student?.personalDetails?.profilePhoto}
-                                                        alt="Avatar"
-                                                        className="rounded-circle border border-light"
-                                                        style={{ height: "50px", width: "50px" }}
-                                                        onError={(e) => { e.target.src = "/image/defaultImg.png"; }}
-                                                    />
-                                                </span>
-                                            </span>
-                                        </td>
-                                        <td>
-
-                                            {student?.personalDetails?.firstName} {student?.personalDetails?.lastName}
-                                        </td>
-                                        <td>
-                                            {student?.personalDetails?.dateOfBirth
-                                                ? new Date(student.personalDetails.dateOfBirth).toISOString().split("T")[0]
-                                                : ""
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.parentDetails.Father?.name
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.parentDetails?.Father?.contactNumber
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.personalDetails?.gender
-                                            }
-                                        </td>
-                                        <td>
-                                            {
-                                                student?.contactInfo?.email
-                                            }
-                                        </td>
-                                        <td className='text-center'>Active</td>
-                                        <td>
-                                            {
-                                                <button
-                                                    className="btn btn-success btn-icon rounded-pill me-1"
-                                                    onClick={() => handleEdit(student._id, student)}
-                                                >
-                                                    <i className="bx bx-edit"></i>
-                                                </button>
-                                            }
-                                            <Link
-                                                className="btn btn-danger btn-icon rounded-pill"
-                                                onClick={() => handleDeleteone(student?._id)}
-                                            >
-                                                <i className="bx bx-trash"></i>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <StudentTable
+                        StudentData={StudentData}
+                        StudentDataShow={StudentDataShow}
+                        handleEdit={handleEdit}
+                        handleDeleteone={handleDeleteone}
+                    />
                 </div>
             </div>
             <div className="modal fade " id="modalCenter1" tabIndex="-1" aria-hidden="true">
@@ -636,7 +513,7 @@ const AdmitStudents = () => {
                         <div className="modal-body">
                             <div className="nav-align-top mb-4">
 
-                                <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
+                                <Formik initialValues={initialValues} onSubmit={handleSubmit} >
                                     {({ values, handleChange, handleBlur, errors, touched }) => (
                                         <Form className="border p-4 shadow rounded bg-white">
                                             {step === 1 && (
@@ -650,8 +527,8 @@ const AdmitStudents = () => {
                                                                 <option value="General">General</option>
                                                                 <option value="Sports">Sports</option>
                                                                 <option value="Management">Management</option>
-                                                                <option value="Sports">Regular</option>
-                                                                <option value="Management">Non Regular</option>
+                                                                <option value="Regular">Regular</option>
+                                                                <option value="NonRegular">Non Regular</option>
                                                             </Field>
                                                             {touched?.enrollmentDetails?.admissionType && errors?.enrollmentDetails?.admissionType && <div className="text-danger">{errors?.enrollmentDetails?.admissionType}</div>}
                                                         </div>
@@ -670,7 +547,7 @@ const AdmitStudents = () => {
                                                             <Field name="enrollmentDetails.admissionDate" type="date" placeholder="Enter admission date" className="form-control" />
                                                             {touched?.enrollmentDetails?.admissionDate && errors?.enrollmentDetails?.admissionDate && <div className="text-danger">{errors?.enrollmentDetails?.admissionDate}</div>}
                                                         </div>
-                                                        <div className="col-md-4 mb-3">
+                                                        {/* <div className="col-md-4 mb-3">
                                                             <label>Institute type<span className='text-danger'>*</span></label>
                                                             <Field as="select" name="enrollmentDetails.instituteType" className="form-control">
                                                                 <option value="" label="Select institute type" />
@@ -679,8 +556,9 @@ const AdmitStudents = () => {
                                                                 <option value="School" label="School" />
                                                             </Field>
                                                             {touched?.enrollmentDetails?.instituteType && errors?.enrollmentDetails?.instituteType && <div className="text-danger">{errors?.enrollmentDetails?.instituteType}</div>}
-                                                        </div>
-                                                        {values.enrollmentDetails.instituteType === "College" ? (
+                                                        </div> */}
+                                                        {Institute?.instituteType === "College" || Institute?.instituteType === "University" ? (
+
                                                             <>
                                                                 <div className="col-md-4 mb-3">
                                                                     <label>Enrollment No.</label>
@@ -695,58 +573,21 @@ const AdmitStudents = () => {
                                                                     <Field name="enrollmentDetails.rollNo" type="text" placeholder="Enter roll no." className="form-control" />
                                                                     {touched?.enrollmentDetails?.rollNo && errors?.enrollmentDetails?.rollNo && <div className="text-danger">{errors?.enrollmentDetails?.rollNo}</div>}
                                                                 </div>
-                                                                <div className="col-md-4 mb-3">
-                                                                    <label>Section</label>
-                                                                    <Field name="enrollmentDetails.section" type="text" placeholder="Enter Your Section." className="form-control" />
-                                                                    {touched?.enrollmentDetails?.section && errors?.enrollmentDetails?.section && <div className="text-danger">{errors?.enrollmentDetails?.section}</div>}
-                                                                </div>
                                                             </>
 
                                                         )}
                                                         <div className="col-md-4 mb-3">
-                                                            <label>Course/Class/Degree <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.course" type="text" placeholder="Enter Course/Class/Degree " className="form-control" />
-                                                            {touched?.enrollmentDetails?.course && errors?.enrollmentDetails?.course && <div className="text-danger">{errors?.enrollmentDetails?.course}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Institute Name <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteName" type="text" placeholder="Enter instituteName" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteName && errors?.enrollmentDetails?.instituteName && <div className="text-danger">{errors?.enrollmentDetails?.instituteName}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Intituite Location <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteLocation" type="text" placeholder="Enter institute Location" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteLocation && errors?.enrollmentDetails?.instituteLocation && <div className="text-danger">{errors?.enrollmentDetails?.instituteLocation}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Institute Medium <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.instituteMedium" as="select" className="form-select">
-                                                                <option value="">Select</option>
-                                                                <option value="English">English</option>
-                                                                <option value="Hindi">Hindi</option>
-                                                                <option value="Other">Other</option>
+                                                            <label>Class<span className='text-danger'>*</span></label>
+                                                            <Field name="enrollmentDetails.class" as="select" className="form-select">
+                                                                <option value="">Select Class</option>
+                                                                {Class?.map((cls, index) => <option key={index} value={cls._id}>{cls.className}</option>)}
                                                             </Field>
-                                                            {touched?.enrollmentDetails?.instituteMedium && errors?.enrollmentDetails?.instituteMedium && <div className="text-danger">{errors?.enrollmentDetails?.instituteMedium}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>School/College/Intituite Session</label>
-                                                            <Field name="enrollmentDetails.instituteSession" type="text" placeholder="Enter institute Session" className="form-control" />
-                                                            {touched?.enrollmentDetails?.instituteSession && errors?.enrollmentDetails?.instituteSession && <div className="text-danger">{errors?.enrollmentDetails?.instituteSession}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>Board/University Name <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.boardName" type="text" placeholder="Enter institute board Name" className="form-control" />
-                                                            {touched?.enrollmentDetails?.boardName && errors?.enrollmentDetails?.boardName && <div className="text-danger">{errors?.enrollmentDetails?.boardName}</div>}
-                                                        </div>
-                                                        <div className="col-md-4 mb-3">
-                                                            <label>Course Stream <span className='text-danger'>*</span></label>
-                                                            <Field name="enrollmentDetails.courseStream" type="text" placeholder="Enter institute course Stream" className="form-control" />
-                                                            {touched?.enrollmentDetails?.courseStream && errors?.enrollmentDetails?.courseStream && <div className="text-danger">{errors?.enrollmentDetails?.courseStream}</div>}
+                                                            {touched?.enrollmentDetails?.class && errors?.enrollmentDetails?.class && <div className="text-danger">{errors?.enrollmentDetails?.class}</div>}
                                                         </div>
                                                         <div className="col-md-4 mb-3">
                                                             <label>Enrollment Status <span className='text-danger'>*</span></label>
                                                             <Field name="enrollmentDetails.enrollmentStatus" as="select" className="form-select">
-                                                                <option value="">Select</option>
+                                                                <option value="">Select Status</option>
                                                                 <option value="Active">Active</option>
                                                                 <option value="Deactive">Deactive</option>
                                                             </Field>

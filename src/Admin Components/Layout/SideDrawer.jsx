@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react'
 import black from "../../assets/img/logo_black.svg"
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 function SideDrawer() {
     const location = useLocation();
     const [OpenToggle, setOpenToggle] = useState()
     const [SubopenToggle, setSubopenToggle] = useState()
 
-    const { sidebaropen } = useContext(MainContext)
+    const { SidebarOpen } = getCommonCredentials();
     const stutoggle = () => {
         setOpenToggle(OpenToggle === "stuinfo" ? '' : 'stuinfo')
     }
@@ -29,6 +29,14 @@ function SideDrawer() {
     const manageAttendance = () => {
         setOpenToggle(OpenToggle === "manageAtt" ? '' : 'manageAtt')
     }
+
+    const StockInventory = () => {
+        setOpenToggle(OpenToggle === "stockInventory" ? '' : 'stockInventory')
+    }
+
+    const Voucher = () => {
+        setOpenToggle(OpenToggle === "voucher" ? '' : 'voucher')
+    }
     const staffSalaryGenerate = () => {
         setOpenToggle(OpenToggle === "staffsalary" ? '' : 'staffsalary')
     }
@@ -37,6 +45,9 @@ function SideDrawer() {
     }
     const TimeTableManagement = () => {
         setOpenToggle(OpenToggle === "timetables" ? '' : 'timetables')
+    }
+    const TestManagement = () => {
+        setOpenToggle(OpenToggle === "tests" ? '' : 'tests')
     }
     const handlefeemanagement = () => {
         setOpenToggle(OpenToggle === "feemanagement" ? '' : 'feemanagement')
@@ -58,6 +69,9 @@ function SideDrawer() {
     }
     const time_Table = [
         '/addtimetable'
+    ]
+    const test = [
+        '/addtest'
     ]
     const activeRoutes = [
         '/student-info',
@@ -94,6 +108,17 @@ function SideDrawer() {
     const Manage_Attendance = [
         '/manage-attendance'
     ]
+    const Stock_Inventory = [
+        '/stock-inventory',
+        '/Stock-Access'
+    ]
+
+    const Voucher_Stock = [
+        '/Voucher-purchase',
+        '/Voucher-expense',
+        '/Voucher-sales',
+        '/Voucher-receipt'
+    ]
     const attendance_report = [
         '/student-report',
         '/staff-report'
@@ -119,14 +144,14 @@ function SideDrawer() {
         '/feecollection'
     ]
     const Home_work = [
-        '/adminhomework',
+        '/Student-homework',
         '/studenthomework',
         '/teacherhomework'
     ]
     const Exam_management = [
-        '/adminexam',
-        '/studentexam',
-        '/teacherexam'
+        '/assignexam',
+        '/examdetails',
+        '/examtype'
     ]
     const Academics = [
         '/semesters',
@@ -140,6 +165,7 @@ function SideDrawer() {
         '/coursegroup',
         '/classes',
         '/assignteachers',
+        '/employe-role',
 
     ]
     // const admission
@@ -149,8 +175,11 @@ function SideDrawer() {
     const parent_Active = parents_info.includes(location.pathname);
     const Id_card = Id_cardStudent.includes(location.pathname);
     const Attendance = Manage_Attendance.includes(location.pathname);
+    const Stockinventory = Stock_Inventory.includes(location.pathname) || location.pathname === '/stockinventory';
+    const Vouchers = Voucher_Stock.includes(location.pathname);
     const studentReport = attendance_report.includes(location.pathname);
     const timetable = time_Table.includes(location.pathname);
+    const tests = test.includes(location.pathname);
     const feemanagement = fee_management.includes(location.pathname);
     const Homework = Home_work.includes(location.pathname);
     const Exam = Exam_management.includes(location.pathname);
@@ -161,7 +190,7 @@ function SideDrawer() {
 
     return (
         <>
-            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: sidebaropen ? 'none' : '' }}>
+            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: SidebarOpen ? 'none' : '' }}>
 
 
                 <div className='bg-themprimary'>
@@ -171,7 +200,7 @@ function SideDrawer() {
                             <Link to={'/'} className="">
                                 <span className="">
                                     {/* <img src={black} alt="" style={{ maxHeight: "50px" }} /> */}
-                                    <h3 className='fw-bold border border-2 rounded p-3 text-white'>School Logo  <h6 className='mb-0  fw-bold border border-2 rounded-sm mt-2 p-1 text-white'>Admin Dashboard</h6></h3>
+                                    <h3 className='fw-bold border text-center rounded p-3 text-white'>School Logo  <h6 className='mb-0  fw-bold border text-center rounded-sm mt-2 p-1 text-white'>Admin Dashboard</h6></h3>
                                 </span>
                             </Link>
                         </div>
@@ -240,6 +269,11 @@ function SideDrawer() {
                                 <NavLink activeclassname="active" className="menu-item" to="/assignteachers">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Assign Teachers</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/employe-role">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Employs Role</div>
                                     </a>
                                 </NavLink>
                             </ul>
@@ -350,9 +384,9 @@ function SideDrawer() {
                                 <div>Home Work</div>
                             </a>
                             <ul className="menu-sub">
-                                <NavLink activeclassname="active" className="menu-item" to="/adminhomework">
+                                <NavLink activeclassname="active" className="menu-item" to="/Student-homework">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Admin homeWork</div>
+                                        <div>Student homeWork</div>
                                     </a>
                                 </NavLink>
                                 <NavLink activeclassname="active" className="menu-item" to="/teacherhomework">
@@ -363,29 +397,16 @@ function SideDrawer() {
                             </ul>
 
                         </li>
-                        <li className={`menu-item ${Stf_salary ? 'active' : ''} ${OpenToggle == 'classNamelogic' ? 'open' : ''}`}>
-                            <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={classNamelogic}>
-                                <i className="menu-icon tf-icons bx bx-layout"></i>
-                                <div>Class & Subject Management</div>
-                            </a>
-
-                            <ul className="menu-sub">
-                                <li className="menu-item">
-                                    <Link to={"/addclasses"} className="menu-link">
-                                        <div>Add Class</div>
-                                    </Link>
-                                </li>
-                                <li className="menu-item">
-                                    <Link to={"/allclasses&subjects"} className="menu-link">
-                                        <div>Classes & Subjects</div>
-                                    </Link>
-                                </li>
-                            </ul>
-                        </li>
                         <NavLink activeclassname="active" className="menu-item" to="/liveclass">
                             <a href="javascript:void(0);" className="menu-link">
                                 <i className="menu-icon  fa fa-video-camera" aria-hidden="true"></i>
                                 <div>Live Classes</div>
+                            </a>
+                        </NavLink>
+                        <NavLink activeclassname="active" className="menu-item" to="/holiday">
+                            <a href="javascript:void(0);" className="menu-link">
+                                <i className="menu-icon  fa fa-calendar" aria-hidden="true"></i>
+                                <div>Holiday</div>
                             </a>
                         </NavLink>
                         <NavLink activeclassname="active" className="menu-item" to="/studymaterial">
@@ -486,19 +507,19 @@ function SideDrawer() {
                                 <div>Exam Management</div>
                             </a>
                             <ul className="menu-sub">
-                                <NavLink activeclassname="active" className="menu-item" to="/adminexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/assignexam">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Admin Exam</div>
+                                        <div>Assign Exam</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/teacherexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/examtype">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Teacher Exam</div>
+                                        <div>Exam Type</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/studentexam">
+                                <NavLink activeclassname="active" className="menu-item" to="/examdetails">
                                     <a href="javascript:void(0);" className="menu-link">
-                                        <div>Student Exam</div>
+                                        <div>Exam Details</div>
                                     </a>
                                 </NavLink>
                             </ul>
@@ -588,8 +609,72 @@ function SideDrawer() {
                             </ul>
 
                         </li>
+                        <li className={`menu-item ${tests ? 'active' : ''} ${OpenToggle == 'tests' ? 'open' : ''}`} id='test' >
+                            <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={TestManagement}>
+                            <i className='menu-icon tf-icons bx bx-clipboard'></i>
+                            <div>Test Management</div>
+                            </a>
+                            <ul className="menu-sub">
+                                {/* <NavLink activeclassname="active" className="menu-item" to="/">
+                                <a href="javascript:void(0);" className="menu-link">
+                                    <div>Add Timetable</div>
+                                </a>
+                            </NavLink> */}
+                                <NavLink activeclassname="active" className="menu-item" to="/testlist">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test List</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Assign Grads</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Mark Entry</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Teacher Remarke</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test Shuedule</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Tabulation Sheet</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Position Holders</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Send Marks By SMS</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Print Marksheet</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Test Reports</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
+
+                        </li>
                         <li className={`menu-item ${Attendance ? 'active' : ''} ${OpenToggle == 'manageAtt' ? 'open' : ''}`} id='manageAtt' >
-                            <Link to="/manage-attendance" className="menu-link menu-link menu-toggle" onClick={manageAttendance}>
+                            <Link className="menu-link menu-link menu-toggle" onClick={manageAttendance}>
                                 <i className='menu-icon tf-icons bx bx-id-card'></i>
                                 <div>Manage Attendance</div>
                             </Link>
@@ -605,11 +690,11 @@ function SideDrawer() {
                                         <div>Staff Attendance</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="/">
-                                    <a href="javascript:void(0);" className="menu-link">
-                                        <div>Attendance Accounts</div>
-                                    </a>
-                                </NavLink>
+                                {/* <NavLink activeclassname="active" className="menu-item" to="/">
+                                        <a href="javascript:void(0);" className="menu-link">
+                                            <div>Attendance Accounts</div>
+                                        </a>
+                                    </NavLink> */}
                                 {/* <li className={`menu-item ${studentReport ? 'active' : ''} ${SubopenToggle == 'report' ? 'open' : ''}`} id='report' >
                                 <a href="javascript:void(0);" className="menu-link menu-toggle" onClick={attendanceReport}>
                                     <div> Attendance Report </div>
@@ -666,8 +751,22 @@ function SideDrawer() {
                                 <div>Accounting</div>
                             </a>
                         </NavLink>
-
-
+                        <NavLink
+                            activeclassname="active"
+                            className="menu-item"
+                            to="/notice-board"
+                        >
+                            <a href="javascript:void(0);" className="menu-link">
+                                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
+                                <div>Notice board</div>
+                            </a>
+                        </NavLink>
+                        <NavLink className="menu-item" to={'/leavemanagement'}>
+                            <a className="menu-link" href='javascript:void(0);'>
+                                <i className='menu-icon tf-icons bx bx-book-reader'></i>
+                                <div>Leave Management</div>
+                            </a>
+                        </NavLink>
                         {/* <li className="menu-item">
                         <Link className="menu-link">
                             <i className='menu-icon tf-icons bx bx-chat'></i>
@@ -686,26 +785,51 @@ function SideDrawer() {
                             <div>Time Table Management</div>
                         </Link>
                     </li> */}
-
-
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-wallet'></i>
-                                <div>Expense Management</div>
-                            </Link>
-                        </li>
-
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-file'></i>
-                                <div>Reporting Area</div>
-                            </Link>
-                        </li>
-                        <li className="menu-item">
-                            <Link className="menu-link">
+                        <li className={`menu-item ${Stockinventory ? 'active' : ''} ${OpenToggle == 'stockInventory' ? 'open' : ''}`} id='stockInventory'>
+                            <Link to="/stock-account" className="menu-link menu-link menu-toggle" onClick={() => { StockInventory(); }}>
                                 <i className='menu-icon tf-icons bx bx-layer'></i>
                                 <div>Stock & Inventory</div>
                             </Link>
+                            <ul className="menu-sub">
+                                <NavLink activeclassname="active" className="menu-item" to="/stock-account">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Stock Account</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/stock-inventory">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Stock Inventory</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
+                        </li>
+                        <li className={`menu-item ${Vouchers ? 'active' : ''} ${OpenToggle === 'voucher' ? 'open' : ''}`} id='Vouchers'>
+                            <Link to="/Voucher-purchase" className="menu-link menu-toggle" onClick={Voucher}>
+                                <i className='menu-icon tf-icons bx bx-layer'></i>
+                                <div>Voucher</div>
+                            </Link>
+                            <ul className="menu-sub">
+                                <NavLink activeclassname="active" className="menu-item" to="/Voucher-purchase">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Purchase</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="/Vourchar-expense">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Expense</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="Vourchar-Sale">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Sales</div>
+                                    </a>
+                                </NavLink>
+                                <NavLink activeclassname="active" className="menu-item" to="Vourchar-Receipt">
+                                    <a href="javascript:void(0);" className="menu-link">
+                                        <div>Receipt</div>
+                                    </a>
+                                </NavLink>
+                            </ul>
                         </li>
                         {/* <li className="menu-item">
                         <Link className="menu-link">
@@ -737,10 +861,17 @@ function SideDrawer() {
                             <div>Library Management</div>
                         </Link>
                     </li> */}
+                     <li className="menu-item">
+                            <Link className="menu-link">
+                                <i className='menu-icon tf-icons bx bx-wallet'></i>
+                                <div>Expense Management</div>
+                            </Link>
+                        </li>
+
                         <li className="menu-item">
                             <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-book-reader'></i>
-                                <div>Leave Management</div>
+                                <i className='menu-icon tf-icons bx bx-file'></i>
+                                <div>Reporting Area</div>
                             </Link>
                         </li>
                         <li className="menu-item">
@@ -759,12 +890,6 @@ function SideDrawer() {
                             <Link className="menu-link">
                                 <i className='menu-icon tf-icons bx bx-envelope' ></i>
                                 <div>Email Alerts</div>
-                            </Link>
-                        </li>
-                        <li className="menu-item">
-                            <Link className="menu-link">
-                                <i className='menu-icon tf-icons bx bx-chalkboard' ></i>
-                                <div>School Notice Board</div>
                             </Link>
                         </li>
                         <li className="menu-item">

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
+import { useCreateExpenseMutation } from '../../Redux/Voucher/VoucherExpenseSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 // Initial values
 const initialValues = {
@@ -105,8 +107,8 @@ const validationSchema = Yup.object().shape({
     paymentMethod: Yup.string().required('Payment method is required'),
     notes: Yup.string()
 });
-
 const ExpenseForm = () => {
+    const showToast = useGlobalToast();
     const [forms, setForms] = useState([{}]);
     const [expenseItems, setExpenseItems] = useState([
         {
@@ -116,50 +118,36 @@ const ExpenseForm = () => {
             subTotal: 0,
         },
     ]);
-    const handleChange = (index, event) => {
-        const { name, value } = event.target;
-        const updatedCharges = [...expenseItems];
-        updatedCharges[index][name] = value;
-        setExpenseItems(updatedCharges);
-    };
+    
+    const [createExpense, { data: Expense, error }] = useCreateExpenseMutation();
+    
+    useEffect(() => {
+        if (Expense?.data) {
+            setExpenseItems(Expense.data);
+        }
+    }, [Expense]);
+    
     const handleAddForm = () => {
         setExpenseItems([...expenseItems, { itemName: "", quantity: 1, unitPrice: 0, subTotal: 0 }]);
-
     };
-
-    const hanldeExpenseItems = async (values) => {
-        console.log(values, "dw")
+    
+    const handleExpenseItems = async (values) => {
         try {
-
-            const response = await axios.post('/api/voucher/expense/post', values);
-            if (response.status === 201) {
-                setForms(response.data)
-                console.log(response.data);
-                toast.success("Expense added successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await createExpense(values);
+            console.log("API Response:", response); // Debugging
+    
+            if (response?.data?.status === 201) {
+                setForms(response.data);
+                showToast("Expense added successfully", "success");
+            } else {
+                showToast("Failed to add expense", "error");
             }
         } catch (error) {
-            console.log('Error', error)
-            toast.error("Error adding expense", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            console.error("Error adding expense:", error);
+            showToast("Error adding expense", "error");
         }
-    }
+    };
+    
     return (
         <div className="container mt-5">
             <div className="card">
@@ -169,8 +157,8 @@ const ExpenseForm = () => {
                 <div className="card-body">
                     <Formik
                         initialValues={initialValues}
-                        validationSchema={validationSchema}
-                        onSubmit={(values) => hanldeExpenseItems(values)}
+                        // validationSchema={validationSchema}
+                        onSubmit={(values) => handleExpenseItems(values)}
                     >
                         {({ values, handleChange, handleSubmit, errors, touched }) => (
                             <Form>
@@ -553,3 +541,5 @@ const ExpenseForm = () => {
 };
 
 export default ExpenseForm;
+
+

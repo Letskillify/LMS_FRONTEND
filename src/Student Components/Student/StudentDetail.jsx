@@ -1,16 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useGetStudentByIdQuery } from '../../Redux/Api/studentSlice';
 
 const StudentDetail = () => {
   const [data, setData] = useState(null)
   const [tables, setTables] = useState("viewDeatils");
-  const { Student } = useContext(MainContext)
+  const { userId } = getCommonCredentials();
+  const { data: StudentData } = useGetStudentByIdQuery(userId, {
+    skip: !userId,
+  })
 
   useEffect(() => {
-    if (Student) {
-      setData(Student)
+    if (StudentData) {
+      setData(StudentData)
     }
-  }, [Student])
+  }, [StudentData])
 
 
 
@@ -371,9 +375,9 @@ const StudentDetail = () => {
                     <tbody>
                       <tr>
                         <td>Name</td>
-                        <td>{data?.parentDetails?.Father.name} </td>
-                        <td>{data?.parentDetails?.Mother.name} </td>
-                        <td>{data?.parentDetails?.Guardian.name} </td>
+                        <td>{data?.parentDetails?.Father?.name} </td>
+                        <td>{data?.parentDetails?.Mother?.name} </td>
+                        <td>{data?.parentDetails?.Guardian?.name} </td>
                       </tr>
                       <tr>
                         <td>Qualification</td>

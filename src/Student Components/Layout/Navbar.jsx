@@ -3,22 +3,21 @@ import Avatar from "../../assets/img/avatars/1.png"
 import avatar2 from "../../assets/img/avatars/1.png"
 import { MainContext } from '../../Controller/MainProvider'
 import { Link, useLocation } from 'react-router-dom'
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials'
 function Navbar() {
-    const { userId, HandleLogOut, Student, setsidebaropen } = useContext(MainContext)
-    console.log(Student);
-    
+    const {userId, Student } = getCommonCredentials();
 
 
     // for sidebar toggle 
     const location = useLocation();
-    useEffect(() => {
-        setsidebaropen(false);
-    }, [location.pathname]);
+    // useEffect(() => {
+    //     setsidebaropen(false);
+    // }, [location.pathname]);
     return (
         <>
             <div className=' bg-themprimary'>
                 <nav class="navbar navbar-expand-lg navbar-dark px-3 align-items-center">
-                    <div className='mx-3 d-xl-none d-block' onClick={() => setsidebaropen(true)}>
+                    <div className='mx-3 d-xl-none d-block'>
                         <Link><i class="fa fa-bars fs-4 text-white" aria-hidden="true"></i></Link>
                     </div>
                     <div class="align-items-center me-auto shadow-none d-none d-sm-flex">
@@ -120,12 +119,14 @@ function Navbar() {
                                 <div className="dropdown-divider"></div>
                             </li>
 
-                            <li>
+                            {/* <li>
                                 <Link className="dropdown-item" onClick={HandleLogOut}>
+                            <li>
+                                <Link className="dropdown-item" >
                                     <i className="bx bx-power-off me-2"></i>
                                     <a className="align-middle">Log Out</a>
                                 </Link>
-                            </li>
+                            </li> */}
                             <div class="text-center mx-auto d-lg-none align-items-center row mt-3">
                                 <div className='col-6 mt-2 mt-sm-0 '>
                                     <button class="btn bg-themprimary text-white w-100 ">

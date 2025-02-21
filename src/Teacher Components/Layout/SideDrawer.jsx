@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react'
 import black from "../../assets/img/logo_black.svg"
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 function SideDrawer() {
     const location = useLocation();
     const [OpenToggle, setOpenToggle] = useState()
     const [SubopenToggle, setSubopenToggle] = useState()
 
-    const { sidebaropen } = useContext(MainContext)
+    const { SidebarOpen } = getCommonCredentials();
     const stutoggle = () => {
         setOpenToggle(OpenToggle === "stuinfo" ? '' : 'stuinfo')
     }
@@ -139,7 +139,7 @@ function SideDrawer() {
 
     return (
         <>
-            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: sidebaropen ? 'none' : '' }}>
+            <aside id="layout-menu" className={`layout-menu menu-vertical menu bg-menu-theme d-xl-block`} style={{ overflowY: 'scroll', height: '100vh', width: 'auto', scrollbarWidth: 'thin', transform: SidebarOpen ? 'none' : '' }}>
 
 
                 <div className='bg-themprimary'>

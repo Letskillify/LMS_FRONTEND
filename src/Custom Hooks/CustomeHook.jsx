@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Bounce, toast } from "react-toastify";
 
@@ -63,10 +64,30 @@ export const DeleteApi = async (url, successMessage) => {
     try {
         const response = await axios.delete(url);
         console.log(response.data);
-        alert(successMessage);
+        toast.success(successMessage, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     } catch (error) {
         console.error('Error hitting API:', error.response ? error.response.data : error.message);
-        alert(error.response ? error.response.data.message : error.message);
+        toast.error(error.response ? error.response.data.message : error.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+        });
     }
 }
 
@@ -113,18 +134,35 @@ export const EditApi = async (url, Data, successMessage) => {
 
 
 
-export const useImageUploader = () => {
+export const useFileUploader = () => {
     const [uploadedData, setUploadedData] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleImageUpload = (event, key) => {
+    const handleFileUpload = (event, key) => {
         const file = event.target.files[0];
         if (file) {
+            setIsLoading(true);
             const data = new FormData();
             data.append("file", file);
             data.append("upload_preset", "uglykgfd");
             data.append("cloud_name", "duzwys877");
+            data.append("resource_type", "auto");
 
-            fetch("https://api.cloudinary.com/v1_1/duzwys877/image/upload", {
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "d-flex justify-content-center align-items-center";
+            loadingDiv.style.position = "fixed";
+            loadingDiv.style.top = 0;
+            loadingDiv.style.left = 0;
+            loadingDiv.style.width = "100vw";
+            loadingDiv.style.height = "100vh";
+            loadingDiv.style.zIndex = 99999;
+            loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
+            const spinner = document.createElement("div");
+            spinner.className = "spinner-border text-primary";
+            loadingDiv.appendChild(spinner);
+            document.body.appendChild(loadingDiv);
+
+            fetch("https://api.cloudinary.com/v1_1/duzwys877/auto/upload", {
                 method: "POST",
                 body: data,
             })
@@ -132,6 +170,17 @@ export const useImageUploader = () => {
                 .then((data) => {
                     if (data.error) {
                         console.error("Upload failed:", data.error.message);
+                        toast.error('Upload failed: ' + data.error.message, {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            transition: Bounce,
+                        });
                     } else {
                         console.log("Upload successful!", data?.url);
 
@@ -140,17 +189,46 @@ export const useImageUploader = () => {
                             ...prevState,
                             [key]: data?.url,
                         }));
+
+                        toast.success('File uploaded successfully!', {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            transition: Bounce,
+                        });
                     }
+                    setIsLoading(false);
+                    document.body.removeChild(loadingDiv);
                 })
                 .catch((error) => {
                     console.error("Error uploading file:", error);
+                    toast.error('Error uploading file: ' + error.message, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        transition: Bounce,
+                    });
+                    setIsLoading(false);
+                    document.body.removeChild(loadingDiv);
                 });
         }
     };
 
     return {
         uploadedData,
-        handleImageUpload,
+        setUploadedData,
+        handleFileUpload,
+        isLoading,
     };
 };
 
@@ -223,71 +301,86 @@ export const useVideoUploader = () => {
 
 
 
-export const useFileUploader = () => {
-    const [uploadedFiles, setUploadedFiles] = useState({});
-    const [isfileLoading, setFileIsLoading] = useState(false); // Loader state
-    const [fileuploadProgress, setFileUploadProgress] = useState(0); // Progress bar
+// export const useFileUploader = () => {
+//     const [uploadedFiles, setUploadedFiles] = useState({});
+//     const [isfileLoading, setFileIsLoading] = useState(false);
+//     const [fileuploadProgress, setFileUploadProgress] = useState(0);
 
-    const handleFileUpload = (event, key) => {
-        const file = event.target.files[0];
-        if (file) {
-            const data = new FormData();
-            data.append("file", file);
-            data.append("upload_preset", "uglykgfd"); // Replace with your upload preset
-            data.append("cloud_name", "duzwys877"); // Replace with your Cloudinary cloud name
-            data.append("resource_type", "raw"); // Important for non-media files
+//     const handleFileUpload = (event, key) => {
+//         const file = event.target.files[0];
+//         if (file) {
+//             const data = new FormData();
+//             data.append("file", file);
+//             data.append("upload_preset", "uglykgfd");
+//             data.append("cloud_name", "duzwys877");
+//             data.append("resource_type", "raw");
 
-            const xhr = new XMLHttpRequest();
-            setFileIsLoading(true);
+//             const xhr = new XMLHttpRequest();
+//             setFileIsLoading(true);
 
-            // Track upload progress
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const progress = Math.round((event.loaded / event.total) * 100);
-                    setFileUploadProgress(progress); // Update progress state
-                }
-            };
+//             // Create spinner
+//             const loadingDiv = document.createElement("div");
+//             loadingDiv.className = "d-flex justify-content-center align-items-center";
+//             loadingDiv.style.position = "fixed";
+//             loadingDiv.style.top = 0;
+//             loadingDiv.style.left = 0;
+//             loadingDiv.style.width = "100vw";
+//             loadingDiv.style.height = "100vh";
+//             loadingDiv.style.zIndex = 99999;
+//             loadingDiv.style.background = "rgba(0, 0, 0, 0.5)";
+//             const spinner = document.createElement("div");
+//             spinner.className = "spinner-border text-primary";
+//             loadingDiv.appendChild(spinner);
+//             document.body.appendChild(loadingDiv);
 
-            // Handle successful upload
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    console.log("File upload successful!", response.secure_url);
+//             // Track upload progress
+//             xhr.upload.onprogress = (event) => {
+//                 if (event.lengthComputable) {
+//                     const progress = Math.round((event.loaded / event.total) * 100);
+//                     setFileUploadProgress(progress);
+//                 }
+//             };
 
-                    // Update state with uploaded file URL
-                    setUploadedFiles((prevState) => ({
-                        ...prevState,
-                        [key]: response.secure_url,
-                    }));
-                } else {
-                    console.error("Upload failed:", xhr.responseText);
-                }
-                setFileIsLoading(false);
-                setFileUploadProgress(0); // Reset progress after upload
-            };
+//             // Handle successful upload
+//             xhr.onload = () => {
+//                 if (xhr.status === 200) {
+//                     const response = JSON.parse(xhr.responseText);
+//                     console.log("File upload successful!", response.secure_url);
 
-            // Handle upload errors
-            xhr.onerror = () => {
-                console.error("Error uploading file.");
-                setFileIsLoading(false);
-                setFileUploadProgress(0);
-            };
+//                     setUploadedFiles((prevState) => ({
+//                         ...prevState,
+//                         [key]: response.secure_url,
+//                     }));
+//                 } else {
+//                     console.error("Upload failed:", xhr.responseText);
+//                 }
+//                 setFileIsLoading(false);
+//                 setFileUploadProgress(0);
+//                 document.body.removeChild(loadingDiv);
+//             };
 
-            // Open connection and send request
-            xhr.open("POST", "https://api.cloudinary.com/v1_1/duzwys877/raw/upload");
-            xhr.send(data);
-        } else {
-            console.error("No file selected.");
-        }
-    };
+//             // Handle upload errors
+//             xhr.onerror = () => {
+//                 console.error("Error uploading file.");
+//                 setFileIsLoading(false);
+//                 setFileUploadProgress(0);
+//                 document.body.removeChild(loadingDiv);
+//             };
 
-    return {
-        uploadedFiles,
-        fileuploadProgress,
-        isfileLoading,
-        handleFileUpload,
-    };
-};
+//             xhr.open("POST", "https://api.cloudinary.com/v1_1/duzwys877/raw/upload");
+//             xhr.send(data);
+//         } else {
+//             console.error("No file selected.");
+//         }
+//     };
+
+//     return {
+//         uploadedFiles,
+//         fileuploadProgress,
+//         isfileLoading,
+//         handleFileUpload,
+//     };
+// };
 
 
 

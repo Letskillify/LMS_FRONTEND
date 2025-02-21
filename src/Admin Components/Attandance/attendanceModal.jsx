@@ -167,7 +167,7 @@ const AttendanceModal = ({
         <Table striped bordered hover>
           <thead>
             <tr>
-              {columns.map((col, index) => (
+              {columns?.map((col, index) => (
                 <th key={index}>{col.label}</th>
               ))}
               <th>Status</th>

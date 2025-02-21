@@ -84,7 +84,6 @@ function SalesVoucherForm() {
         totalAmount: Yup.number().required('Total Amount is required'),
         GrandTotalAmount: Yup.number().required('Grand Total Amount is required')
     });
-
     const handleSaleSubmit = async (values) => {
         console.log("Sales voucher values:", values);
 
@@ -122,7 +121,6 @@ function SalesVoucherForm() {
             });
         }
     }
-
     const fetchCompanyNames = async () => {
         try {
             const response = await axios.get("/api/firm-account/get");
@@ -131,7 +129,6 @@ function SalesVoucherForm() {
             console.error("Error fetching company names:", error);
         }
     }
-
     const fetchItemIds = async () => {
         try {
             const response = await axios.get("/api/inventory/get");

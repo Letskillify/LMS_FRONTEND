@@ -7,14 +7,18 @@ import { PostApi } from '../../Custom Hooks/CustomeHook';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
 import * as Yup from "yup";
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useCreateCourseMutation, useDeleteCourseMutation, useUpdateCourseMutation } from '../../Redux/Api/academicsApi/courseSlice';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 const Course = () => {
+    const showToast = useGlobalToast();
     const [showModal, setshowModal] = useState(false)
     const [Show, setShow] = useState(10)
     const [editShow, setEditShow] = useState(false)
     const [selectEdit, setSelectEdit] = useState({})
     const [search, setSearch] = useState('')
-    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, fetchCourse, Subject } = useContext(MainContext)
+    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, Subject } = getCommonCredentials();
     const initialValues = {
         courseName: "",
         section: [],
@@ -31,6 +35,10 @@ const Course = () => {
         courseCompleted: false,
         includeSemester: false
     };
+    
+    const [createCourse] = useCreateCourseMutation();
+    const [updateCourse] = useUpdateCourseMutation();
+    const [deleteCourse] = useDeleteCourseMutation();
 
     const validationSchema = Yup.object({
         courseName: Yup.string().required("Course Name is required"),
@@ -50,82 +58,28 @@ const Course = () => {
 
     const handleSubmit = async (values) => {
         try {
-            const response = await axios.post("/api/courses/post", values);
-            if (response.status === 201) {
-                toast.success("Course added successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await createCourse(values);
+            if (response.data.status === 201) {
+                showToast("Course Added Successfully", "success");
                 setshowModal(false);
-                fetchCourse();
             } else {
-                toast.warn(response.statusText, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+                showToast("Error adding course", "error");
             }
         } catch (error) {
             console.error("Error adding course:", error);
-            toast.error(error.response.data.message || "Error adding course", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error adding course", "error");
         }
     };
     const handleEdit = async (course, id) => {
         try {
-            const response = await axios.put(`/api/courses/update/${id}`, course, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 200) {
-                toast.success("Course updated successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await updateCourse({ courseId: id, courseData: course });
+            if (response.data.status === 200) {
+                showToast("Course Updated Successfully", "success");
                 setEditShow(false);
-                fetchCourse();
             }
         } catch (error) {
             console.error('Error updating course:', error);
-            toast.error(error.response?.data?.message || "Error updating course", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error updating course", "error");
         }
     }
 
@@ -136,40 +90,20 @@ const Course = () => {
         );
     });
 
+    console.log("filteredCourses", filteredCourses);
+
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`/api/courses/delete/${id}`);
-            if (response.status === 200) {
-                toast.success("Course deleted successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fetchCourse();
+            const response = await deleteCourse(id);
+            if (response.data.status === 200) {
+                showToast("Course Deleted Successfully", "success");
             }
         } catch (error) {
             console.error('Error deleting course:', error);
-            toast.error(error.response?.data?.message || "Error deleting course", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error deleting course", "error");
         }
     };
-    console.log(Course);
-    
+
 
     return (
         <>
@@ -284,7 +218,6 @@ const Course = () => {
                                 {/* {error && <div className="alert alert-danger">{error}</div>} */}
                                 <Formik
                                     initialValues={initialValues}
-                                    validationSchema={validationSchema}
                                     onSubmit={handleSubmit}
                                 >
                                     {({ values, setFieldValue }) => (
@@ -352,12 +285,12 @@ const Course = () => {
                                                         {({ field }) => (
                                                             <Select
                                                                 isMulti
-                                                                options={Medium.map(med => ({
+                                                                options={Medium?.map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}
                                                                 name="medium"
-                                                                value={values.medium.map(m => ({
+                                                                value={values.medium?.map(m => ({
                                                                     value: m,
                                                                     label: Medium.find(med => med._id === m).mediumName
                                                                 }))}
@@ -793,12 +726,12 @@ const Course = () => {
                                                         {({ field }) => (
                                                             <Select
                                                                 isMulti
-                                                                options={Medium.map(med => ({
+                                                                options={Medium?.map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}
                                                                 name="medium"
-                                                                value={Medium.filter(med => values.medium.includes(med._id)).map(med => ({
+                                                                value={Medium?.filter(med => values.medium.includes(med._id)).map(med => ({
                                                                     value: med._id,
                                                                     label: med.mediumName
                                                                 }))}

@@ -3,13 +3,13 @@ import { Modal, Button, Form, Row, Col, Table, Spinner } from "react-bootstrap";
 import AttendanceModal from "./attendanceModal";
 import axios from "axios";
 import "./attendance.css";
-import { MainContext } from "../../Controller/MainProvider";
 import {
   GET_STUDENTS,
   GET_STUDENTS_BY_COURSE_AND_SECTION,
   MARK_ATTENDANCE,
 } from "../../ApiConstants/Routes";
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Calendar = () => {
@@ -28,41 +28,12 @@ const Calendar = () => {
   const [selectedSection, setSelectedSection] = useState("");
   const [sectionsOptions, setSectionsOptions] = useState([]);
 
-  const { instituteId, userId } = useContext(MainContext);
+  const { InstituteId, userId, Course, Section } = getCommonCredentials();
 
   useEffect(() => {
-    if (!instituteId) return;
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get(
-          `/api/courses/get/institute/${instituteId}`
-        );
-        // setFilters((prev) => ({ ...prev, course: response.data }));
-        setCoursesOptions(response?.data);
-        // setSectionsOptions(response?.data?.section);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-
-    const fetchSections = async () => {
-      try {
-        const response = await axios.get(
-          `/api/section/get/institute/${instituteId}`
-        );
-        // setSectionsOptions(response?.data);
-      } catch (error) {
-        console.error("Error fetching sections:", error);
-      }
-    };
-
-    fetchCourses();
-    fetchSections();
-
-    return () => {
-      setStudents([]);
-    };
-  }, [instituteId]);
+    setCoursesOptions(Course);
+    setSectionsOptions(Section);
+  }, [Course, Section]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value._id }));
@@ -85,7 +56,7 @@ const Calendar = () => {
         params: {
           courseId: selectedCourse?._id,
           sectionId: selectedSection?._id,
-          instituteId: instituteId,
+          instituteId: InstituteId,
         },
       });
       setStudents(response?.data);
@@ -171,9 +142,8 @@ const Calendar = () => {
       calendarDays.push(
         <div
           key={day}
-          className={`calendar-day border p-4 text-center ${
-            isFutureDate ? "disabled" : ""
-          }`}
+          className={`calendar-day border p-4 text-center ${isFutureDate ? "disabled" : ""
+            }`}
           onClick={() => !isFutureDate && handleDateClick(dateString)}
           style={{
             cursor: isFutureDate ? "not-allowed" : "pointer",
@@ -215,7 +185,7 @@ const Calendar = () => {
                 <option disabled value="">
                   Select Course
                 </option>
-                {coursesOptions?.map((course) => (
+                {coursesOptions?.items?.map((course) => (
                   <option key={course._id} value={course._id}>
                     {course.courseName}
                   </option>
@@ -313,7 +283,7 @@ const Calendar = () => {
           data={students}
           fetchUrl={GET_STUDENTS}
           submitUrl={MARK_ATTENDANCE}
-          instituteId={instituteId}
+          instituteId={InstituteId}
           userId={userId}
           sectionId={selectedSection?._id}
           courseId={selectedCourse?._id}

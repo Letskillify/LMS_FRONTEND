@@ -3,10 +3,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { MainContext } from "../../Controller/MainProvider";
 const StudentTransfer = () => {
   const [Data, setData] = useState({});
-  const { Student } = useContext(MainContext);
 
   return (
     <>

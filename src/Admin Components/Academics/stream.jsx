@@ -1,146 +1,71 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { MainContext } from '../../Controller/MainProvider';
-import { Field, Formik, Form } from 'formik';
-import axios from 'axios';
+import React, { useContext, useEffect, useState } from "react";
+import { Field, Formik, Form } from "formik";
+import axios from "axios";
 import { Bounce, toast } from "react-toastify";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import {
+  useCreateStreamMutation,
+  useUpdateStreamMutation,
+  useDeleteStreamMutation,
+} from "../../Redux/Api/academicsApi/streamSlice";
 
 function stream() {
-  const { userId } = useContext(MainContext);
+  const showToast = useGlobalToast();
+  const { userId, Stream, InstituteId  } = getCommonCredentials();
   const [stream, setstream] = useState([]);
   const [popup, setPopup] = useState(false);
   const [selectedstream, setSelectedstream] = useState(null);
 
- 
-    const fetchstreams = async () => {
-      try {
-        const response = await axios.get('/api/stream/get');
-        setstream(response.data || []);
-      } catch (error) {
-        console.error('Error fetching streams:', error);
-      }
-    };
- 
+  useEffect(() => {
+    setstream(Stream);
+  }, [Stream]);
+
+  const [createStream] = useCreateStreamMutation();
+  const [updateStream] = useUpdateStreamMutation();
+  const [deleteStream] = useDeleteStreamMutation();
 
   const handlestream = async (values, { resetForm }) => {
     try {
-      const response = await axios.post('/api/stream/post', values, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.status === 201) {
-        toast.success("Stream added successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        setstream([...stream, response.data])
+      const response = await createStream(values);
+      if (response.data.status === 201) {
+        showToast("Stream Created Successfully", "success");
         resetForm();
-        fetchstreams()
       }
     } catch (error) {
-      console.error('Error submitting stream:', error);
-      toast.error(error.response.data.message || "Error adding Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      })
+      console.error("Error submitting stream:", error);
+      showToast("Error submitting stream", "error");
     }
   };
 
   const handlestreamDelete = async (id) => {
-    try{
-      const response = await axios.delete(`api/stream/delete/${id}`);
-
-      if (response.status=== 200) {
-        toast.success("Stream deleted successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-      }
-      fetchstreams()
-
-    }catch(error  ){
-      console.error('Error deleting stream:', error);
-      toast.error(error.response.data.message || "Error deleting Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-    })
-    }
-  }
-  const handlestreamEdit = async (values, { resetForm }) => {
     try {
-      const response = await axios.put(`/api/stream/update/${selectedstream._id}`, values, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        toast.success("Stream Edit successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        setstream(
-          stream.map((item) =>
-            item._id === selectedstream._id ? { ...item, ...values } : item
-          )
-        );
-        setPopup(false); // Close popup
-        resetForm();
-        fetchstreams()
+      const response = await deleteStream(id);
+
+      if (response.data.status === 200) {
+        showToast("Stream Deleted Successfully", "success");
       }
     } catch (error) {
-      console.error("Error updating stream:", error); 
-      toast.error(error.response.data.message || "Error updating Stream", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-    })
-
+      console.error("Error deleting stream:", error);
+      showToast("Error deleting Stream", "error");
     }
   };
-  useEffect(() => {
-    fetchstreams();
-  }, []);
+  const handlestreamEdit = async (values, { resetForm }) => {
+    try {
+      const response = await updateStream({
+        streamId: selectedstream._id,
+        streamData: values,
+      });
+      if (response.data.status === 200) {
+        showToast("Stream Edit successfully", "success");
+        setPopup(false);
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error updating stream:", error);
+      showToast("Error updating stream", "error");
+    }
+  };
 
   return (
     <div className="px-4 py-5">
@@ -152,12 +77,12 @@ function stream() {
               <h5 className="card-title">Create stream</h5>
               <Formik
                 initialValues={{
-                  streamName: '',
-                  instituteId: userId,
+                  streamName: "",
+                  instituteId: InstituteId,
                 }}
                 onSubmit={handlestream}
               >
-                {({  }) => (
+                {({}) => (
                   <Form>
                     <div className="mb-3">
                       <label className="form-label">
@@ -210,38 +135,51 @@ function stream() {
                     type="text"
                     className="form-control ms-4 form-control-sm"
                     placeholder="Search"
-                    style={{ width: '200px' }}
+                    style={{ width: "200px" }}
                   />
                 </div>
               </div>
-              <table className="table table-bordered text-center">
-                <thead>
-                  <tr>
-                    <th scope="col-4">No.</th>
-                    <th scope="col-4">Name</th>
-                    <th scope="col-4">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stream.map((item, index) => (
-                    <tr key={item.id}>
-                      <th scope="row">{index + 1}</th>
-                      <td className='text-capitalize'>{item.streamName}</td>
-                      <td>
-                        <button className="btn btn-primary btn-sm me-2"  onClick={() => {
-                            setPopup(true);
-                            setSelectedstream(item);
-                          }}>
-                          <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-                        </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handlestreamDelete(item._id)}>
-                          <i className="fa fa-trash-o" aria-hidden="true"></i>
-                        </button>
-                      </td>
+              {stream?.length > 0 ? (
+                <table className="table table-bordered text-center">
+                  <thead>
+                    <tr>
+                      <th scope="col-4">No.</th>
+                      <th scope="col-4">Name</th>
+                      <th scope="col-4">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {stream?.map((item, index) => (
+                      <tr key={item?.id}>
+                        <th scope="row">{index + 1}</th>
+                        <td className="text-capitalize">{item?.streamName}</td>
+                        <td>
+                          <button
+                            className="btn btn-primary btn-sm me-2"
+                            onClick={() => {
+                              setPopup(true);
+                              setSelectedstream(item);
+                            }}
+                          >
+                            <i
+                              className="fa fa-pencil-square-o"
+                              aria-hidden="true"
+                            ></i>
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handlestreamDelete(item?._id)}
+                          >
+                            <i className="fa fa-trash-o" aria-hidden="true"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-center">No stream available.</p>
+              )}
             </div>
           </div>
         </div>
@@ -277,7 +215,7 @@ function stream() {
                         />
                       </div>
                       <button type="submit" className="btn btn-primary w-100">
-                      Update
+                        Update
                       </button>
                     </Form>
                   )}

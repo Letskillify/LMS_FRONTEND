@@ -1,31 +1,35 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MainContext } from '../../Controller/MainProvider';
-import Select from "react-select";
-import { PostApi } from '../../Custom Hooks/CustomeHook';
 import axios from 'axios';
 import { Bounce, toast } from 'react-toastify';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
+import { useCreateClassMutation, useDeleteClassMutation, useUpdateClassMutation } from '../../Redux/Api/academicsApi/classSlice';
 
 const Classes = () => {
+    const showToast = useGlobalToast();
     const [showModal, setshowModal] = useState(false)
     const [Show, setShow] = useState(10)
     const [editShow, setEditShow] = useState(false)
     const [selectEdit, setSelectEdit] = useState({})
     const [search, setSearch] = useState('')
     const [addSubject, setAddSubject] = useState([{}]);
-    const { userId, Section, Medium, Stream, Semester, Shift, Board, Course, CourseGroup, Class, fetchClass } = useContext(MainContext)
+    const { InstituteId, Course, CourseGroup, Class } = getCommonCredentials()
+    const [addClass] = useCreateClassMutation();
+    const [updateClass] = useUpdateClassMutation();
+    const [deleteClass] = useDeleteClassMutation();
     const initialValues = {
-        courses: null,
-        board: null,
-        courseGroup: null,
-        medium: null,
-        section: null,
-        semester: null,
-        shift: null,
-        stream: null,
+        courses: '',
+        board: '',
+        courseGroup: '',
+        medium: '',
+        section: '',    
+        semester: '',
+        shift: '',
+        stream: '',
         subject: [],
-        instituteId: userId,
+        instituteId: InstituteId,
     };
 
     const handleAddForm = () => {
@@ -41,84 +45,32 @@ const Classes = () => {
     }
     const handleSubmit = async (values) => {
         try {
-            const response = await axios.post("/api/class/post", values);
-            if (response.status === 201) {
-                toast.success("Class added successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await addClass(values);
+            console.log("response", response);
+            if (response?.data?.status === 201) {
+                showToast("Class Added Successfully", "success");
                 setshowModal(false);
-                fetchClass();
             } else {
-                toast.warn(response.statusText, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+                showToast(`Error adding class : ${response?.error?.data?.message}`, "error");
             }
         } catch (error) {
             console.error("Error adding class:", error);
-            toast.error(error.response.data.message || "Error adding class", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast(`Error adding class ${error}`, "error");
         }
     };
     const handleEdit = async (classes, id) => {
         console.log(classes);
 
         try {
-            const response = await axios.put(`/api/class/update/${id}`, classes, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 200) {
-                toast.success("Class updated successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await updateClass({ classId: id, classData: classes });
+            if (response.data.status === 200) {
+                showToast("Class Updated Successfully", "success");
                 setEditShow(false)
-                fetchClass();
+                // fetchClass();
             }
         } catch (error) {
             console.error('Error updating class:', error);
-            toast.error(error.response?.data?.message || "Error updating class", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error updating class", "error");
         }
     }
 
@@ -132,34 +84,13 @@ const Classes = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`/api/class/delete/${id}`);
-            if (response.status === 200) {
-                toast.success("Class deleted successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fetchClass();
+            const response = await deleteClass(id);
+            if (response.data.status === 200) {
+                showToast("Class Deleted Successfully", "success");
             }
         } catch (error) {
             console.error('Error deleting class:', error);
-            toast.error(error.response?.data?.message || "Error deleting class", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            });
+            showToast("Error deleting class", "error");
         }
     };
 
@@ -274,12 +205,14 @@ const Classes = () => {
                                 <Formik
                                     initialValues={initialValues}
                                     // validationSchema={validationSchema}
+                                    enableReinitialize
                                     onSubmit={handleSubmit}
                                 >
                                     {({ values, setFieldValue }) => (
                                         <Form>
                                             <div className="row">
-                                                <p className='text-center text-info mb-4'>Name is auto generated select course and all other details</p>
+                                                <p className='text-center text-info mb-0'>Class name is auto generated select course and all other details</p>
+                                                <p className='text-center text-info mb-4'>{`Class Name : (courseName sectionName (stream)-medium)`}</p>
                                                 {/* <div className="col-12 col-md-6 mb-3">
                                                     <label htmlFor="className" className="form-label">
                                                         Class Name
@@ -597,8 +530,9 @@ const Classes = () => {
                                         shift: selectEdit?.shift?._id,
                                         stream: selectEdit?.stream?._id,
                                         subject: selectEdit?.subject,
-                                        instituteId: userId,
+                                        instituteId: selectEdit?.instituteId?._id,
                                     }}
+                                    enableReinitialize
                                     // validationSchema={validationSchema}
                                     onSubmit={(value) => handleEdit(value, selectEdit._id)}
                                 >

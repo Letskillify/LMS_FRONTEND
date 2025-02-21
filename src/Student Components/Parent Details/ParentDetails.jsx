@@ -1,23 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useGetStudentByIdQuery } from '../../Redux/Api/studentSlice';
 
 const ParentDetails = () => {
     const [selectedParentDetails, setSelectedParentDetails] = useState()
-     const [activeTab, setActiveTab] = useState("father");
-    const { Student } = useContext(MainContext)
-    console.log(Student);
+    const [activeTab, setActiveTab] = useState("father");
+    const { userId } = getCommonCredentials();
+    const { data: StudentData } = useGetStudentByIdQuery(userId, {
+        skip: !userId,
+    })
 
     const handleTabClick = (tab) => {
-      setActiveTab(tab);
+        setActiveTab(tab);
     };
 
     useEffect(() => {
-      if (Student) {
-        setSelectedParentDetails(Student);
-      }
-    }, [Student]);
-    
-    
+        if (StudentData) {
+            setSelectedParentDetails(StudentData);
+        }
+    }, [StudentData]);
+
+
     return (
         <>
             <div className="" id="modalCenter" tabIndex="-1" aria-hidden="true">

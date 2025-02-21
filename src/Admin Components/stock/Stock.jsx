@@ -3,7 +3,8 @@ import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { Bounce, toast } from 'react-toastify';
 import * as Yup from 'yup';
-
+import { useCreateFirmAccountMutation, useGetFirmAccountsByInstituteIdQuery } from '../../Redux/Api/Stock/AccountSlice';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -21,10 +22,7 @@ const validationSchema = Yup.object().shape({
     email: Yup.string()
         .email('Invalid email address')
         .required('Email is required'),
-    website: Yup.string()
-        .url('Invalid URL format')
-        .required('Website is required'),
-    contactPersons: Yup.array()
+       contactPersons: Yup.array()
         .of(
             Yup.object().shape({
                 name: Yup.string().required('Contact person name is required'),
@@ -116,23 +114,20 @@ const validationSchema = Yup.object().shape({
 });
 function Stock() {
     const [Account, setAccount] = useState("Create")
+    const {InstituteId}= getCommonCredentials()
     const [showView, setShowView] = useState(false);
     const [selectedStock, setSelectedStock] = useState([]);
     const [forms, setForms] = useState([{}]);
     const [contactPersons, setcontactPersons] = useState([{}]);
     const [forms2, setForms2] = useState([{}]);
-
-    
-console.log("Forms:", forms);
-
     const handleAddForm = () => {
         setcontactPersons([...contactPersons, {}]); // Add a new empty form
     };
     const handleAddBank = () => {
         setForms2([...forms2, {}]); // Add a new empty form
     };
-
     const initialValues = {
+        InstituteId: InstituteId,
         name: '',
         alias: '',
         state: '',
@@ -183,12 +178,8 @@ console.log("Forms:", forms);
         try {
             console.log("Sending formData:", formData); // Debugging
     
-            const response = await axios.post('/api/firm-account/post', formData, {
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            });
-          if (response.status === 201) {
+            const response = await createFirmAccount(formData);
+          if (response.data.status === 201) {
                     toast.success("Section updated successfully", {
                       position: "top-right",
                       autoClose: 5000,
@@ -216,104 +207,106 @@ console.log("Forms:", forms);
             });
         }
     };
+    // const fatchData = async () => {
+    //     try {
+    //         const response = await axios.get('/api/firm-account/get');
+    //         if (response.status === 200) {
+    //             setForms(response.data);
+    //         }
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
 
-    const fatchData = async () => {
-        try {
-            const response = await axios.get('/api/firm-account/get');
-            if (response.status === 200) {
-                setForms(response.data);
-            }
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-
-    const handleDelete = async (id) => {
-        try {
-            const res = await axios.delete(`/api/firm-account/delete/${id}`);
-            if (res.status === 200) {
-                toast.success("Firm account deleted successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fatchData();
-            }
-            
-        } catch (err) {
-            toast.error(err?.response?.data?.message || "Error deleting firm account", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            })
-        }
-    };
-
-
-    const handleEdit = async (v, id) => {
-        console.log(v);
-
-        try {
-            const res = await axios.put(`/api/firm-account/update/${id}`, v, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                method: 'PUT',
-            });
-            if (res.status === 200) {
-                toast.success("Inventory edding successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                fatchData();
-
-            }
-        } catch (err) {
-            toast.error(err.response.data.message || "Error edding inventory", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                transition: Bounce,
-            })
-
-        };
-    }
-
-
+    const {data: FirmAccount , isLoading, isError, error } = useGetFirmAccountsByInstituteIdQuery(InstituteId, {
+        skip: !InstituteId,
+    });
+    const [createFirmAccount]= useCreateFirmAccountMutation();
     useEffect(() => {
-        fatchData();
-    }, []);
+        if (InstituteId) {
+            setForms(FirmAccount);
+        }
+    }, [InstituteId, FirmAccount]);
+
+    // const handleDelete = async (id) => {
+    //     try {
+    //         const res = await axios.delete(`/api/firm-account/delete/${id}`);
+    //         if (res.status === 200) {
+    //             toast.success("Firm account deleted successfully", {
+    //                 position: "top-right",
+    //                 autoClose: 5000,
+    //                 hideProgressBar: false,
+    //                 closeOnClick: true,
+    //                 pauseOnHover: true,
+    //                 draggable: true,
+    //                 progress: undefined,
+    //                 theme: "colored",
+    //                 transition: Bounce,
+    //             });
+    //             fatchData();
+    //         }
+            
+    //     } catch (err) {
+    //         toast.error(err?.response?.data?.message || "Error deleting firm account", {
+    //             position: "top-right",
+    //             autoClose: 5000,
+    //             hideProgressBar: false,
+    //             closeOnClick: true,
+    //             pauseOnHover: true,
+    //             draggable: true,
+    //             progress: undefined,
+    //             theme: "colored",
+    //             transition: Bounce,
+    //         })
+    //     }
+    // };
+    // const handleEdit = async (v, id) => {
+    //     console.log(v);
+
+    //     try {
+    //         const res = await axios.put(`/api/firm-account/update/${id}`, v, {
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             method: 'PUT',
+    //         });
+    //         if (res.status === 200) {
+    //             toast.success("Inventory edding successfully", {
+    //                 position: "top-right",
+    //                 autoClose: 5000,
+    //                 hideProgressBar: false,
+    //                 closeOnClick: true,
+    //                 pauseOnHover: true,
+    //                 draggable: true,
+    //                 progress: undefined,
+    //                 theme: "colored",
+    //                 transition: Bounce,
+    //             });
+    //             fatchData();
+
+    //         }
+    //     } catch (err) {
+    //         toast.error(err.response.data.message || "Error edding inventory", {
+    //             position: "top-right",
+    //             autoClose: 5000,
+    //             hideProgressBar: false,
+    //             closeOnClick: true,
+    //             pauseOnHover: true,
+    //             draggable: true,
+    //             progress: undefined,
+    //             theme: "colored",
+    //             transition: Bounce,
+    //         })
+
+    //     };
+    // }
+    // useEffect(() => {
+    //     fatchData();
+    // }, []);
 
     return (
         <>
             <div>
-
-
                 <h2 className='text-center mt-4'>Stock Account</h2>
                 <div className="stockAccount text-center mt-3" >
                     <button className='btn btn-info m-2 ' value="Create" onClick={(e) => setAccount(e.target.value)}>Create</button>
@@ -323,7 +316,7 @@ console.log("Forms:", forms);
 
                 {Account === "Create" && (
                     <Formik initialValues={initialValues} onSubmit={handleApi}
-                        validationSchema={validationSchema}
+                        // validationSchema={validationSchema}
                     >
                         {({ errors, resetForm }) => (
 
@@ -821,7 +814,7 @@ console.log("Forms:", forms);
                                                                 id="collapse"
                                                                 className="accordion-collapse collapse border rounded m-3"
                                                             >
-                                                                {contactPersons.map((_, idx) => (
+                                                                {contactPersons?.map((_, idx) => (
                                                                     <div key={idx}>
                                                                     <div className="accordion-body" >
                                                                         <div className="row">
@@ -912,7 +905,7 @@ console.log("Forms:", forms);
                                                             data-bs-parent="#accordionExample">
                                                             <div className="accordion-body">
                                                                 {/* Bank Details fields */}
-                                                                {forms2.map((_, idx) => (
+                                                                {forms2?.map((_, idx) => (
                                                                     <div key={idx}>
                                                                         <div className="row mb-3">
                                                                             <div className="col-md-6">
@@ -1078,11 +1071,6 @@ console.log("Forms:", forms);
                                                 {/* <!-- Buttons --> */}
                                             </div>
                                         </div>
-
-
-
-
-
                                     </div >
                                 </Form >
 
@@ -1113,7 +1101,7 @@ console.log("Forms:", forms);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {forms.map((stock, index) => (
+                                        {forms?.items?.map((stock, index) => (
                                             <tr key={stock?.id}>
                                                 <td>{stock?.name}</td>
                                                 <td>{stock?.alias}</td>
@@ -1983,7 +1971,7 @@ console.log("Forms:", forms);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {forms.map((stock) => (
+                                        {forms?.items?.map((stock) => (
                                             <tr key={stock.id}>
                                                 <td>{stock.name}</td>
                                                 <td>{stock.alias}</td>

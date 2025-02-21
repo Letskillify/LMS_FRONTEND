@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useImageUploader } from "../../Custom Hooks/CustomeHook";
+import { useFileUploader } from "../../Custom Hooks/CustomeHook";
 
 function Hostel() {
   const [hostelData, setHostelData] = useState([]);
@@ -14,7 +14,7 @@ function Hostel() {
   const [find, setFind] = useState("");
   const [hostelType, setHostelType] = useState("");
   const [edit, setEdit] = useState("");
-  const { uploadedData, handleImageUpload } = useImageUploader();
+  const { uploadedData, handleFileUpload } = useFileUploader();
 
   // Initial form values
   const initialValues = {
@@ -327,7 +327,7 @@ function Hostel() {
                                   className="form-control"
                                   placeholder="Hostel Images"
                                   onChange={(e) =>
-                                    handleImageUpload(e, "imageUrl")
+                                    handleFileUpload(e, "imageUrl")
                                   }
                                 />
                                 <ErrorMessage
@@ -790,7 +790,7 @@ function Hostel() {
                                                     placeholder="Image"
                                                     aria-label="Image"
                                                     onChange={(e) =>
-                                                      handleImageUpload(
+                                                      handleFileUpload(
                                                         e,
                                                         "imageUrl"
                                                       )
@@ -816,7 +816,7 @@ function Hostel() {
                                                 placeholder="Image"
                                                 aria-label="Image"
                                                 onChange={(e) =>
-                                                  handleImageUpload(
+                                                  handleFileUpload(
                                                     e,
                                                     "imageUrl"
                                                   )

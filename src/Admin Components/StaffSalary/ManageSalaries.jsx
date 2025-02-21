@@ -14,15 +14,20 @@ import MakePayment from "./components/MakePayment";
 import SalaryTable from "./components/SalaryTable";
 import EditSalaryModal from "./components/EditSalaryModal";
 import axios from "axios";
+import { useGetDeductionsByInstituteIdQuery } from "../../Redux/Api/SalaryDeductionSlice";
+import { useGetAllowancesByInstituteIdQuery } from "../../Redux/Api/SalaryAllowanceSlice";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const ManageSalaries = () => {
+  const {InstituteId: instituteId} = getCommonCredentials();
   const showToast = useGlobalToast();
   const [salaryData, setSalaryData] = useState([]);
+  console.log("salaryData", salaryData);
   const [editMode, setEditMode] = useState(false);
   const [staffToEdit, setStaffToEdit] = useState({});
   const [staffData, setStaffData] = useState([]);
-  const [allowanceData, setAllowanceData] = useState([]);
-  const [deductionData, setDeductionData] = useState([]);
+  const [allowances, setAllowances] = useState([]);
+  const [deductions, setDeductions] = useState([]);
   const [currentSalaryStaff, setCurrentSalaryStaff] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,6 +49,17 @@ const ManageSalaries = () => {
   });
   const [editModalFormData, setEditModalFormData] = useState({});
   const [editShowModal, setEditShowModal] = useState(false);
+  const [dataForPrintScript, setDataForPrintScript] = useState({});
+
+  const { data: allowanceData } = useGetAllowancesByInstituteIdQuery(
+    instituteId,
+    { skip: !instituteId }
+  );
+
+  const { data: deductionData } = useGetDeductionsByInstituteIdQuery(
+    instituteId,
+    { skip: !instituteId }
+  );
 
   const totalPages = Math.ceil(Json.length / itemsPerPage);
   const CurrentItem = Json.slice(
@@ -83,44 +99,44 @@ const ManageSalaries = () => {
     });
   };
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    const response = await fetch(`${GET_ALL_SALARIES}`);
+    const data = await response.json();
+    if (
+      response.status === 200 ||
+      response.status === 304 ||
+      response.success
+    ) {
+      setSalaryData(data);
+      setIsLoading(false);
+    } else {
+      showToast("Something went wrong!", "error");
+      setIsLoading(false);
+    }
+  };
+
+  const fetchSalaryAllowance = async () => {
+    const response = await fetch(GET_ALL_ALLOWANCES);
+    const data = await response.json();
+    if (response.ok) {
+      setAllowances(data?.items);
+    } else {
+      showToast("Something went wrong!", "error");
+    }
+  };
+
+  const fetchSalaryDeduction = async () => {
+    const response = await fetch(GET_ALL_DEDUCTIONS);
+    const data = await response.json();
+    if (response.ok) {
+      setDeductions(data?.items);
+    } else {
+      showToast("Something went wrong!", "error");
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      const response = await fetch(`${GET_ALL_SALARIES}`);
-      const data = await response.json();
-      if (
-        response.status === 200 ||
-        response.status === 304 ||
-        response.success
-      ) {
-        setSalaryData(data);
-        setIsLoading(false);
-      } else {
-        showToast("Something went wrong!", "error");
-        setIsLoading(false);
-      }
-    };
-
-    const fetchSalaryAllowance = async () => {
-      const response = await fetch(GET_ALL_ALLOWANCES);
-      const data = await response.json();
-      if (response.ok) {
-        setAllowanceData(data);
-      } else {
-        showToast("Something went wrong!", "error");
-      }
-    };
-
-    const fetchSalaryDeduction = async () => {
-      const response = await fetch(GET_ALL_DEDUCTIONS);
-      const data = await response.json();
-      if (response.ok) {
-        setDeductionData(data);
-      } else {
-        showToast("Something went wrong!", "error");
-      }
-    };
-
     fetchSalaryDeduction();
     fetchSalaryAllowance();
     fetchData();
@@ -131,7 +147,7 @@ const ManageSalaries = () => {
       `/api/${staffType === "TeachingStaff" ? "teacher" : "staff"}/get-all`
     );
     const data = await response.json();
-    if (response.ok) {
+    if (response.status === 200) {
       setStaffData(data);
     } else {
       showToast("Something went wrong!", "error");
@@ -160,17 +176,22 @@ const ManageSalaries = () => {
       ),
     };
 
-    const res = axios.put(`${UPDATE_SALARY_BY_ID}/${id}`, UpdateData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = axios
+      .put(`${UPDATE_SALARY_BY_ID}/${id}`, UpdateData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        if (res.status == 200 || res.status == 201 || res.status == "Ok") {
+          showToast("Salary updated successfully", "success");
+          fetchData();
+        } else {
+          showToast("Something went wrong. Please try again later.", "error");
+        }
+      });
     handleClose();
-    if (res.status == 200) {
-      showToast("Salary updated successfully", "success");
-    } else {
-      showToast("Something went wrong. Please try again later.", "error");
-    }
+    fetchData();
   };
 
   if (isLoading) {
@@ -281,6 +302,8 @@ const ManageSalaries = () => {
                 setStaffToEdit={setStaffToEdit}
                 currentSalaryStaff={currentSalaryStaff}
                 setEditShowModal={setEditShowModal}
+                dataForPrintScript={dataForPrintScript}
+                setDataForPrintScript={setDataForPrintScript}
               />
               {/* Pagination Controls */}
               <div style={{ marginTop: "1rem" }}>
@@ -315,8 +338,8 @@ const ManageSalaries = () => {
       <AddSalaryModal
         staffData={staffData}
         show={showAddSalaryModal}
-        allowanceData={allowanceData}
-        deductionData={deductionData}
+        allowanceData={allowances}
+        deductionData={deductions}
         staffType={staffType}
         setStaffType={setStaffType}
         handleClose={handleClose}
@@ -330,8 +353,8 @@ const ManageSalaries = () => {
         handleClose={handleClose}
         salaryData={staffToEdit}
         staffData={staffData}
-        allowanceData={allowanceData}
-        deductionData={deductionData}
+        allowanceData={allowances}
+        deductionData={deductions}
         handleUpdateSalary={handleUpdateSalary}
       />
     </>

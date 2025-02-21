@@ -3,126 +3,62 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Bounce, toast } from "react-toastify";
 import { MainContext } from '../../Controller/MainProvider';
+import { getCommonCredentials } from '../../GlobalHelper/CommonCredentials';
+import { useCreateCourseGroupMutation, useDeleteCourseGroupMutation, useUpdateCourseGroupMutation } from '../../Redux/Api/academicsApi/courseGroupSlilce';
+import useGlobalToast from '../../GlobalComponents/GlobalToast';
 
 function CourseGroup() {
+    const showToast = useGlobalToast();
     const [courseGroups, setCourseGroups] = useState([]);
-    const [editingGroup, setEditingGroup] = useState(null); // State to track the group being edited
-    const { userId } = useContext(MainContext);
+    const [editingGroup, setEditingGroup] = useState(null);
+    console.log("editingGroup", editingGroup);
+    const { userId, InstituteId, CourseGroup } = getCommonCredentials();
+
+    const [createCourseGroup] = useCreateCourseGroupMutation();
+    const [updateCourseGroup] = useUpdateCourseGroupMutation();
+    const [deleteCourseGroup] = useDeleteCourseGroupMutation();
 
     useEffect(() => {
-        fetchCourseGroups(); 
-    }, []);
-
-    const fetchCourseGroups = async () => {
-        try {
-            const response = await axios.get('/api/course-group/get');
-            setCourseGroups(response.data);
-        } catch (error) {
-            console.error('Error fetching Course Groups:', error);
-        }
-    };
+        setCourseGroups(CourseGroup);
+    }, [CourseGroup]);
 
     const handleGroup = async (values, { resetForm }) => {
         try {
-            const response = await axios.post('/api/course-group/post', values, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 201) {
-                toast.success("Section added successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                setCourseGroups([...courseGroups, response.data]);
+            const response = await createCourseGroup(values);
+            if (response.data.status === 201) {
+                showToast("CourseGroup Created Successfully", "success");
                 resetForm();
-                fetchCourseGroups();
             }
         } catch (error) {
-            console.error('Error submitting Section:', error);
-            toast.error(error.response?.data?.message || "Error adding section", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            console.error('Error submitting CourseGroup:', error);
+            showToast("Error submitting CourseGroup", "error");
         }
     };
 
     const handleEditSubmit = async (values) => {
         try {
-            const response = await axios.put(`/api/course-group/update/${editingGroup._id}`, values, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 200) {
-                toast.success("Section updated successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
+            const response = await updateCourseGroup({ courseGroupId: editingGroup._id, courseGroupData: values });
+            if (response.data.status === 200) {
+                showToast("CourseGroup Updated Successfully", "success");
                 setEditingGroup(null);
-                fetchCourseGroups();
             }
         } catch (error) {
-            console.error('Error updating Section:', error);
-            toast.error(error.response?.data?.message || "Error updating section", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            console.error('Error updating CourseGroup:', error);
+            showToast("Error updating CourseGroup", "error");
         }
     };
 
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`/api/course-group/delete/${id}`);
-            if (response.status === 200) {
-                toast.success("Section deleted successfully", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "colored",
-                    transition: Bounce,
-                });
-                setCourseGroups(courseGroups.filter((group) => group._id !== id));
+            const response = await deleteCourseGroup(id);
+            console.log(response);
+            
+            if (response.data.status === 200) {
+                showToast("CourseGroup Deleted Successfully", "success");
             }
         } catch (error) {
-            console.error('Error deleting Section:', error);
-            toast.error(error.response?.data?.message || "Error deleting section", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-                transition: Bounce,
-            });
+            console.error('Error deleting CourseGroup:', error);
+            showToast("Error deleting CourseGroup", "error");
         }
     };
 
@@ -138,7 +74,7 @@ function CourseGroup() {
                                 initialValues={{
                                     courseGroupName: '',
                                     description: '',
-                                    instituteId: userId
+                                    instituteId: InstituteId
                                 }}
                                 onSubmit={handleGroup}
                             >
@@ -190,8 +126,8 @@ function CourseGroup() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {courseGroups.length > 0 ? (
-                                        courseGroups.map((group, index) => (
+                                    {courseGroups?.length > 0 ? (
+                                        courseGroups?.map((group, index) => (
                                             <tr key={group._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{group.courseGroupName}</td>
@@ -251,7 +187,7 @@ function CourseGroup() {
                                         courseGroupName: editingGroup.courseGroupName,
                                         includedInCourseGroup: editingGroup.includedInCourseGroup,
                                         description: editingGroup.description,
-                                        instituteId: userId,
+                                        instituteId: editingGroup.instituteId,
                                     }}
                                     onSubmit={handleEditSubmit}
                                 >

@@ -51,22 +51,17 @@ import FeeDetails from '../Admin Components/Fee Management/FeeDetails.jsx'
 import FeeReminderToAll from '../Admin Components/Fee Management/FeeReminderToAll.jsx'
 import PendingFeesTracker from '../Admin Components/Fee Management/PendingFeesTracker.jsx'
 import EditParents from '../Admin Components/Parents/EditParents.jsx'
-import AddClass from '../Admin Components/Class Management/AddClass.jsx'
 import ImageUploadComponent from '../Admin Components/Test files/ImageUploadComponent.jsx'
 import EditProfile from '../Admin Components/Institute/EditProfile.jsx'
 import Stock from '../Admin Components/stock/Stock.jsx'
-import Subjects from '../Admin Components/Class Management/Subjects.jsx'
 import StaffManagement from '../Admin Components/Staff/StaffManagement.jsx'
 import NonTeachingStaff from '../Admin Components/Staff/NonTeachingStaff.jsx'
 import TeachingStaff from '../Admin Components/Staff/TeachingStaff.jsx'
 import BookListTrash from '../Admin Components/librarys/BookListTrash.jsx'
 import BooksList from '../Admin Components/librarys/BooksList.jsx'
 import Hostel from '../Admin Components/Hostel Management/Hostel.jsx'
-import AdminHomeWork from '../Admin Components/HomeWork Management/AdminHomeWork.jsx'
 import TeacherHomeWork from '../Admin Components/HomeWork Management/TeacherHomeWork.jsx'
-import AdminExam from '../Admin Components/Exam Management/AdminExam.jsx'
-import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
-import TeacherExam from '../Admin Components/Exam Management/TeacherExam.jsx'
+// import StudentExam from '../Admin Components/Exam Management/StudentExam.jsx'
 import StudyMaterial from '../Admin Components/Study Materials/StudyMaterial.jsx'
 import VideoUploaderComponent from '../Admin Components/Test files/VideoUploaderComponent .jsx'
 import FileUploader from '../Admin Components/Test files/FileUploader.jsx'
@@ -77,7 +72,7 @@ import PasswordForget from '../Auth User/PasswordForget.jsx'
 // import AddSections from '../Admin Components/Sections/AddSections.jsx'
 import MultiSelectFormik from '../Admin Components/Test files/MultiSelectFormik.jsx'
 import CreateSemester from '../Admin Components/Academics/CreateSemester.jsx'
-import CreateShift from '../Admin Components/Academics/CreateShift.jsx'
+import CreateShift  from '../Admin Components/Academics/CreateShift.jsx'
 import Medium from '../Admin Components/Academics/Medium.jsx'
 import Section from '../Admin Components/Academics/Section.jsx'
 import Stream from '../Admin Components/Academics/Stream.jsx'
@@ -95,16 +90,41 @@ import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
-import Reduxtest from '../Admin Components/Test files/Reduxtest.jsx'
 import Settings from '../Admin Components/Setting/Settings.jsx'
-import InstituteHoliday from '../Admin Components/Hoslidays/instituteHoliday.jsx'
-import HolidayForm from '../Admin Components/Hoslidays/HolidayList.jsx'
+import StockInventory from '../Admin Components/stock/Inventory.jsx'
+import EmployeRole from '../Admin Components/Employe-Role/EmployeRole.jsx'
+import Holiday from '../Admin Components/Hoslidays/Holiday.jsx'
+import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
+import { getCommonCredentials } from '../GlobalHelper/CommonCredentials.jsx'
+import { useFetchInstituteData } from '../Controller/useFetchAllQueries.jsx'
+import ExpenseGetReceipt from '../Admin Components/Vouchars/ExpenseGetReceipt.jsx'
+import NCERTclass from '../Admin Components/NCRT/NCERTclass.jsx'
+import NCERTsubject from '../Admin Components/NCRT/NCERTsubject.jsx'
+// import ExamType from '../Admin Components/Exam Management/ExamType.jsx'
+import NoticeBoard from '../Admin Components/Notice Board/NoticeBoard.jsx'
+import LeaveManagement from '../Admin Components/LeaveManagement.jsx'
+import Subjects from '../Admin Components/NCRT/NCRTbooks/Subjects.jsx'
+import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
+import Class from '../Admin Components/NCRT/NCERTclass.jsx'
+import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
+import StudentHomeWork from '../Admin Components/HomeWork Management/StudentHomeWork.jsx'
+import TestList from '../Admin Components/TestManagement/TestList.jsx'
+import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
+import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
+import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
+import AssignExam from '../Admin Components/Exam Management/AssignExam.jsx'
+import ExamDetails from '../Admin Components/Exam Management/ExamDetails.jsx'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import StudentApply from '../Admin Components/idCardPrint/StudentApply.jsx'
 import Applications from '../Admin Components/idCardPrint/Applications.jsx'
 import IdCardSetting from '../Admin Components/idCardPrint/IdCardSetting.jsx'
 const AdminDashboard = () => {
-  const token = sessionStorage.getItem("token");
+  const { userId, Designation: designation, Islogin, Token: token } =
+    getCommonCredentials();
+  // const token = sessionStorage.getItem("token");
+  useFetchInstituteData(userId, Islogin, token, designation);
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
@@ -115,7 +135,6 @@ const AdminDashboard = () => {
             <Routes>
               <Route path="/" element={<PrivteRoute />}>
                 <Route path='/testfile' element={<ImageUploadComponent />} />
-                <Route path="reduxtest" element={<Reduxtest />}></Route>
                 <Route path='/videotestfile' element={<VideoUploaderComponent />} />
                 <Route path='/fileuploadertest' element={<FileUploader />} />
                 <Route path='/CsvToJsonConverter' element={<CsvToJsonConverter />} />
@@ -173,18 +192,17 @@ const AdminDashboard = () => {
                 <Route path='/feeremindertoall' element={<FeeReminderToAll />} />
                 <Route path='/pendingfees' element={<PendingFeesTracker />} />
                 <Route path='/feecollection' element={<FeeCollection />} />
-                <Route path='/addclasses' element={<AddClass />} />
-                <Route path='/allclasses&subjects' element={<Subjects />} />
                 <Route path='/stock-Account' element={<Stock />} />
+                <Route path='/stock-inventory' element={<StockInventory/>} />
                 <Route path="/staff-management" element={<StaffManagement />}></Route>
                 <Route path="/non-teaching-staff" element={<NonTeachingStaff />}></Route>
                 <Route path="/teaching-staff" element={<TeachingStaff />}></Route>
                 <Route path="/hostelmanage" element={<Hostel />}></Route>
-                <Route path="/adminhomework" element={<AdminHomeWork />}></Route>
+                <Route path="/Student-homework" element={<StudentHomeWork />}></Route>
                 <Route path="/teacherhomework" element={<TeacherHomeWork />}></Route>
-                <Route path="/adminexam" element={<AdminExam />}></Route>
-                <Route path="/teacherexam" element={<TeacherExam />}></Route>
-                <Route path="/studentexam" element={<StudentExam />}></Route>
+                <Route path="/assignexam" element={<AssignExam />}></Route>
+                <Route path="/examdetails" element={<ExamDetails />}></Route>
+                <Route path="/examtype" element={<ExamType/>}></Route>
                 <Route path="/studymaterial" element={<StudyMaterial />}></Route>
                 {/* <Route path="/addsections" element={<AddSections />}></Route> */}
                 <Route path="/semesters" element={<CreateSemester />}></Route>
@@ -197,20 +215,39 @@ const AdminDashboard = () => {
                 {/* <Route path="/classgroup" element={<ClassGroup />}></Route> */}
                 <Route path="/Voucher-purchase" element={<Purchase />}></Route>
                 <Route path="/Vourchar-expense" element={<ExpenseForm />}></Route>
+                <Route path="/Vourchar-expense-get" element={<ExpenseGetReceipt />}></Route>
                 <Route path="/Vourchar-Sale" element={<Sale />}></Route>
                 <Route path="/Vourchar-Receipt" element={<Receipt />}></Route>
                 <Route path="/course" element={<Course />}></Route>
                 <Route path="/coursegroup" element={<CourseGroup />}></Route>
                 <Route path="/classes" element={<Classes />}></Route>
                 <Route path="/assignteachers" element={<AssignTeacher />}></Route>
-                <Route path="/Holiday" element={<InstituteHoliday />}></Route>
-                <Route path="/Holiday-Form" element={<HolidayForm/>}></Route>
+                <Route path="/holiday" element={<Holiday/>}></Route>
+                <Route path="/fee-type" element={<FeeType />}></Route>
+                <Route path="/settings" element={<Settings />}></Route>
+                <Route path="/employe-role" element={<EmployeRole/>}></Route>
                 <Route path="fee-type" element={<FeeType />}></Route>
-                <Route path="settings" element={<Settings />}></Route>
+                <Route path="employe-role" element={<EmployeRole/>}></Route>
+                {/* <Route path='/leave' element={<Leave/>} /> */}
+                {/* <Route path='/admin-leave' element={<Leaveinstitute/>} /> */}
+                {/* <Route path='/Notification-Board' element={<NotificationBoard/>} /> */}
+                <Route path='/NCERT-class' element={<NCERTclass/>} />
+                <Route path='/NCERT-subject' element={<NCERTsubject/>} />
+                <Route path='/leavemanagement' element={<LeaveManagement/>} />
+                <Route path='/notice-board' element={<NoticeBoard/>} />
+                <Route path='/NCRT-classes' element={<ClassList/>} />
+                <Route path='/NCRT-subject' element={<Subjects/>} />
+                <Route path='/NCRT-chapters' element={<Chapters/>} />
+                <Route path='/NCRT-class' element={<Class/>} />
+                <Route path='/NCRT-class' element={<Book/>} />
+                {/* <Route path='/NCRT-subject' element={<Subjects/>} />
+                <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
               </Route>
               <Route path='/login' element={<LoginForm />} />
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
+              <Route path='/testlist' element={<TestList/>} />
+              
             </Routes>
             <Footer />
             <div className="content-backdrop fade"></div>
@@ -218,6 +255,17 @@ const AdminDashboard = () => {
         </div>
       </div>
       <div className="layout-overlay layout-menu-toggle"></div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   )
 }

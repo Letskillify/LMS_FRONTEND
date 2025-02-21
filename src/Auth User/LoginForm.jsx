@@ -5,15 +5,43 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { Bounce, toast } from "react-toastify";
+import { useLoginMutation } from "../Redux/Api/authSlice";
+import { useDispatch } from "react-redux";
+import {
+  setDesignation,
+  setGlobalInstituteId,
+  setGlobalToken,
+  setGlobalUserId,
+  setIslogin,
+} from "../Redux/Slices/MainSlice";
+import useGlobalToast from "../GlobalComponents/GlobalToast";
 
 const LoginForm = () => {
+  const showToast = useGlobalToast();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [Message, setMessage] = useState();
-  const [Success, setSuccess] = useState()
+  const [Success, setSuccess] = useState();
+  const [loginData, setLoginData] = useState({});
   const SECRET_KEY = "brigatech&letskillify";
+  const [login] = useLoginMutation();
+
+  useEffect(() => {
+    dispatch(setIslogin(loginData?.success));
+    dispatch(setGlobalToken(loginData?.token));
+    dispatch(setDesignation(loginData?.designation));
+    if (loginData?.designation == "Institute") {
+      dispatch(setGlobalInstituteId(loginData?.userId));
+      dispatch(setGlobalUserId(loginData?.userId));
+    } else {
+      dispatch(setGlobalUserId(loginData?.userId));
+    }
+  }, [loginData, dispatch]);
 
   const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email format").required("Email is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
@@ -21,15 +49,18 @@ const LoginForm = () => {
   });
 
   const handleSubmit = async (values) => {
-
     try {
-      const res = await axios.post("http://localhost:5500/login", values);
+      const res = await login(values);
 
-      if (res.status === 200) {
+      console.log("resposne : ", res);
+
+      if (res?.data?.success) {
         const { token, userId, designation, message, success } = res.data;
 
+        setLoginData(res.data);
+
         // Ensure SECRET_KEY is valid
-        console.log("SECRET_KEY:", SECRET_KEY);
+        // console.log("SECRET_KEY:", SECRET_KEY);
 
         // Encrypt and store data in sessionStorage
         sessionStorage.setItem(
@@ -49,32 +80,26 @@ const LoginForm = () => {
           CryptoJS.AES.encrypt(String(success) || "", SECRET_KEY).toString()
         );
         setMessage(message);
-        setSuccess(success)
+        setSuccess(success);
         window.location.reload();
         navigate("/", {
           state: { userId, designation, token },
         });
-      }
+      } else if (res?.error?.data?.status == 400) {
+        showToast(res?.error?.data?.message || "Invalid credentials", "warning");
+      };
     } catch (err) {
-      console.error(err);
+      console.log("err", err);
       setMessage(err?.response?.data?.message || "An error occurred");
-      toast.error(err?.response?.data?.message || "An error occurred", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      showToast(err?.response?.data?.message || "An error occurred", "error");
     }
   };
 
-
   return (
-    <section className="h-100" style={{ backgroundColor: "#9A616D" }}>
+    <section
+      className="w-100 d-flex justify-content-center align-items-center"
+      style={{ backgroundColor: "#9A616D", minHeight: "100vh" }}
+    >
       <div className="container py-5">
         <div className="row d-flex justify-content-center align-items-center">
           <div className="col col-xl-10">
@@ -85,19 +110,28 @@ const LoginForm = () => {
                     src="https://img.freepik.com/free-vector/mobile-login-concept-illustration_114360-83.jpg?t=st=1736500280~exp=1736503880~hmac=27583bc02cd98c8530105f634b1f720a0bc13296274b73692df18f339793d9b2&w=740"
                     alt="login form"
                     className="img-fluid"
-                    style={{ borderRadius: "1rem 0 0 1rem", objectFit: "cover" }}
+                    style={{
+                      borderRadius: "1rem 0 0 1rem",
+                      objectFit: "cover",
+                    }}
                   />
                 </div>
                 <div className="col-md-6 col-lg-7 d-flex align-items-center">
                   <div className="card-body p-4 p-lg-5 text-black">
                     <Formik
-                      initialValues={{ email: "", password: "", designation: "" }}
+                      initialValues={{
+                        email: "",
+                        password: "",
+                        designation: "",
+                      }}
                       validationSchema={validationSchema}
                       onSubmit={handleSubmit}
                     >
                       {({ isSubmitting, status }) => (
                         <Form>
-                          <h4 className="fw-bold mb-4 text-center">Sign into your account</h4>
+                          <h4 className="fw-bold mb-4 text-center">
+                            Sign into your account
+                          </h4>
                           <hr />
                           <div className="form-outline mb-4 mt-5">
                             <Field
@@ -134,7 +168,6 @@ const LoginForm = () => {
                             />
                           </div>
 
-
                           <div className="form-outline mb-4">
                             <Field
                               type="password"
@@ -149,11 +182,10 @@ const LoginForm = () => {
                             />
                           </div>
 
-
-
                           <h6
-                            className={`ms-2 ${Success ? "text-success" : "text-danger"
-                              }`}
+                            className={`ms-2 ${
+                              Success ? "text-success" : "text-danger"
+                            }`}
                           >
                             {Message}
                           </h6>
@@ -175,7 +207,10 @@ const LoginForm = () => {
                             style={{ color: "#393f81" }}
                           >
                             Don't have an account?{" "}
-                            <Link to="/instituteregister" style={{ color: "#393f81" }}>
+                            <Link
+                              to="/instituteregister"
+                              style={{ color: "#393f81" }}
+                            >
                               Register here
                             </Link>
                           </p>
