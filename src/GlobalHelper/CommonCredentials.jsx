@@ -20,7 +20,6 @@ export const getCommonCredentials = () => {
     
     return { token, userId, designation, Islogin };
   };
-  // console.log("State", state.globalInstitute);
   const decryptedData = getDecryptedValues();
   return {
     Designation: state.designation || decryptedData.designation,
