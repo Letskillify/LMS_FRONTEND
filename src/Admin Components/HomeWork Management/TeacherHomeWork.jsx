@@ -16,6 +16,16 @@ import GlobalTable from "../../GlobalComponents/GlobalTable";
 
 const ClassHomeWork = () => {
   const showToast = useGlobalToast();
+  const { InstituteId } = getCommonCredentials();
+  const [allData, setAllData] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
+  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =
+  useGetHomeworkByInstituteQuery(InstituteId, {
+    skip: !InstituteId,
+  });
+  console.log(InstituteId, "InstituteId");
+
   const [createHomework] = useCreateHomeworkMutation();
   const [deleteHomework] = useDeleteHomeworkMutation();
   
