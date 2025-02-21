@@ -18,7 +18,6 @@ const ClassHomeWork = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const { uploadedData, handleFileUpload, isLoading, setUploadedData } = useFileUploader();
   const showToast = useGlobalToast();
-
   const [createHomework] = useCreateHomeworkMutation();
   const [deleteHomework] = useDeleteHomeworkMutation();
   useEffect(() => {

@@ -117,7 +117,6 @@ import ExamDetails from '../Admin Components/Exam Management/ExamDetails.jsx'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
     getCommonCredentials();
