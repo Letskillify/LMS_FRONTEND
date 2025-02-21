@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Select from "react-select";
 import { getCommonCredentials } from "../../../GlobalHelper/CommonCredentials";
 import { Field, Form, Formik } from "formik";
-function PostTeacherHomework({handleSubmitHomework,selectedFiles, handleFileChange, validationSchema }) {
+function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileChange, validationSchema, isLoading }) {
   const [showModal, setShowModal] = useState(false);
-  const { Class, TeacherData, Course, Subject, InstituteId } =getCommonCredentials();
+  const { Class, TeacherData, Course, Subject, InstituteId } = getCommonCredentials();
   return (
     <div>
       <div
