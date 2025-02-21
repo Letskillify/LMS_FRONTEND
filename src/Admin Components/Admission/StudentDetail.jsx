@@ -11,16 +11,10 @@ const StudentDetail = () => {
 
   useEffect(() => {
     if (StudentData && StudentData.length > 0) {
-      const d = StudentData.find((v) => v.StuID == id);
+      const d = StudentData.find((v) => v.secondaryId == id);
       setData(d);
     }
   }, [StudentData, id]);
-
-
-  { console.log(data) }
-
-
-
 
   const handleDownload = async (Data) => {
     const response = await fetch(Data);

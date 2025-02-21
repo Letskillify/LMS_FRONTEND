@@ -78,7 +78,6 @@ function stream() {
               <Formik
                 initialValues={{
                   streamName: "",
-                  instituteId: userId,
                   instituteId: InstituteId,
                 }}
                 onSubmit={handlestream}

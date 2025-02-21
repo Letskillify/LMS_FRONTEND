@@ -51,6 +51,7 @@ const GlobalTable = ({
                           className={`btn ${action.className}`}
                           onClick={() => action.onClick(row)}
                         >
+                          {action.name || <></>}
                           {action.icon && <i className={action.icon}></i>}
                         </button>
                       </OverlayTrigger>
