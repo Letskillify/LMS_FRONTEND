@@ -71,6 +71,7 @@ const AddGrade = ({
                         lableName={field.lableName}
                         type={field.type}
                         options={field.options}
+                        
                       />
                     ))}
                   </div>

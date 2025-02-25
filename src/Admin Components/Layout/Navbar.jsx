@@ -32,8 +32,32 @@ function Navbar() {
                             <i className="bx bx-search fs-6"></i>
                         </button>
                     </div>
-
-
+                    <div className='d-flex align-items-center me-4'>
+                                <div class="dropdown p-0 ">
+                                    <button
+                                        class="btn bg-themprimary dropdown-toggle text-white  p-1 px-2 "
+                                        data-bs-toggle="dropdown"
+                                    >
+                                        Language
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">English</a></li>
+                                        <li><a class="dropdown-item" href="#">Hindi</a></li>
+                                    </ul>
+                                </div>
+                                <div class="dropdown p-0 me-2">
+                                    <button
+                                        class="btn bg-themprimary dropdown-toggle text-white p-1 px-2"
+                                        data-bs-toggle="dropdown"
+                                    >
+                                        Main Campus
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Campus A</a></li>
+                                        <li><a class="dropdown-item" href="#">Campus B</a></li>
+                                    </ul>
+                                </div>
+                            </div>
                     <div class="navbar-nav d-lg-flex align-items-center d-none">
 
                         <div class="d-flex ">
@@ -224,32 +248,6 @@ function Navbar() {
                                 <Link to={'/library'}>
                                     <i className='menu-icon fs-4 tf-icons bx bx-book-reader p-1 mx-1 text-white border rounded '></i>
                                 </Link>
-                            </div>
-                            <div className='d-flex align-items-center me-4'>
-                                <div class="dropdown p-0 ">
-                                    <button
-                                        class="btn bg-themprimary dropdown-toggle text-white  p-1 px-2 "
-                                        data-bs-toggle="dropdown"
-                                    >
-                                        Language
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">English</a></li>
-                                        <li><a class="dropdown-item" href="#">Hindi</a></li>
-                                    </ul>
-                                </div>
-                                <div class="dropdown p-0 me-2">
-                                    <button
-                                        class="btn bg-themprimary dropdown-toggle text-white p-1 px-2"
-                                        data-bs-toggle="dropdown"
-                                    >
-                                        Main Campus
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">Campus A</a></li>
-                                        <li><a class="dropdown-item" href="#">Campus B</a></li>
-                                    </ul>
-                                </div>
                             </div>
                         </ul>
                     </div>
