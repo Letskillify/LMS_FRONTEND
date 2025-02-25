@@ -18,6 +18,8 @@ const AddTestListModal = ({
     { name: "ofSubject", lableName: "Of Subject", type: "text" },
     { name: "description", lableName: "Description", type: "text" },
     { name: "testDate", lableName: "Test Date", type: "text" },
+    { name: "session", lableName: "Session", type: "text" },
+    { name: "resultStatus", lableName: "Result Status", type: "text" },
     {
       name: "addInFinal",
       lableName: "Add In Final",
@@ -98,42 +100,6 @@ const AddTestListModal = ({
                         options={field.options}
                       />
                     ))}
-                    {/* <InputFieldComponet
-                      lableName={"Add In Final"}
-                      name={"addInFinal"}
-                      type={"select"}
-                      options={[
-                        { value: "", label: "Select" },
-                        { value: "Yes", label: "Yes" },
-                        { value: "No", label: "No" },
-                      ]}
-                    />
-                    <InputFieldComponet
-                      name={"type"}
-                      lableName={" Type"}
-                      type={"select"}
-                      options={[
-                        { value: "", label: "Select" },
-                        { value: "Daily Test", label: "Daily Test" },
-                        { value: "Weekly Test", label: "Weekly Test" },
-                        { value: "Monthly Test", label: "Monthly Test" },
-                      ]}
-                    /> */}
-                    <InputFieldComponet
-                      name={"session"}
-                      lableName={" Session"}
-                      type={"text"}
-                    />
-                    <InputFieldComponet
-                      name={"resultStatus"}
-                      lableName={"Result Status"}
-                      type={"select"}
-                      options={[
-                        { value: "", label: "Select" },
-                        { value: "Pending", label: "Pending" },
-                        { value: "Published", label: "Published" },
-                      ]}
-                    />
                   </div>
 
                   <div className="d-flex justify-content-between">

@@ -108,15 +108,24 @@ import Chapters from '../Admin Components/NCRT/NCRTbooks/Chapter.jsx'
 import Class from '../Admin Components/NCRT/NCERTclass.jsx'
 import ClassList from '../Admin Components/NCRT/NCRTbooks/Class.jsx'
 import StudentHomeWork from '../Admin Components/HomeWork Management/StudentHomeWork.jsx'
-import TestList from '../Admin Components/TestManagement/TestList.jsx'
-import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
-import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
+import TestList from '../Admin Components/TestManagement/TestListModule/TestList.jsx'
+// import AddTestListModal from '../Admin Components/TestManagement/components/AddTestListModal.jsx'
+// import EditTestList from '../Admin Components/TestManagement/components/EditTestList.jsx'
 import Book from '../Admin Components/NCRT/NCRTbooks/Book.jsx'
 import AssignExam from '../Admin Components/Exam Management/AssignExam.jsx'
 import ExamDetails from '../Admin Components/Exam Management/ExamDetails.jsx'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Chat from '../Chat/Chat.jsx'
+import AssignGrade from '../Admin Components/TestManagement/AssignGradeModule/AssignGrade.jsx'
+import MarkEntry from '../Admin Components/TestManagement/MarkEntry/MarkEntry.jsx'
+import ParticularTest from '../Admin Components/TestManagement/TeacherRemark/ParticularTest.jsx'
+import { TestSchedule } from '../Admin Components/TestManagement/TestSchedule/TestSchedule.jsx'
+import TabulationSheet from '../Admin Components/TestManagement/TabulationSheet/TabulationSheet.jsx'
+import PositionHolders from '../Admin Components/TestManagement/PositionHolder/PositionHolders.jsx'
+import SMSFPT from '../Admin Components/TestManagement/SMS/ForParticularTest/SMSFPT.jsx'
+import PrintMarkSheet from '../Admin Components/TestManagement/PrintMarkSheet/PrintMarkSheet.jsx'
+import TestReport from '../Admin Components/TestManagement/TestReport/TestReport.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -237,6 +246,16 @@ const AdminDashboard = () => {
               <Route path='/forgotpassword' element={<PasswordForget />} />
               <Route path='/instituteregister' element={<InstituteRegister />} />
               <Route path='/testlist' element={<TestList/>} />
+              <Route path='/assigngrade' element={<AssignGrade/>} />
+              <Route path='/markentry' element={<MarkEntry/>} />
+              <Route path='/particulartest' element={<ParticularTest/>} />
+              <Route path='/testschedule' element={<TestSchedule/>} />
+              <Route path='/tabulationsheet' element={<TabulationSheet/>} />
+              <Route path='/positionholders' element={<PositionHolders/>}/>
+              <Route path='/smsfpt' element={<SMSFPT/>}/>
+              <Route path='/printmarksheet' element={<PrintMarkSheet/>}/>
+              <Route path='/testreport' element={<TestReport/>}/>
+             
               
             </Routes>
             <Footer />
