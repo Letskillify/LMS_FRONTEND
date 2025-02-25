@@ -29,25 +29,36 @@ const InputFieldComponet = ({
               />
             ) : type === "file" ? (
               <>
-
                 <Field
                   onChange={onChange}
                   type={type}
                   id={name}
-                  placeholder={placeholder}
-                  name={name}
                   placeholder={placeHolder}
+                  name={name}
                   className="form-control"
-                  onChange={onChange}
                 />
               </>
-            ) : (
-              <Field as={type} id={name} name={name} className="form-control">
+            )  : type === "date" ? (
+              <>
+                <Field
+                  onChange={onChange}
+                  type={type}
+                  id={name}
+                  placeholder={placeHolder}
+                  name={name}
+                  className="form-control"
+                />
+              </>
+            ): (
+              <Field as="select" id={name} name={name} className="form-control">
+                <option value="" selected disabled>
+                  Select {lableName}
+                </option>
                 {options?.map((option) => (
                   <option
-                    disabled={disabled ? disabled : false}
                     key={option.value}
                     value={option.value}
+                    disabled={disabled}
                   >
                     {option.label}
                   </option>

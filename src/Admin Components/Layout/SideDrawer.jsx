@@ -612,42 +612,42 @@ function SideDrawer() {
                                         <div>Assign Grads</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="/markentry">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Mark Entry</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="/particulartest">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Teacher Remarke</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="testschedule    ">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Test Shuedule</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="tabulationsheet">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Tabulation Sheet</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="positionholders">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Position Holders</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="smsfpt">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Send Marks By SMS</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="printmarksheet">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Print Marksheet</div>
                                     </a>
                                 </NavLink>
-                                <NavLink activeclassname="active" className="menu-item" to="">
+                                <NavLink activeclassname="active" className="menu-item" to="testreport">
                                     <a href="javascript:void(0);" className="menu-link">
                                         <div>Test Reports</div>
                                     </a>

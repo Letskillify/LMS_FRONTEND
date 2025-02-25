@@ -3,9 +3,9 @@ import InputFieldComponet from "../../../GlobalComponents/GlobalInputField";
 import { Form, Formik } from "formik";
 const AddGrade = ({
     setShowModal,
-    editingTest,
+    editingGrade,
     error,
-    handleTest,
+    handleGrade,
     validation,
     instituteId,
 }) => {
@@ -36,7 +36,7 @@ const AddGrade = ({
         >
           <div className="modal-header bg-gradient-to-r from-primary to-secondary text-white">
             <h3 className="modal-title fw-bold text-uppercase">
-              {editingTest ? "Edit Test Lsit" : "Create Test List"}
+              {editingGrade ? "Edit Garde" : "Create Grade"}
             </h3>
             <button
               type="button"
@@ -60,7 +60,7 @@ const AddGrade = ({
                 instituteId: instituteId,
               }}
               validationSchema={validation}
-              onSubmit={handleTest}
+              onSubmit={handleGrade}
             >
               {() => (
                 <Form>

@@ -86,7 +86,7 @@ const TestList = () => {
           </button>
         </div>
 
-        <div className="card-body">
+        <div className="card-body text-center">
           <TestListTable
           TestList={TestList}
           handleTest={handleTest}

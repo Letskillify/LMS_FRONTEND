@@ -1,21 +1,20 @@
-import React, { useState, useContext, useEffect } from "react";
-import axios from "axios";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import GradeTable from "./GradeTable";
-import AddGrade from "./AddGrade";
+import React, { useState } from "react";
 import useGlobalToast from "../../../GlobalComponents/GlobalToast";
 import { getCommonCredentials } from "../../../GlobalHelper/CommonCredentials";
-import EditGrade from "./EditGrade";
+import { Form, Formik } from "formik";
+import * as Yup from "yup";
 import InputFieldComponet from "../../../GlobalComponents/GlobalInputField";
+import MarkEntryTable from "./MarkEntryTable";
+import EditMarkEntry from "./EditMarkEntry";
+import AddMarkEntry from "./AddMarkEntry";
 
-const AssignGrade = () => {
+const MarkEntry = () => {
   const showToast = useGlobalToast();
-  const { AssignGrade, InstituteId, Class, Subject, Section } =
+  const { MarkEntry, InstituteId, Class, Subject, Section } =
     getCommonCredentials();
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
-  const [editingAssignGrade, setEditingAssignGrade] = useState(null);
+  const [editingMarkEntry, setEditingMarkEntry] = useState(null);
   const [Edit, setEdit] = useState(false);
   const [SelectEdit, setSelectEdit] = useState(null);
   const [filters, setFilters] = useState({
@@ -25,6 +24,59 @@ const AssignGrade = () => {
     subject: "",
     test: "",
   });
+  const validation = Yup.object({
+    rollNumber: Yup.string().required("Roll Number is required"),
+    studentName: Yup.string().required("Student Name is required"),
+    parentName: Yup.string().required("Parent Name is required"),
+    marksObtained: Yup.number()
+      .min(0, "Marks Obtained must be at least 0")
+      .required("Marks Obtained is required"),
+    totalMarks: Yup.number()
+      .min(1, "Total Marks must be at least 1")
+      .required("Total Marks is required"),
+    passingMarks: Yup.number()
+      .min(0, "Passing Marks must be at least 0")
+      .required("Passing Marks is required"),
+  });
+
+  const handleMark = async (values, { resetForm }) => {
+    try {
+      const response = await createMark(values);
+      if (response.data.status === 201) {
+        showToast("Mark entry created successfully", "success");
+        setAddMark(false);
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      showToast(error.response?.data?.message || "Error creating Mark Entry");
+    }
+  };
+
+  const handleMarkDelete = async (id) => {
+    try {
+      const response = await deleteMark(id);
+      if (response.data.status === 200) {
+        showToast("Mark entry deleted successfully", "success");
+      }
+    } catch (error) {
+      console.error("Error deleting Mark Entry:", error);
+      showToast(error.response?.data?.message || "Error deleting Mark Entry");
+    }
+  };
+
+  const handleMarkEntryEdit = async (values, id) => {
+    try {
+      const response = await updateMark({ markId: id, markData: values });
+      if (response.data.status === 200) {
+        showToast("Mark entry updated successfully", "success");
+        setAddMark(false);
+      }
+    } catch (error) {
+      console.error("Error updating Mark Entry:", error);
+      showToast(error.response?.data?.message || "Error updating Mark Entry");
+    }
+  };
   const filterFields = [
     {
       name: "campus",
@@ -67,62 +119,6 @@ const AssignGrade = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validation = Yup.object({
-    campus: Yup.string().required("Campus is required"),
-    name: Yup.string().required("Name is required"),
-    fromPercent: Yup.number()
-      .min(0, "From% must be at least 0")
-      .max(100, "From% must be at most 100")
-      .required("From% is required"),
-    toPercent: Yup.number()
-      .min(0, "To% must be at least 0")
-      .max(100, "To% must be at most 100")
-      .required("To% is required"),
-    forList: Yup.string().required("For List is required"),
-    classValue: Yup.string().required("Class is required"),
-    section: Yup.string().required("Section is required"),
-    session: Yup.string().required("Session is required"),
-  });
-
-  const handleGrade = async (validateYupSchema, { resetForm }) => {
-    console.log(values);
-    try {
-      const response = await createGrade(values);
-      if (response.data.status === 201) {
-        showToast("AssignGrade created successfully", "success");
-        setShowModal(false);
-        resetForm();
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      showToast(error.response?.data?.message || "Error crearting AssignGrade");
-    }
-  };
-
-  const handleGradeDelete = async (id) => {
-    try {
-      const response = await delelteGrade(id);
-      if (response.data.status === 200) {
-        showToast("Grade deleted succesfully");
-      }
-    } catch (error) {
-      console.error("Error deleting Grade:", error);
-      showToast(error.response?.data?.message || "Error deleting Grade");
-    }
-  };
-  const handleGradeEdit = async (values, id) => {
-    try {
-      const response = await updateTest({ gradeId: id, gradeData: values });
-      if (response.data.status === 200) {
-        showToast("Grade updated successfully");
-        setEdit(false);
-      }
-    } catch (error) {
-      console.error("Error updating Grade:", error);
-      showToast(error.response?.data?.message || "Error updating Grade");
-    }
-  };
-
   return (
     <div className="container mt-5 mb-5">
       <div className="card mb-4">
@@ -147,8 +143,8 @@ const AssignGrade = () => {
                       </div>
                     ))}
                     <div className="col-md-2">
-                      <button className="btn btn-primary w-100 text-uppercase fw-bold">
-                        Filter Data
+                      <button className="btn btn-success w-100 text-uppercase fw-bold">
+                        Manage Marks
                       </button>
                     </div>
                   </div>
@@ -160,39 +156,47 @@ const AssignGrade = () => {
       </div>
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
-          <h3 className="card-title mb-0 text-uppercase fw-bold">Grade List</h3>
+          <h3 className="card-title mb-0 text-uppercase fw-bold">Mark Entry</h3>
           <button
             className="btn btn-primary text-uppercase fw-bold"
             onClick={() => setShowModal(true)}
           >
-            Add New Test
+            Add Marks
           </button>
         </div>
 
         <div className="card-body text-center">
-          <GradeTable
-            AssignGrade={AssignGrade}
-            handleGrade={handleGrade}
-            handleGradeDelete={handleGradeDelete}
-            handleGradeEdit={handleGradeEdit}
+          <MarkEntryTable
+            MarkEntry={MarkEntry}
+            handledelete={handleMarkDelete}
+            handleMark={handleMark}
+            handleMarkEntryEdit={handleMarkEntryEdit}
           />
+          <div className="card-header d-flex justify-content-center align-items-center">
+            <button
+              className="btn btn-success text-uppercase fw-bold"
+              onSubmit={handleMark}
+              >
+              Save
+            </button>
+          </div>
         </div>
       </div>
       {Edit && (
-        <EditGrade
+        <EditMarkEntry
           setEdit={setEdit}
           SelectEdit={SelectEdit}
-          editingAssignGrade={editingAssignGrade}
+          editingMarkEntry={editingMarkEntry}
           error={error}
         />
       )}
 
       {showModal && (
-        <AddGrade
+        <AddMarkEntry
           setShowModal={setShowModal}
-          editingAssignGrade={editingAssignGrade}
+          editingMarkEntry={editingMarkEntry}
           error={error}
-          handleGrade={handleGrade}
+          handleMark={handleMark}
           validation={validation}
           instituteId={InstituteId}
         />
@@ -201,4 +205,4 @@ const AssignGrade = () => {
   );
 };
 
-export default AssignGrade;
+export default MarkEntry;
