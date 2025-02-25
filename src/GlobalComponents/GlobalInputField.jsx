@@ -50,7 +50,7 @@ const InputFieldComponet = ({
                 />
               </>
             ): (
-              <Field as="select" id={name} name={name} className="form-control">
+              <Field as="select" id={name} name={name} className="form-select">
                 <option value="" selected disabled>
                   Select {lableName}
                 </option>
