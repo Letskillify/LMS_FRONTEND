@@ -34,11 +34,9 @@ const InputFieldComponet = ({
                   onChange={onChange}
                   type={type}
                   id={name}
-                  placeholder={placeholder}
                   name={name}
                   placeholder={placeHolder}
                   className="form-control"
-                  onChange={onChange}
                 />
               </>
             ) : (

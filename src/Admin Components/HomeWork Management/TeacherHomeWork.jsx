@@ -1,4 +1,3 @@
-import { Field, Form, Formik } from "formik";
 import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
@@ -13,37 +12,39 @@ import useGlobalToast from "../../GlobalComponents/GlobalToast";
 import { toast } from "react-toastify";
 import PostTeacherHomework from "./components/PostTeacherhomework";
 import GlobalTable from "../../GlobalComponents/GlobalTable";
+import SubmittedData from "./components/SubmittedData";
+import { useGetSubmissionsByInstituteIdQuery } from "../../Redux/Api/StudentHomeworkSlice";
 
 const ClassHomeWork = () => {
   const showToast = useGlobalToast();
-  const { InstituteId } = getCommonCredentials();
+  const { InstituteId, userId } = getCommonCredentials() || {};
   const [allData, setAllData] = useState([]);
+  const [Tablepopup, setTablepopup] = useState(false);
+  const [SubmitData, setSubmitData] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const { uploadedData, handleFileUpload, setUploadedData } = useFileUploader();
-  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =
-  useGetHomeworkByInstituteQuery(InstituteId, {
-    skip: !InstituteId,
-  });
-  console.log(InstituteId, "InstituteId");
-
+  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =useGetHomeworkByInstituteQuery(InstituteId, { skip: !InstituteId });
+  const { data: StudentSubmission, isLoading: isStudentSubmissionLoading } = useGetSubmissionsByInstituteIdQuery(
+    InstituteId,
+    userId,
+    { skip: !InstituteId || !userId }
+  );
   const [createHomework] = useCreateHomeworkMutation();
   const [deleteHomework] = useDeleteHomeworkMutation();
-  
   useEffect(() => {
     if (AssignedHomework) {
-      console.log("Assigned Homework:", AssignedHomework);
       setAllData(AssignedHomework?.items);
     }
   }, [AssignedHomework]);
-
+  useEffect(() => {
+    if (StudentSubmission) {
+      setSubmitData(StudentSubmission?.items);
+    }
+  }, [StudentSubmission]);
   const handleDeleteOne = async (id) => {
     try {
       const response = await deleteHomework(id);
       if (response.status === 200) {
-        showToast("Data Delete Successfully", "success");
-        setAllData((prevClasses) =>
-          prevClasses.filter((item) => item._id !== id)
-        );
       } else {
         console.error("Failed to delete homework:", response.data);
       }
@@ -55,7 +56,6 @@ const ClassHomeWork = () => {
       );
     }
   };
-
   // Handle file selection and upload to Cloudinary
   const handleFileChange = async (e, setFieldValue, values) => {
     const files = Array.from(e.target.files);
@@ -84,7 +84,6 @@ const ClassHomeWork = () => {
       );
     });
   };
-
   // Handle file removal
   const handleRemoveFile = (index, setFieldValue, values) => {
     const fileToRemove = selectedFiles[index];
@@ -113,11 +112,6 @@ const ClassHomeWork = () => {
 
   const handleSubmitHomework = async (values, { resetForm }) => {
     try {
-      if (isLoading) {
-        toast.warning("Please wait while files are uploading...");
-        return;
-      }
-
       // Create homework data with Cloudinary URLs
       const homeworkData = {
         ...values,
@@ -368,46 +362,42 @@ const ClassHomeWork = () => {
     ),
   });
 
-  const headerTable = [
-    " Title",
-    "Assigned By",
-    "Class",
-    "Date",
-    " Discripton",
-    "Actions",
-  ];
-  const tableData = allData?.map((teacherHomework) => ({
-    teacherHomework: teacherHomework,
-    Title: teacherHomework?.title || "N/A",
-    AssignedBy:
-      teacherHomework?.assignedBy?.fullName?.firstName +
-        " " +
-        teacherHomework?.assignedBy?.fullName?.lastName || "N/A",
+  const headerTable = ["Title", "Assigned", "Class", "Date", "Description"];
+  const tableData = allData?.map((homework) => ({
+    homework: homework,
+    Title: homework.title,
+    Assigned:
+      homework?.assignedBy?.fullName?.firstName +
+      " " +
+      homework?.assignedBy?.fullName?.lastName,
     Class:
-      teacherHomework?.assignedTo?.className
-        ?.map((c) => c.className)
-        .join(", ") || "N/A",
-    Date: teacherHomework?.dueDate
-      ? new Date(teacherHomework?.dueDate).toLocaleDateString()
-      : "N/A",
-    Description: teacherHomework?.assignedTaskdescription || "N/A",
+      homework?.assignedTo?.className?.map((c) => c.className).join(", ") ||
+      "N/A",
+    Date: new Date(homework?.dueDate).toLocaleDateString(),
+    Description: homework?.assignedTaskdescription,
   }));
-  console.log("allData", allData);
-
   const actions = [
     {
       label: "Download",
-      className: "btn btn-primary mx-2",
+      className: "btn btn-primary mx-2 d-flex  btn-responsive",
       icon: "fa fa-download",
-      onClick: (row) => handleDownloadPDF(row.teacherHomework),
+      onClick: (row) => handleDownloadPDF(row.homework),
+    },
+    {
+      label: "Submitted Homework",
+      className: "btn btn-info mx-2 btn-responsive",
+      icon: "fa fa-book",
+      onClick: (row) => {
+        setTablepopup(true);
+        setSelectedHomework(row.homework);
+      },
     },
     {
       label: "Delete",
-      name: "delete",
-      className: "btn btn-danger mx-2",
+      className: "btn btn-danger mx-2 btn-responsive",
       icon: "fa fa-trash-o",
       onClick: (row) => {
-        handleDeleteOne(row.teacherHomework);
+        handleDeleteOne(row.homework?._id);
       },
     },
   ];
@@ -434,18 +424,21 @@ const ClassHomeWork = () => {
         <div className="card">
           <div className="card-header d-flex align-items-center justify-content-between">
             <h4>Class Home Work</h4>
-            <button
-              className="btn btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#add_home_work"
-            >
-              <i className="ti ti-square-rounded-plus-filled me-2" /> Add Home
-              Work
-            </button>
+            <div className="d-flex align-items-center">
+              <button
+                className="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#add_home_work"
+              >
+                <i className="ti ti-square-rounded-plus-filled me-2" /> Add Home
+                Work
+              </button>
+              
+            </div>
           </div>
 
           <div className="card-body">
-            <div style={{ overflowX: "auto" }}>
+            <div className="table-responsive">
               <GlobalTable
                 headers={headerTable}
                 actions={actions}
@@ -457,6 +450,12 @@ const ClassHomeWork = () => {
           </div>
         </div>
       </div>
+
+      <SubmittedData
+        submitData={SubmitData}
+        setTablepopup={setTablepopup}
+        Tablepopup={Tablepopup}
+      />
       <PostTeacherHomework
         handleFileChange={handleFileChange}
         handleRemoveFile={handleRemoveFile}

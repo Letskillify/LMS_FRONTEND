@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import Select from "react-select";
-import { getCommonCredentials } from "../../../GlobalHelper/CommonCredentials";
 import { Field, Form, Formik } from "formik";
-function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileChange, validationSchema, isLoading }) {
+import { getCommonCredentials } from "../../../GlobalHelper/CommonCredentials";
+function PostTeacherHomework({
+  handleSubmitHomework,
+  selectedFiles,
+  handleFileChange,
+  validationSchema,
+  isLoading,
+}) {
   const [showModal, setShowModal] = useState(false);
-  const { Class, TeacherData, Course, Subject, InstituteId } = getCommonCredentials();
+  const { Class, TeacherData, Course, Subject, InstituteId } =
+    getCommonCredentials();
+
   return (
     <div>
       <div
@@ -38,6 +46,7 @@ function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileCh
                   assignedTo: { className: [], course: [], subject: [] },
                   dueDate: "",
                   attachments: [],
+                  status: "Pending",
                 }}
                 enableReinitialize
                 validationSchema={validationSchema}
@@ -156,7 +165,7 @@ function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileCh
                                     onChange={(selected) =>
                                       form.setFieldValue(
                                         "assignedTo.course",
-                                        selected.map((s) => s.value)
+                                        selected?.map((s) => s.value)
                                       )
                                     }
                                     placeholder="Select Courses"
@@ -202,7 +211,7 @@ function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileCh
                                     onChange={(selected) =>
                                       form.setFieldValue(
                                         "assignedTo.subject",
-                                        selected.map((s) => s.value)
+                                        selected?.map((s) => s.value)
                                       )
                                     }
                                     placeholder="Select Subjects"
@@ -276,7 +285,7 @@ function PostTeacherHomework({ handleSubmitHomework, selectedFiles, handleFileCh
 
                         {/* File Preview Section */}
                         <div className="selected-files mb-3">
-                          {selectedFiles.map((file, index) => (
+                          {selectedFiles?.map((file, index) => (
                             <div
                               key={index}
                               className="selected-file-item d-flex align-items-center mb-2 p-2 border rounded"

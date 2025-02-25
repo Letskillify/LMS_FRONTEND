@@ -22,7 +22,7 @@ const ManageParentsTable = ({
     "Email" : student?.personalDetails?.email,
     "Phone" : student?.personalDetails?.phoneNo,
     "Reset Passwords" : "Reset Passwords",
-    "Actions",
+    "Actions" : "Actions",
   }))
   return (
     <GlobalTable

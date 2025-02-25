@@ -44,7 +44,7 @@ function PosthomeWork({
                         onChange={(e) => {
                           handleFileUpload(e, "fileUrl");
                         }}
-                        placeholder="Enter File URL"
+                        placeholder ="Enter File URL"
                       />
                     </div>
                     <div className="mb-3">

@@ -12,6 +12,7 @@ import { useFileUploader } from "../../Custom Hooks/CustomeHook";
 import GlobalTable from "../../GlobalComponents/GlobalTable";
 import ShowHomework from "./components/ShowHomework";
 import PosthomeWork from "./components/PosthomeWork";
+import SubmittedData from "./components/SubmittedData";
 
 function StudentHomeWork() {
   const showToast = useGlobalToast();
@@ -21,12 +22,13 @@ function StudentHomeWork() {
   const [selectedHomework, setSelectedHomework] = useState(null);
   const { InstituteId, userId } = getCommonCredentials();
   const [popupData, setPopupData] = useState(null);
-  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } =
-    useGetHomeworkByInstituteQuery(InstituteId, { skip: !InstituteId });
+  const { data: AssignedHomework, isLoading: isAssignedHomeworkLoading } = useGetHomeworkByInstituteQuery(InstituteId, { skip: !InstituteId });
   const { data: StudentSubmission, isLoading: isStudentSubmissionLoading } =
     useGetSubmissionsByInstituteIdQuery(InstituteId, { skip: !InstituteId });
   const [addSubmission] = useAddSubmissionMutation();
   const [viewSubmissionsModal, setViewSubmissionsModal] = useState(false);
+  const [Tablepopup, setTablepopup] = useState(false);
+
   useEffect(() => {
     if (StudentSubmission) {
       setSubmitData(StudentSubmission?.items);
@@ -41,7 +43,7 @@ function StudentHomeWork() {
   const handleStudenthomework = async (value) => {
     const data = { ...value, fileUrl: uploadedData?.fileUrl };
     console.log(data);
-    
+
     try {
       const response = await addSubmission(data);
       if (response.data.status === 201) {
@@ -61,56 +63,52 @@ function StudentHomeWork() {
               <h1 style="color: #003467; margin: 0; font-size: 24px;">Homework Assignment</h1>
               <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">
                 Due Date: ${new Date(homework.dueDate).toLocaleDateString(
-                  "en-US",
-                  {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }
-                )}
+      "en-US",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    )}
               </p>
             </div>
       
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #003467; margin: 0 0 15px 0; font-size: 20px;">${
-                homework.title
-              }</h2>
+              <h2 style="color: #003467; margin: 0 0 15px 0; font-size: 20px;">${homework.title
+      }</h2>
               <div style="color: #666; font-size: 14px;">
-                <span>Assigned By: ${
-                  homework.assignedBy?.fullName?.firstName
-                } ${homework.assignedBy?.fullName?.lastName}</span>
+                <span>Assigned By: ${homework.assignedBy?.fullName?.firstName
+      } ${homework.assignedBy?.fullName?.lastName}</span>
               </div>
             </div>
       
-            ${
-              homework.attachments?.length
-                ? `<div style="margin-top: 25px;">
+            ${homework.attachments?.length
+        ? `<div style="margin-top: 25px;">
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                       ${homework.attachments
-                        .map(
-                          (attachment) => `
+          .map(
+            (attachment) => `
                             <div style="break-inside: avoid; margin-bottom: 20px;">
-                              ${
-                                attachment.fileUrl
-                                  ? `<img 
+                              ${attachment.fileUrl
+                ? `<img 
                                       src="${attachment.fileUrl}" 
                                       alt="${attachment.fileName}"
                                       style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 8px; margin-bottom: 10px;"
                                       crossorigin="anonymous"
                                     />`
-                                  : `<div style="padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+                : `<div style="padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
                                       <i class="fa fa-file-o" style="font-size: 24px; color: #666;"></i>
                                       <p style="margin: 10px 0 0 0; color: #666;">${attachment.fileName}</p>
                                     </div>`
-                              }
+              }
                             </div>`
-                        )
-                        .join("")}
+          )
+          .join("")}
                     </div>
                   </div>`
-                : ""
-            }
+        : ""
+      }
           </div>
         `;
 
@@ -177,22 +175,21 @@ function StudentHomeWork() {
     if (["jpg", "jpeg", "png", "gif"].includes(extension)) return "image";
     return "other";
   };
-
-  const headerTable1 = ["Title", "Assigned", "Class", "Date", "Description"];
-  const tableData1 = homeworks?.map((homework) => ({
+  const headerTable = ["Title", "Assigned", "Class", "Date", "Description"];
+  const tableData = homeworks?.map((homework) => ({
     homework: homework,
     Title: homework.title,
     Assigned:
       homework?.assignedBy?.fullName?.firstName +
-        " " +
-        homework?.assignedBy?.fullName?.lastName || "N/A",
+      " " +
+      homework?.assignedBy?.fullName?.lastName || "N/A",
     Class:
       homework?.assignedTo?.className?.map((c) => c.className).join(", ") ||
       "N/A",
     Date: new Date(homework?.dueDate).toLocaleDateString() || "N/A",
     Description: homework?.assignedTaskdescription || "N/A",
   }));
-  const actions1 = [
+  const actions = [
     {
       label: "Submit",
       name: "Submit",
@@ -210,7 +207,7 @@ function StudentHomeWork() {
     },
   ];
 
-   return (
+  return (
     <>
       <div className="page-wrapper container pt-5">
         <div className="content">
@@ -241,9 +238,9 @@ function StudentHomeWork() {
             </div>
             <div className="card-body">
               <GlobalTable
-                headers={headerTable1}
-                actions={actions1}
-                data={tableData1}
+                headers={headerTable}
+                actions={actions}
+                data={tableData}
                 loading={
                   isAssignedHomeworkLoading || isStudentSubmissionLoading
                 }
@@ -253,17 +250,23 @@ function StudentHomeWork() {
           </div>
         </div>
         <PosthomeWork
-        popupData={popupData}
-        setPopupData={setPopupData}
-        selectedHomework={selectedHomework}
-        handleStudenthomework={handleStudenthomework}
-        handleFileUpload={handleFileUpload}
+          popupData={popupData}
+          setPopupData={setPopupData}
+          selectedHomework={selectedHomework}
+          handleStudenthomework={handleStudenthomework}
+          handleFileUpload={handleFileUpload}
         />
         <ShowHomework
           viewSubmissionsModal={viewSubmissionsModal}
           SubmitData={SubmitData}
           setViewSubmissionsModal={setViewSubmissionsModal}
           getFileType={getFileType}
+        />
+        <SubmittedData
+          submitData={SubmitData}
+          setTablepopup={setTablepopup}
+          Tablepopup={Tablepopup}
+          isLoading={isStudentSubmissionLoading}
         />
       </div>
     </>

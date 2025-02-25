@@ -64,6 +64,7 @@ export const firmAccountApi = apiSlice.injectEndpoints({
       providesTags: ["FirmAccount"],
     }),
   }),
+  overrideExisting: true,
 });
 
 export const { 
@@ -79,3 +80,4 @@ export const {
   useGetTrashFirmAccountsQuery, 
   useGetTrashFirmAccountsByInstituteQuery 
 } = firmAccountApi;
+

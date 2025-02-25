@@ -1,16 +1,24 @@
+// parivesh sir.........................
+
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { Bounce, toast } from "react-toastify";
+import useGlobalToast from "../../GlobalComponents/GlobalToast";
+import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
 
 const StockInventory = () => {
+  const { InstituteId } = getCommonCredentials();
+  console.log("InstituteIdsssss", InstituteId);  
+  const showToast = useGlobalToast();
   const [Account, setAccount] = useState("Create");
   const [forms, setforms] = useState([]);
   const [SelectedInventory, setSelectedInventory] = useState([]);
   const [ShowView, setShowView] = useState(false);
   const [companies, setCompanies] = useState([]);
   const initialValues = {
+    instituteId: InstituteId,
     itemDetails: {
       name: "",
       category: "",
@@ -137,32 +145,12 @@ const StockInventory = () => {
         Method: "POST",
       });
       if (response.status === 201) {
-        toast.success("Inventory added successfully", {
-          position: "top-side",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        showToast("Inventory added successfully",'success')
       }
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
       if (err.response) {
-        toast.error(err.response.data.message || "Error adding inventory", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        showToast(err.response.data.message || "Error adding inventory",'error')
       }
     }
     console.log(formData, "whgsdqfvwhd");
@@ -1019,7 +1007,7 @@ const StockInventory = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {forms?.items?.map((Inventory, index) => (
+                    {forms?.map((Inventory, index) => (
                       <tr key={index}>
                         <td>{Inventory?.itemDetails?.name}</td>
                         <td>{Inventory?.itemDetails?.category}</td>
@@ -2078,7 +2066,7 @@ const StockInventory = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {forms?.items?.map((Inventory, index) => (
+                    {forms?.map((Inventory, index) => (
                       <tr key={index}>
                         <td>{Inventory?.itemDetails?.name}</td>
                         <td>{Inventory?.itemDetails?.category}</td>
