@@ -22,7 +22,7 @@ function App() {
 
   return (
     <>
-      {designation === "Institute" && Islogin ? (
+      {designation === "Institute" || "Admin" && Islogin ? (
         <div>
           <AdminDashboard />
         </div>

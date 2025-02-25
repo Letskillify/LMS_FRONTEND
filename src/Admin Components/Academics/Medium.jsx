@@ -75,7 +75,6 @@ function Medium() {
                 initialValues={{
                   mediumName: "",
                   instituteId: InstituteId,
-                  instituteId: userId,
                 }}
                 enableReinitialize
                 onSubmit={handleMedium}

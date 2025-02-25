@@ -198,6 +198,7 @@ const LoginForm = () => {
                       <option value="Teaching-Staff">Teacher</option>
                       <option value="Non Teaching-Staff">Staff</option>
                       <option value="Institute">Institute</option>
+                      <option value="Admin">Admin</option>
                     </Field>
                   </div>
                   <ErrorMessage
