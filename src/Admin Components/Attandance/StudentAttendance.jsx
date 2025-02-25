@@ -35,6 +35,8 @@ const Calendar = () => {
     setSectionsOptions(Section);
   }, [Course, Section]);
 
+  console.log("coursesOptions", coursesOptions);
+
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value._id }));
 
@@ -185,7 +187,7 @@ const Calendar = () => {
                 <option disabled value="">
                   Select Course
                 </option>
-                {coursesOptions?.items?.map((course) => (
+                {coursesOptions?.map((course) => (
                   <option key={course._id} value={course._id}>
                     {course.courseName}
                   </option>

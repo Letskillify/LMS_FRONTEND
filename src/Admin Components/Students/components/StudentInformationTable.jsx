@@ -78,7 +78,7 @@ const StudentInformationTable = ({
       headers={headers}
       data={data}
       actions={actions}
-      loading={!StudentData}
+      loading={!StudentData || StudentData.length === 0}
       noDataMessage="No students found"
     />
   );

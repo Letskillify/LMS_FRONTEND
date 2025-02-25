@@ -1,5 +1,3 @@
-// parivesh sir.........................
-
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
@@ -7,6 +5,8 @@ import axios from "axios";
 import { Bounce, toast } from "react-toastify";
 import useGlobalToast from "../../GlobalComponents/GlobalToast";
 import { getCommonCredentials } from "../../GlobalHelper/CommonCredentials";
+import { useCreateInventoryMutation, useGetAllInventoryQuery } from "../../Redux/Api/Stock/InventorySlice";
+import { useGetFirmAccountsByInstituteIdQuery, useSoftDeleteFirmAccountMutation, useUpdateFirmAccountMutation } from "../../Redux/Api/Stock/AccountSlice";
 
 const StockInventory = () => {
   const { InstituteId } = getCommonCredentials();
@@ -122,28 +122,29 @@ const StockInventory = () => {
         .required("Purchase history is required"),
     }),
   });
-  const fetchData = async () => {
-    await axios
-      .get("api/inventory/get")
-      .then((res) => {
-        setforms(res.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching:", error);
-      });
-  };
+
+  const { data : companyData} = useGetFirmAccountsByInstituteIdQuery(InstituteId, {
+    skip: !InstituteId,
+  })
+  const { data: inventoryData} = useGetAllInventoryQuery();
+  const [postInventory] = useCreateInventoryMutation();
+  const [updateInventory] = useUpdateFirmAccountMutation();
+  const [deleteInventory] = useSoftDeleteFirmAccountMutation();
+
+  console.log("inventoryData", inventoryData);
+  console.log("companies", companyData);
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    setforms(inventoryData);
+  }, [inventoryData]);
+
+  useEffect(() => {
+    setCompanies(companyData?.items);
+  }, [companyData]);
 
   const HandleInventory = async (formData) => {
     try {
-      const response = await axios.post("/api/inventory/post", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        Method: "POST",
-      });
+      const response = await postInventory(formData);
       if (response.status === 201) {
         showToast("Inventory added successfully",'success')
       }
@@ -153,23 +154,10 @@ const StockInventory = () => {
         showToast(err.response.data.message || "Error adding inventory",'error')
       }
     }
-    console.log(formData, "whgsdqfvwhd");
   };
-  useEffect(() => {
-    axios
-      .get("api/firm-account/get")
-      .then((response) => {
-        setCompanies(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching companies:", error);
-        console.error("Error fetching supplier:", error);
-      });
-  }, []);
-  console.log("inventory", companies);
   const handleEdit = async (v, id, index) => {
     try {
-      const res = await axios.put(`api/inventory/update/${id}`, v);
+      const res = await updateInventory({ id, data: v });
       if (res.status === 200) {
         const modalElement = document.getElementById(
           `edit_library_book_${index}`
@@ -178,71 +166,22 @@ const StockInventory = () => {
         if (modalInstance) {
           modalInstance.hide();
         }
-        toast.success("Inventory updated successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        showToast("Inventory updated successfully", "success");
       }
     } catch (err) {
-      toast.error(
-        err.response ? err.response.data.message : "Error updating inventory",
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        }
-      );
+      showToast(err.response ? err.response.data.message : "Error updating inventory", "error");
       console.log(err);
     }
   };
   const handleDelete = (id) => {
     try {
-      axios.delete(`api/inventory/delete/${id}`).then((res) => {
-        if (res.status === 200) {
-          toast.success("Inventory date Delete successfully", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            transition: Bounce,
-          });
-          fetchData();
-        }
-      });
+      const res = deleteInventory(id);
+      if (res.status === 200) {
+        showToast("Inventory deleted successfully", "success");
+      }
     } catch (err) {
-      toast.error(
-        err.response
-          ? err.response.data.message
-          : "Error Data Deleting inventory",
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        }
-      );
+      showToast(err.response ? err.response.data.message : "Error deleting inventory", "error");
+      console.log(err);
     }
   };
   return (
@@ -278,6 +217,7 @@ const StockInventory = () => {
             initialValues={initialValues}
             // validationSchema={validationSchema}
             onSubmit={HandleInventory}
+            enableReinitialize
           >
             {({ values, errors, setFieldValue }) => (
               <Form className="card p-4 shadow-lg  rounded">
@@ -418,7 +358,7 @@ const StockInventory = () => {
                                   name="itemDetails.companyName"
                                 >
                                   <option value="">-- Select Company --</option>
-                                  {companies?.items?.map((company) => (
+                                  {companies?.map((company) => (
                                     <option
                                       key={company?.id}
                                       value={company?._id}

@@ -258,6 +258,7 @@ function Stock() {
             initialValues={initialValues}
             onSubmit={handleApi}
             // validationSchema={validationSchema}
+            enableReinitialize
           >
             {({ errors, resetForm }) => (
               <div className="ms-3 me-3 mt-5">

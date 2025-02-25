@@ -20,7 +20,7 @@ const InputFieldComponet = ({
             </label>
             {type === "text" ? (
               <Field
-                onChange={onChange}
+                onChange={onChange ? onChange : null}
                 type={type}
                 id={name}
                 name={name}

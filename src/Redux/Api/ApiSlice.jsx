@@ -159,7 +159,8 @@ export const apiSlice = createApi({
     "StudentSubmission",
     "Download",
     "FirmAccount",
-    "PurchaseVoucher"
+    "PurchaseVoucher",
+    "Inventory"
   ],
   endpoints: () => ({}),
 });

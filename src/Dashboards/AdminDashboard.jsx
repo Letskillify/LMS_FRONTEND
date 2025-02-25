@@ -13,9 +13,9 @@ import StudentInfo from '../Admin Components/Students/StudentInfo.jsx'
 import AdmitStudents from '../Admin Components/Admission/AdmitStudents.jsx'
 import AdmitBulk from '../Admin Components/Admission/AdmitBulk.jsx'
 import ManageParents from '../Admin Components/Parents/ManageParents.jsx'
-import idCard from "../Admin Components/idCardPrint/IdCardPrint.jsx"
-import StudentIdCard from "../Admin Components/idCardPrint/idCard.jsx"
-import StaffIdCard from "../Admin Components/idCardPrint/StaffIdCard.jsx"
+// import idCard from "../Admin Components/idCardPrint/IdCardPrint.jsx"
+// import StudentIdCard from "../Admin Components/idCardPrint/idCard.jsx"
+// import StaffIdCard from "../Admin Components/idCardPrint/StaffIdCard.jsx"
 import Fee from '../Admin Components/Fee Payment/Fee.jsx'
 import FeeManage from '../Admin Components/Fee Payment/FeeManage.jsx'
 import ManageAttendance from '../Admin Components/Attandance/manageAttendance.jsx'
@@ -85,8 +85,8 @@ import Sale from '../Admin Components/Vouchars/Sale.jsx'
 import Receipt from '../Admin Components/Vouchars/Receipt.jsx'
 import Classes from '../Admin Components/Academics/Classes.jsx'
 import Course from '../Admin Components/Academics/Course.jsx'
-import IdCard from '../Admin Components/idCardPrint/idCard.jsx'
-import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
+// import IdCard from '../Admin Components/idCardPrint/idCard.jsx'
+// import IdCardPrint from '../Admin Components/idCardPrint/IdCardPrint.jsx'
 import CourseGroup from '../Admin Components/Academics/CourseGroup.jsx'
 import AssignTeacher from '../Admin Components/Academics/AssignTeacher.jsx'
 import FeeType from '../Admin Components/Fee Management/FeeType.jsx'
@@ -116,6 +116,7 @@ import AssignExam from '../Admin Components/Exam Management/AssignExam.jsx'
 import ExamDetails from '../Admin Components/Exam Management/ExamDetails.jsx'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Chat from '../Chat/Chat.jsx'
 
 const AdminDashboard = () => {
   const { userId, Designation: designation, Islogin, Token: token } =
@@ -131,6 +132,7 @@ const AdminDashboard = () => {
           <div className="content-wrapper">
             <Routes>
               <Route path="/" element={<PrivteRoute />}>
+                <Route path='/chat' element={<Chat/>}/>
                 <Route path='/testfile' element={<ImageUploadComponent />} />
                 <Route path='/videotestfile' element={<VideoUploaderComponent />} />
                 <Route path='/fileuploadertest' element={<FileUploader />} />
@@ -151,11 +153,11 @@ const AdminDashboard = () => {
                 <Route path="/studentInfo" element={<StudentInfo />}></Route>
                 <Route path="/manage-accounts" element={<ManageParents />}></Route>
                 <Route path="/editparents" element={<EditParents />}></Route>
-                <Route path='/student-id-card' element={<StudentIdCard />}></Route>
-                <Route path='/staff-id-card' element={<StaffIdCard />}></Route>
-                <Route path='/id-card-stu' element={<IdCard />}></Route>
-                <Route path='/id-card-staff' element={<StaffIdCard />}></Route>
-                <Route path='/id-card-print' element={<IdCardPrint />}></Route>
+                {/* <Route path='/student-id-card' element={<StudentIdCard />}></Route> */}
+                {/* <Route path='/staff-id-card' element={<StaffIdCard />}></Route> */}
+                {/* <Route path='/id-card-stu' element={<IdCard />}></Route> */}
+                {/* <Route path='/id-card-staff' element={<StaffIdCard />}></Route> */}
+                {/* <Route path='/id-card-print' element={<IdCardPrint />}></Route> */}
                 <Route path='/feepayment' element={<Fee />}></Route>
                 <Route path='/Check' element={<FeeManage />}></Route>
                 <Route path='/manage-attendance' element={<ManageAttendance />}></Route>
@@ -225,15 +227,9 @@ const AdminDashboard = () => {
                 {/* <Route path='/leave' element={<Leave/>} /> */}
                 {/* <Route path='/admin-leave' element={<Leaveinstitute/>} /> */}
                 {/* <Route path='/Notification-Board' element={<NotificationBoard/>} /> */}
-                <Route path='/NCERT-class' element={<NCERTclass/>} />
-                <Route path='/NCERT-subject' element={<NCERTsubject/>} />
                 <Route path='/leavemanagement' element={<LeaveManagement/>} />
                 <Route path='/notice-board' element={<NoticeBoard/>} />
-                <Route path='/NCRT-classes' element={<ClassList/>} />
-                <Route path='/NCRT-subject' element={<Subjects/>} />
-                <Route path='/NCRT-chapters' element={<Chapters/>} />
-                <Route path='/NCRT-class' element={<Class/>} />
-                <Route path='/NCRT-class' element={<Book/>} />
+                <Route path='/NCERT-class' element={<Book/>} />
                 {/* <Route path='/NCRT-subject' element={<Subjects/>} />
                 <Route path='/NCRT-chapters' element={<Chapters/>} /> */}
               </Route>
